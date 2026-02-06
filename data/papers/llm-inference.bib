@@ -1,0 +1,343 @@
+% LLM Inference Performance Modeling Papers
+% Focus: Serving systems, attention optimization, KV cache, scheduling, speculative decoding
+% Compiled for ML Performance Models Survey
+
+% === Foundational Systems ===
+
+@inproceedings{vllm2023,
+  author    = {Kwon, Woosuk and Li, Zhuohan and Zhuang, Siyuan and Sheng, Ying and Zheng, Lianmin and Yu, Cody Hao and Gonzalez, Joseph E. and Zhang, Hao and Stoica, Ion},
+  title     = {Efficient Memory Management for Large Language Model Serving with PagedAttention},
+  booktitle = {SOSP},
+  year      = {2023},
+  note      = {vLLM. PagedAttention for KV cache. 2-4x throughput vs FasterTransformer/Orca.}
+}
+
+@inproceedings{orca2022,
+  author    = {Yu, Gyeong-In and Jeong, Joo Seong and Kim, Geon-Woo and Kim, Soojeong and Chun, Byung-Gon},
+  title     = {Orca: A Distributed Serving System for Transformer-Based Generative Models},
+  booktitle = {OSDI},
+  year      = {2022},
+  note      = {Pioneered continuous batching (iteration-level scheduling). Foundation for modern LLM serving.}
+}
+
+% === OSDI/SOSP 2024-2025 ===
+
+@inproceedings{llumnix2024,
+  author    = {Sun, Biao and others},
+  title     = {Llumnix: Dynamic Scheduling for Large Language Model Serving},
+  booktitle = {OSDI},
+  year      = {2024},
+  note      = {Live migration of requests across instances. 10x tail latency improvement, 36\% cost savings.}
+}
+
+@inproceedings{distserve2024,
+  author    = {Zhong, Yinmin and Liu, Shengyu and Chen, Junda and Hu, Jianxi and Zhu, Yibo and Liu, Xuanzhe and Jin, Xin and Zhang, Hao},
+  title     = {DistServe: Disaggregating Prefill and Decoding for Goodput-optimized Large Language Model Serving},
+  booktitle = {OSDI},
+  year      = {2024},
+  note      = {Disaggregates prefill/decode to different GPUs. 7.4x more requests or 12.6x tighter SLO.}
+}
+
+@inproceedings{sarathi-serve2024,
+  author    = {Agrawal, Amey and Kedia, Nitin and Panwar, Ashish and Mohan, Jayashree and Kwatra, Nipun and Gulavani, Bhargav S. and Tumanov, Alexey and Ramjee, Ramachandran},
+  title     = {Taming Throughput-Latency Tradeoff in LLM Inference with Sarathi-Serve},
+  booktitle = {OSDI},
+  year      = {2024},
+  note      = {Chunked prefills + stall-free batching. 1.25x throughput improvement over baselines.}
+}
+
+@inproceedings{parrot2024,
+  author    = {Lin, Chaofan and others},
+  title     = {Parrot: Efficient Serving of LLM-based Applications with Semantic Variable},
+  booktitle = {OSDI},
+  year      = {2024},
+  note      = {Semantic variables for LLM application serving optimization.}
+}
+
+@inproceedings{jenga2025,
+  author    = {Various},
+  title     = {Jenga: Effective Memory Management for Serving LLM with Heterogeneity},
+  booktitle = {SOSP},
+  year      = {2025},
+  note      = {Optimization on PagedAttention for heterogeneous memory systems.}
+}
+
+% === MLSys 2024-2025 ===
+
+@inproceedings{flashinfer2025,
+  author    = {Ye, Zihao and others},
+  title     = {FlashInfer: Efficient and Customizable Attention Engine for LLM Inference Serving},
+  booktitle = {MLSys},
+  year      = {2025},
+  note      = {29-69\% ITL reduction vs compiler backends. 28-30\% latency reduction for long-context.}
+}
+
+@inproceedings{vidur2024,
+  author    = {Agrawal, Amey and Kedia, Nitin and others},
+  title     = {VIDUR: A Large-Scale Simulation Framework for LLM Inference},
+  booktitle = {MLSys},
+  year      = {2024},
+  note      = {Discrete-event simulation for LLM serving. <5\% prediction error. Open-source.}
+}
+
+@inproceedings{kv-compress-mlsys2025,
+  author    = {Various},
+  title     = {Key-Value Cache Compression Techniques for Large Language Model Serving},
+  booktitle = {MLSys},
+  year      = {2025},
+  note      = {Survey/analysis of KV cache compression methods.}
+}
+
+% === Attention Optimization ===
+
+@article{flashattention2022,
+  author    = {Dao, Tri and Fu, Dan Y. and Ermon, Stefano and Rudra, Atri and R{\'e}, Christopher},
+  title     = {FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness},
+  journal   = {NeurIPS},
+  year      = {2022},
+  note      = {IO-aware attention. Memory linear in sequence length. Foundation for efficient LLM inference.}
+}
+
+@inproceedings{flashattention2-2024,
+  author    = {Dao, Tri},
+  title     = {FlashAttention-2: Faster Attention with Better Parallelism and Work Partitioning},
+  booktitle = {ICLR},
+  year      = {2024},
+  note      = {2x speedup over FlashAttention. 50-73\% theoretical max FLOPs on A100.}
+}
+
+@article{flashattention3-2024,
+  author    = {Shah, Jay and others},
+  title     = {FlashAttention-3: Fast and Accurate Attention with Asynchrony and Low-precision},
+  journal   = {arXiv:2407.08608},
+  year      = {2024},
+  note      = {1.5-2x speedup on H100. 75-85\% utilization. FP8 support reaching 1.3 PFLOPs/s.}
+}
+
+% === KV Cache Optimization ===
+
+@inproceedings{oaken2025,
+  author    = {Park, Jongse and others},
+  title     = {Oaken: Fast and Efficient LLM Serving with Online-Offline Hybrid KV Cache Quantization},
+  booktitle = {ISCA},
+  year      = {2025},
+  note      = {Online-offline hybrid quantization for KV cache. Data-agnostic outlier thresholds.}
+}
+
+@inproceedings{alisa2024,
+  author    = {Various},
+  title     = {ALISA: Accelerating Large Language Model Inference via Sparsity-Aware KV Caching},
+  booktitle = {ISCA},
+  year      = {2024},
+  note      = {Sparsity-aware KV cache management. Layer-specific scheduling.}
+}
+
+@article{morphkv2025,
+  author    = {Various},
+  title     = {MorphKV: Adaptive KV Cache Management via Attention Pattern-Based Token Selection},
+  journal   = {arXiv},
+  year      = {2025},
+  note      = {Fixed-size KV cache via attention patterns. >50\% memory savings.}
+}
+
+@article{mirage2025,
+  author    = {Various},
+  title     = {MIRAGE: KV Cache Optimization through Parameter Remapping for Multi-tenant LLM Serving},
+  journal   = {arXiv:2507.11507},
+  year      = {2025},
+  note      = {Dynamic per-layer KV cache size adjustment for multi-tenant serving.}
+}
+
+@inproceedings{kvpr2025,
+  author    = {Various},
+  title     = {KVPR: Efficient LLM Inference with I/O-Aware KV Cache Management},
+  booktitle = {ACL Findings},
+  year      = {2025},
+  note      = {I/O-aware KV cache management for efficient inference.}
+}
+
+@inproceedings{cxl-kv2024,
+  author    = {Tang, Yupeng and others},
+  title     = {Exploring CXL-based KV Cache Storage for LLM Serving},
+  booktitle = {NeurIPS ML for Systems Workshop},
+  year      = {2024},
+  note      = {CXL memory expansion for KV cache storage.}
+}
+
+% === Speculative Decoding ===
+
+@inproceedings{magicdec2025,
+  author    = {Various},
+  title     = {MagicDec: Breaking the Latency-Throughput Tradeoff for Long Context Generation with Speculative Decoding},
+  booktitle = {ICLR},
+  year      = {2025},
+  note      = {KV compression easier than model compression for high batch/long context. Bottleneck-aware drafting.}
+}
+
+@inproceedings{eagle3-2025,
+  author    = {Li, Yuhui and others},
+  title     = {EAGLE-3: Efficient Autoregressive Generation via Lightweight Embedding Aggregation},
+  booktitle = {NeurIPS},
+  year      = {2024},
+  note      = {Lightweight autoregressive prediction head. No separate draft model needed.}
+}
+
+@inproceedings{edd2025,
+  author    = {Various},
+  title     = {Faster Speculative Decoding via Effective Draft Decoder},
+  booktitle = {ACL},
+  year      = {2025},
+  note      = {LLM as encoder with hidden state as soft prompt for draft generation.}
+}
+
+@inproceedings{medusa2024,
+  author    = {Cai, Tianle and Li, Yuhong and Geng, Zhengyang and Peng, Hongwu and Lee, Jason D. and Chen, Danqi and Dao, Tri},
+  title     = {MEDUSA: Simple LLM Inference Acceleration Framework with Multiple Decoding Heads},
+  booktitle = {ICML},
+  year      = {2024},
+  note      = {Multiple parallel decoding heads. No separate draft model. 2.2-3.6x speedup.}
+}
+
+@article{multi-token-prediction2024,
+  author    = {Various},
+  title     = {Better and Faster Large Language Models via Multi-token Prediction},
+  journal   = {arXiv:2404.19737},
+  year      = {2024},
+  note      = {Training with multi-token prediction objective for faster inference.}
+}
+
+% === Latency Prediction & Cost Models ===
+
+@inproceedings{roofline-llm2024,
+  author    = {Imai, Saki and others},
+  title     = {Predicting LLM Inference Latency: A Roofline-Driven ML Method},
+  booktitle = {NeurIPS ML for Systems Workshop},
+  year      = {2024},
+  note      = {Roofline + ML for latency prediction. 17 point R2 increase, 87\% MSE reduction.}
+}
+
+@inproceedings{sola2024,
+  author    = {Various},
+  title     = {SOLA: Optimizing SLO Attainment for Large Language Model Serving},
+  booktitle = {Tsinghua Technical Report},
+  year      = {2024},
+  note      = {Fine-grained scheduling for SLO optimization. Iteration-level strategy changes.}
+}
+
+@article{score2025,
+  author    = {Various},
+  title     = {SCORE: Cost- and Latency-Constrained Routing for LLMs},
+  journal   = {Harvard Technical Report},
+  year      = {2025},
+  note      = {Routes prompts between models to meet cost and latency constraints.}
+}
+
+@mastersthesis{reallm2025,
+  author    = {Peng, Various},
+  title     = {ReaLLM: A Trace-Driven Framework for Rapid LLM Performance Prediction},
+  school    = {ASAP},
+  year      = {2025},
+  note      = {Trace-driven kernel-level simulation for accurate latency prediction.}
+}
+
+@mastersthesis{llm-latency-sim2025,
+  author    = {Wang, Sarah Y.},
+  title     = {Simulating LLM Runtime Latency},
+  school    = {MIT},
+  year      = {2025},
+  note      = {Analytical and simulation approaches for LLM latency prediction.}
+}
+
+% === Distributed Inference ===
+
+@inproceedings{spotserve2024,
+  author    = {Various},
+  title     = {SpotServe: Serving Generative Large Language Models on Preemptible Instances},
+  booktitle = {ASPLOS},
+  year      = {2024},
+  note      = {LLM serving on preemptible/spot instances. Handles preemption gracefully.}
+}
+
+@inproceedings{superserve2025,
+  author    = {Various},
+  title     = {SuperServe: Fine-Grained Inference Serving for Unpredictable Workloads},
+  booktitle = {NSDI},
+  year      = {2025},
+  note      = {Fine-grained scheduling for variable LLM workloads.}
+}
+
+@article{nonuniform-tp2025,
+  author    = {Various},
+  title     = {Nonuniform-Tensor-Parallelism: Mitigating GPU Heterogeneity in Distributed LLM Inference},
+  journal   = {CMU PDL Technical Report},
+  year      = {2025},
+  note      = {Handles GPU heterogeneity in distributed inference.}
+}
+
+@article{llm-comm-characterization2025,
+  author    = {Various},
+  title     = {Characterizing Communication Patterns in Distributed Large Language Model Inference},
+  journal   = {arXiv:2507.14392},
+  year      = {2025},
+  note      = {Analytical models for communication in distributed LLM serving.}
+}
+
+@inproceedings{prism2025,
+  author    = {Various},
+  title     = {PRISM: Probabilistic Runtime Insights and Scalable Performance Modeling for Distributed Training},
+  booktitle = {arXiv},
+  year      = {2025},
+  note      = {Probabilistic performance modeling for large-scale distributed training.}
+}
+
+% === Serving Frameworks & Benchmarks ===
+
+@article{llm-inference-bench2024,
+  author    = {Various},
+  title     = {LLM-Inference-Bench: Inference Benchmarking of Large Language Models on AI Accelerators},
+  journal   = {arXiv:2411.00136},
+  year      = {2024},
+  note      = {Comprehensive benchmark across accelerators (NVIDIA, AMD, Intel, custom).}
+}
+
+@article{llm-scheduling-survey2025,
+  author    = {Various},
+  title     = {LLM Inference Scheduling: A Survey of Techniques, Frameworks, and Trade-offs},
+  journal   = {TechRxiv},
+  year      = {2025},
+  note      = {Comprehensive survey of scheduling techniques for LLM inference.}
+}
+
+@inproceedings{flexgen2023,
+  author    = {Sheng, Ying and Zheng, Lianmin and Yuan, Binhang and Li, Zhuohan and Ryabinin, Max and Chen, Bei and Liang, Percy and R{\'e}, Christopher and Stoica, Ion and Zhang, Ce},
+  title     = {FlexGen: High-Throughput Generative Inference of Large Language Models with a Single GPU},
+  booktitle = {ICML},
+  year      = {2023},
+  note      = {LP-based offloading for single-GPU LLM inference. Throughput-optimized.}
+}
+
+@inproceedings{flexflow-serve2024,
+  author    = {CMU FLAME},
+  title     = {FlexFlow Serve: Low-Latency, High-Performance LLM Serving},
+  booktitle = {CMU Technical Report},
+  year      = {2024},
+  note      = {1.3-2x single-node, 1.4-2.4x multi-node speedup over existing systems.}
+}
+
+@inproceedings{latency-aware-atc2025,
+  author    = {Tian, Various},
+  title     = {Customizing LLMs for Efficient Latency-Aware Inference at Scale},
+  booktitle = {ATC},
+  year      = {2025},
+  note      = {Latency-aware LLM customization for production deployment.}
+}
+
+% === Hardware-Specific Optimization ===
+
+@article{hermes2025,
+  author    = {Suvinay and others},
+  title     = {Understanding and Optimizing Multi-Stage AI Inference Pipelines},
+  journal   = {MIT CSAIL},
+  year      = {2025},
+  note      = {Multi-stage pipeline optimization for AI inference.}
+}
