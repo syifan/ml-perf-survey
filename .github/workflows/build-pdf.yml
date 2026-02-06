@@ -1,0 +1,32 @@
+name: Build PDF
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'paper/**'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Compile LaTeX document
+        uses: xu-cheng/latex-action@v3
+        with:
+          root_file: main.tex
+          working_directory: paper
+
+      - name: Move PDF to root
+        run: mv paper/main.pdf paper.pdf
+
+      - name: Commit PDF
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add paper.pdf
+          git diff --staged --quiet || git commit -m "[CI] Update paper.pdf"
+          git push
