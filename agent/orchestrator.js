@@ -176,15 +176,15 @@ async function runCycle() {
     cycleCount++;
     log(`===== CYCLE ${cycleCount} (${workers.length} workers) =====`);
     
-    // Athena (strategist) at cycle 1, 11, 21...
-    if (cycleCount % (config.athenaCycleInterval || 10) === 1) {
+    // Athena (strategist) - runs on cycle 1, 1+interval, 1+2*interval, etc.
+    if ((cycleCount - 1) % (config.athenaCycleInterval || 10) === 0) {
       await runAgent('athena', config, true);
       saveState();
       if (pendingReload) return config;
     }
     
-    // Apollo (HR) at cycle 1, 11, 21...
-    if (cycleCount % (config.apolloCycleInterval || 10) === 1) {
+    // Apollo (HR) - runs on cycle 1, 1+interval, 1+2*interval, etc.
+    if ((cycleCount - 1) % (config.apolloCycleInterval || 10) === 0) {
       await runAgent('apollo', config, true);
       saveState();
       if (pendingReload) return config;
