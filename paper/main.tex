@@ -266,22 +266,202 @@ This diversity of targets, workloads, and metrics motivates our comprehensive ta
 \section{Taxonomy}
 \label{sec:taxonomy}
 
-\todo{Present the classification framework for organizing the surveyed papers.}
+We organize the surveyed literature along three primary dimensions: the hardware target being modeled, the machine learning techniques employed, and the input representations used.
+Figure~\ref{fig:taxonomy-overview} illustrates how these dimensions intersect to characterize different performance modeling approaches.
+This taxonomy extends existing classifications~\cite{timeloop2019,maestro2019} by incorporating the emerging diversity of ML-based methods and their distinctive design choices.
+
+Our classification scheme serves two purposes.
+First, it provides a systematic framework for understanding the design space of ML-based performance models---researchers can identify which combinations of targets, techniques, and representations have been explored versus those that remain open.
+Second, it enables practitioners to select appropriate methods for their use cases by matching problem characteristics (target hardware, available data, accuracy requirements) to model capabilities.
+
+\begin{figure}[t]
+\centering
+\small
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Dimension} & \textbf{Categories} \\
+\hline
+\multirow{5}{*}{Target Hardware} & CPU \\
+& GPU \\
+& DNN Accelerators (TPU, NPU) \\
+& Edge/Mobile Devices \\
+& Distributed Systems \\
+\hline
+\multirow{4}{*}{ML Technique} & Classical ML (RF, XGBoost) \\
+& Deep Learning (MLP, RNN) \\
+& Graph Neural Networks \\
+& Hybrid Analytical+ML \\
+\hline
+\multirow{4}{*}{Input Representation} & Static Features \\
+& Hardware Counters \\
+& Graph Representations \\
+& Learned Embeddings \\
+\hline
+\end{tabular}
+\caption{Overview of our three-dimensional taxonomy for organizing ML-based performance modeling approaches.}
+\label{fig:taxonomy-overview}
+\end{figure}
 
 \subsection{By Modeling Target}
 \label{subsec:by-target}
 
-\todo{CPU, GPU, accelerators, memory systems, interconnects, full system.}
+The choice of hardware target fundamentally shapes model design, as different platforms exhibit distinct performance characteristics and modeling challenges.
+
+\subsubsection{CPU Performance Modeling}
+
+CPUs present complex modeling challenges due to deep out-of-order pipelines, sophisticated cache hierarchies, and branch prediction.
+ML models for CPU performance must capture instruction-level parallelism, cache behavior, and memory access patterns.
+Traditional approaches relied on microbenchmark-based linear regression~\cite{binkert2011gem5}, while recent work employs graph neural networks to model basic block throughput~\cite{granite2022}.
+CPU modeling remains challenging due to the diversity of microarchitectures and the difficulty of capturing dynamic effects like branch misprediction and cache contention.
+
+\subsubsection{GPU Performance Modeling}
+
+GPUs dominate modern ML training and inference, making accurate GPU performance prediction critical.
+GPU modeling must account for SIMT execution, warp scheduling, memory coalescing, and memory bandwidth limitations.
+Early approaches used analytical roofline models~\cite{williams2009roofline}, but these struggle with the complex memory hierarchies and occupancy effects of modern GPUs.
+
+ML-based GPU models have achieved remarkable accuracy.
+NeuSight~\cite{neusight2025} introduces tile-based prediction that mirrors CUDA's execution model, achieving 2.3\% error on GPT-3 inference across H100, A100, and V100 GPUs.
+Habitat~\cite{habitat2021} pioneered runtime-based cross-GPU prediction using wave scaling analysis.
+These approaches demonstrate that learned models can capture GPU performance characteristics that elude analytical treatment.
+
+\subsubsection{DNN Accelerator Modeling}
+
+Custom DNN accelerators---including TPUs, NPUs, and systolic array designs---employ specialized dataflows optimized for matrix operations.
+Modeling these devices requires understanding the interaction between dataflow, memory hierarchy, and tensor tiling.
+
+Analytical frameworks like Timeloop~\cite{timeloop2019} and MAESTRO~\cite{maestro2019} provide systematic approaches for accelerator design space exploration.
+Timeloop models data movement and compute utilization for any valid mapping of operations to hardware, achieving 5--10\% accuracy versus RTL simulation at 2000$\times$ speedup.
+MAESTRO offers a data-centric perspective using intuitive dataflow directives.
+Sparseloop~\cite{sparseloop2022} extends these frameworks to sparse tensor operations, critical for efficient transformer inference.
+
+ML-based approaches complement analytical models by learning residual corrections or capturing effects not modeled analytically.
+ArchGym~\cite{archgym2023} demonstrates that ML surrogate models can achieve 0.61\% RMSE while providing 2000$\times$ speedup over simulation, enabling rapid design space exploration for accelerator development.
+
+\subsubsection{Edge and Mobile Device Modeling}
+
+Edge devices impose strict power, memory, and latency constraints, making accurate prediction essential for deploying ML models on mobile phones, IoT devices, and embedded systems.
+The diversity of edge hardware---spanning mobile CPUs, mobile GPUs, NPUs, and DSPs---creates significant challenges for cross-platform prediction.
+
+nn-Meter~\cite{nnmeter2021} addresses this challenge through kernel-level prediction with adaptive sampling, achieving 99\% accuracy across mobile CPUs, GPUs, and Intel VPUs.
+LitePred~\cite{litepred2024} extends this work with transfer learning, achieving 99.3\% accuracy across 85 edge platforms with less than one hour of adaptation per new device.
+These results demonstrate that ML models can effectively generalize across the heterogeneous edge hardware landscape.
+
+\subsubsection{Distributed System Modeling}
+
+Multi-GPU and multi-node systems introduce communication overhead, synchronization barriers, and parallelism strategy choices that fundamentally change performance characteristics.
+Distributed training performance depends on the interplay between compute, memory bandwidth, and network communication.
+
+ASTRA-sim~\cite{astrasim2023} provides end-to-end distributed training simulation, modeling collective communication algorithms, network topology, and compute-communication overlap.
+VIDUR~\cite{vidur2024} focuses specifically on LLM inference serving, capturing the unique characteristics of prefill and decode phases, KV cache management, and request scheduling.
+These simulation frameworks achieve 5--15\% accuracy versus real clusters while enabling exploration of parallelization strategies at scale.
 
 \subsection{By ML Technique}
 \label{subsec:by-technique}
 
-\todo{Classical ML (linear regression, random forests, etc.), deep learning (MLP, CNN, RNN), graph neural networks, transformers.}
+The choice of ML technique reflects trade-offs between accuracy, data efficiency, interpretability, and generalization capability.
+
+\subsubsection{Classical Machine Learning}
+
+Tree-based ensembles---random forests and gradient boosted trees (XGBoost, LightGBM)---remain highly effective for performance modeling, particularly in low-data regimes.
+These methods handle non-linear relationships through recursive partitioning, provide feature importance rankings for interpretability, and require minimal hyperparameter tuning.
+
+Classical ML models dominate when training data is limited ($<$10K samples) or when features are well-engineered.
+nn-Meter~\cite{nnmeter2021} demonstrates that random forests achieve competitive accuracy with careful kernel-level feature engineering.
+The ALCOP framework combines XGBoost with analytical pre-training, using analytical model predictions as features to accelerate autotuning convergence.
+
+\subsubsection{Deep Learning}
+
+Multi-layer perceptrons (MLPs) learn hierarchical feature representations without manual feature engineering.
+MLPs are widely used as the prediction head in more complex architectures and as standalone models when sufficient training data is available.
+NeuSight~\cite{neusight2025} uses MLPs to predict tile-level GPU utilization, learning complex interactions between tile parameters and hardware characteristics.
+
+Recurrent neural networks (RNNs and LSTMs) process sequential inputs, making them suitable for modeling operator sequences in neural network execution.
+However, sequential processing limits parallelization, and attention-based architectures increasingly replace RNNs for sequence modeling tasks.
+
+\subsubsection{Graph Neural Networks}
+
+Graph neural networks (GNNs) have emerged as particularly effective for performance modeling because computational graphs have natural graph structure.
+Nodes represent operators with features (type, parameters, shapes), edges represent data dependencies with features (tensor dimensions, datatypes).
+GNNs propagate performance-relevant information along these dependencies through message passing.
+
+GRANITE~\cite{granite2022} applies GNNs to basic block throughput estimation, learning to predict CPU performance from instruction dependency graphs.
+For DNN workloads, GNN-based models capture inter-operator interactions that flat feature representations miss.
+The graph structure also enables natural handling of variable-size networks without padding or truncation.
+
+\subsubsection{Hybrid Analytical+ML Models}
+
+Hybrid approaches combine physics-based analytical models with learned components, achieving both interpretability and high accuracy.
+The analytical component provides a strong prior based on hardware characteristics, while the ML component learns residual corrections and complex interactions.
+
+This design philosophy has produced state-of-the-art results.
+Analytical pre-training initializes ML models with reasonable predictions, reducing data requirements and improving convergence.
+Physics-informed architectures incorporate analytical insights into model structure---NeuSight's tile-based prediction mirrors CUDA's execution model, providing inductive bias that improves generalization.
+Residual learning trains ML models to predict the error of analytical models, combining analytical interpretability with ML's ability to capture unmodeled effects.
+
+The latency predictor study~\cite{latencypredictorsnas2024} demonstrates that hybrid approaches with transfer learning achieve 22.5\% average improvement over baselines, with up to 87.6\% improvement on challenging cross-platform prediction tasks.
 
 \subsection{By Input Representation}
 \label{subsec:by-input}
 
-\todo{Hardware counters, microarchitectural features, program features, workload embeddings.}
+Input representation determines what information the model can access and how effectively it can learn performance-relevant patterns.
+
+\subsubsection{Static Features}
+
+Static features derive from workload and hardware specifications without runtime measurement.
+For DNN workloads, these include layer parameters (kernel size, channels, stride, batch size), tensor dimensions, and operator types.
+Hardware specifications include core counts, memory sizes, bandwidth, and clock frequencies.
+
+Static features enable prediction without profiling, supporting use cases like neural architecture search where thousands of candidate networks must be evaluated.
+Feature engineering plays a critical role: effective representations capture computation-to-communication ratios, memory footprint estimates, and parallelization potential.
+
+\subsubsection{Hardware Counters}
+
+Performance counters provide runtime measurements of hardware behavior: cache miss rates, memory bandwidth utilization, instruction throughput, and stall cycles.
+Counter-based models can capture dynamic effects invisible to static analysis, including contention, thermal throttling, and runtime scheduling decisions.
+
+The primary limitation is that counter-based models require hardware execution, limiting their applicability for design space exploration or new architecture evaluation.
+However, for optimizing existing deployments or debugging performance anomalies, counter-based models provide valuable insights that static approaches cannot match.
+
+\subsubsection{Graph Representations}
+
+Graph representations encode computational graphs with nodes representing operators and edges representing data dependencies.
+Node features capture operator characteristics (type, parameters), while edge features encode tensor properties (shape, datatype, memory format).
+
+Graph representations provide several advantages over flat feature vectors: they naturally handle variable-size networks, preserve structural information about operator interactions, and enable permutation-invariant predictions.
+GNNs operating on these representations can learn which subgraph patterns indicate performance bottlenecks.
+
+\subsubsection{Learned Embeddings}
+
+Learned embeddings compress high-dimensional or categorical information into dense vector representations.
+Hardware embeddings represent diverse devices as points in a learned feature space, enabling transfer learning across platforms.
+Operator embeddings capture semantic similarities between operator types that may share performance characteristics.
+
+HELP formulates hardware prediction as meta-learning, learning hardware embeddings that represent devices as black-box functions.
+With just 10 measurement samples on a new device, HELP achieves accurate predictions by positioning the device appropriately in the learned embedding space.
+This approach is particularly valuable for the fragmented edge hardware landscape, where collecting exhaustive training data for each device is impractical.
+
+Table~\ref{tab:taxonomy-summary} summarizes representative papers across our taxonomy dimensions, illustrating the diversity of approaches and their key characteristics.
+
+\begin{table*}[t]
+\centering
+\caption{Representative papers classified by our taxonomy dimensions. Accuracy reported as MAPE or correlation where available.}
+\label{tab:taxonomy-summary}
+\small
+\begin{tabular}{llllll}
+\toprule
+\textbf{Paper} & \textbf{Target} & \textbf{Technique} & \textbf{Input} & \textbf{Accuracy} & \textbf{Key Contribution} \\
+\midrule
+NeuSight~\cite{neusight2025} & GPU & Hybrid & Static & 2.3\% & Tile-based prediction \\
+nn-Meter~\cite{nnmeter2021} & Edge & Classical ML & Static & $<$5\% & Kernel detection \\
+LitePred~\cite{litepred2024} & Edge & Transfer & Static & 0.7\% & 85-platform transfer \\
+GRANITE~\cite{granite2022} & CPU & GNN & Graph & 0.97 corr & Basic block modeling \\
+Timeloop~\cite{timeloop2019} & Accelerator & Analytical & Static & 5--10\% & Loop-nest DSE \\
+ASTRA-sim~\cite{astrasim2023} & Distributed & Simulation & Traces & 5--15\% & Collective modeling \\
+ArchGym~\cite{archgym2023} & Accelerator & Hybrid & Static & 0.61\% RMSE & ML-aided DSE \\
+\bottomrule
+\end{tabular}
+\end{table*}
 
 % ==============================================================================
 % SURVEY OF APPROACHES
