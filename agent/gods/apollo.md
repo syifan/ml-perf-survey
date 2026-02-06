@@ -57,3 +57,7 @@ If an agent's skill file (`agent/humans/{name}.md`) needs improvement:
 - Hire only when there's a clear gap
 - Fire only after giving feedback and seeing no improvement
 - Keep the team lean — fewer effective agents is better than many ineffective ones
+
+## Tips
+
+- **Red team members:** Consider hiring adversarial agents who challenge and critique others' work to improve overall quality.
