@@ -1,0 +1,220 @@
+% MICRO 2026 Survey Paper - ML Performance Models
+% Template based on IEEE conference format
+
+\documentclass[conference]{IEEEtran}
+
+% Packages
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{multirow}
+
+% Custom commands
+\newcommand{\todo}[1]{\textcolor{red}{[TODO: #1]}}
+
+\begin{document}
+
+\title{A Survey of Machine Learning Approaches for\\Computer Architecture Performance Modeling}
+
+\author{
+\IEEEauthorblockN{Authors TBD}
+\IEEEauthorblockA{Affiliations TBD}
+}
+
+\maketitle
+
+% ==============================================================================
+% ABSTRACT
+% ==============================================================================
+\begin{abstract}
+\todo{Write abstract summarizing the survey scope, methodology, key findings, and contributions. Target: 150-200 words.}
+\end{abstract}
+
+\begin{IEEEkeywords}
+machine learning, performance modeling, computer architecture, neural networks, survey
+\end{IEEEkeywords}
+
+% ==============================================================================
+% INTRODUCTION
+% ==============================================================================
+\section{Introduction}
+\label{sec:introduction}
+
+Performance modeling is fundamental to computer architecture research and development.
+Architects rely on accurate performance predictions to navigate vast design spaces, optimize hardware-software co-design, and make informed decisions about resource allocation.
+Traditional approaches---analytical models~\cite{williams2009roofline} and cycle-accurate simulators~\cite{binkert2011gem5}---have served the community well, but face growing challenges as workloads and hardware become increasingly complex.
+Analytical models often oversimplify system behavior, while simulators can require hours or days to evaluate a single design point, making exhaustive exploration impractical.
+
+The rise of deep learning workloads has intensified these challenges.
+Modern neural networks exhibit diverse computational patterns---from dense matrix operations in transformers to sparse irregular accesses in graph neural networks---that stress traditional modeling assumptions.
+Simultaneously, hardware diversity has exploded: GPUs, TPUs, custom accelerators, and multi-device distributed systems each present unique performance characteristics that resist unified analytical treatment.
+This complexity has motivated a new generation of \emph{machine learning-based} performance models that learn predictive functions directly from profiling data.
+
+ML-based performance modeling has emerged as a compelling alternative.
+Learned models can capture complex, non-linear relationships between workload characteristics and hardware behavior that elude closed-form analysis.
+Recent work demonstrates remarkable accuracy: NeuSight~\cite{neusight2025} achieves 2.3\% error predicting GPT-3 latency on H100 GPUs, while nn-Meter~\cite{nnmeter2021} reaches 99\% accuracy for edge device latency prediction.
+Beyond accuracy, these approaches offer practical benefits: models trained on one platform can transfer to new hardware with minimal adaptation~\cite{litepred2024}, and inference-time predictions complete in milliseconds rather than hours.
+
+This survey provides a comprehensive analysis of ML-based performance modeling techniques for computer architecture.
+We make the following contributions:
+\begin{itemize}
+    \item A \textbf{taxonomy} organizing approaches along eight dimensions: modeling technique, target hardware, workload types, prediction targets, accuracy metrics, input requirements, evaluation scope, and reproducibility.
+    \item A \textbf{systematic survey} of over 60 papers from architecture venues (MICRO, ISCA, HPCA, ASPLOS) and ML venues (MLSys, NeurIPS, ICML) published between 2016--2025.
+    \item A \textbf{comparative analysis} examining trade-offs between accuracy, training cost, generalization, and interpretability across approaches.
+    \item An identification of \textbf{open challenges} including data scarcity, cross-platform generalization, and integration with design automation flows.
+\end{itemize}
+
+The remainder of this paper is organized as follows.
+Section~\ref{sec:background} provides background on traditional performance modeling and relevant ML techniques.
+Section~\ref{sec:taxonomy} presents our classification taxonomy.
+Section~\ref{sec:survey} surveys approaches organized by target hardware platform.
+Section~\ref{sec:comparison} offers comparative analysis across key dimensions.
+Section~\ref{sec:challenges} discusses open challenges and future directions.
+Section~\ref{sec:conclusion} concludes.
+
+% ==============================================================================
+% BACKGROUND
+% ==============================================================================
+\section{Background}
+\label{sec:background}
+
+\subsection{Traditional Performance Modeling}
+\label{subsec:traditional-modeling}
+
+\todo{Overview of analytical models, simulation-based approaches, and their limitations.}
+
+\subsection{Machine Learning Fundamentals}
+\label{subsec:ml-fundamentals}
+
+\todo{Brief primer on ML techniques relevant to performance modeling: regression, neural networks, graph neural networks, transformers, etc.}
+
+\subsection{Problem Formulation}
+\label{subsec:problem-formulation}
+
+\todo{Define the performance modeling problem formally. Inputs, outputs, common metrics (IPC, latency, throughput, power).}
+
+% ==============================================================================
+% TAXONOMY
+% ==============================================================================
+\section{Taxonomy}
+\label{sec:taxonomy}
+
+\todo{Present the classification framework for organizing the surveyed papers.}
+
+\subsection{By Modeling Target}
+\label{subsec:by-target}
+
+\todo{CPU, GPU, accelerators, memory systems, interconnects, full system.}
+
+\subsection{By ML Technique}
+\label{subsec:by-technique}
+
+\todo{Classical ML (linear regression, random forests, etc.), deep learning (MLP, CNN, RNN), graph neural networks, transformers.}
+
+\subsection{By Input Representation}
+\label{subsec:by-input}
+
+\todo{Hardware counters, microarchitectural features, program features, workload embeddings.}
+
+% ==============================================================================
+% SURVEY OF APPROACHES
+% ==============================================================================
+\section{Survey of Approaches}
+\label{sec:survey}
+
+\subsection{CPU Performance Modeling}
+\label{subsec:cpu-modeling}
+
+\todo{Survey papers on ML-based CPU performance prediction.}
+
+\subsection{GPU Performance Modeling}
+\label{subsec:gpu-modeling}
+
+\todo{Survey papers on ML-based GPU performance prediction.}
+
+\subsection{Accelerator Performance Modeling}
+\label{subsec:accelerator-modeling}
+
+\todo{Survey papers on ML models for DNN accelerators, FPGAs, etc.}
+
+\subsection{Memory System Modeling}
+\label{subsec:memory-modeling}
+
+\todo{Survey papers on cache, DRAM, and memory hierarchy modeling.}
+
+\subsection{Cross-Platform and Transfer Learning}
+\label{subsec:transfer-learning}
+
+\todo{Survey approaches that generalize across hardware configurations.}
+
+% ==============================================================================
+% COMPARISON AND ANALYSIS
+% ==============================================================================
+\section{Comparison and Analysis}
+\label{sec:comparison}
+
+\subsection{Accuracy vs. Training Cost}
+\label{subsec:accuracy-cost}
+
+\todo{Compare prediction accuracy against data collection and training overhead.}
+
+\subsection{Generalization Capabilities}
+\label{subsec:generalization}
+
+\todo{Analyze how well models generalize to unseen workloads and configurations.}
+
+\subsection{Interpretability}
+\label{subsec:interpretability}
+
+\todo{Discuss model interpretability and insights gained from ML models.}
+
+\todo{Create comparison tables summarizing key papers across multiple dimensions.}
+
+% ==============================================================================
+% OPEN CHALLENGES
+% ==============================================================================
+\section{Open Challenges and Future Directions}
+\label{sec:challenges}
+
+\subsection{Data Availability and Quality}
+\label{subsec:data-challenges}
+
+\todo{Discuss challenges in collecting training data, benchmark diversity.}
+
+\subsection{Model Generalization}
+\label{subsec:generalization-challenges}
+
+\todo{Challenges in generalizing to new architectures and workloads.}
+
+\subsection{Integration with Design Flows}
+\label{subsec:integration-challenges}
+
+\todo{Challenges in integrating ML models into architecture exploration workflows.}
+
+\subsection{Emerging Opportunities}
+\label{subsec:opportunities}
+
+\todo{Foundation models for architecture, hardware-software co-design.}
+
+% ==============================================================================
+% CONCLUSION
+% ==============================================================================
+\section{Conclusion}
+\label{sec:conclusion}
+
+\todo{Summarize key findings and takeaways from the survey.}
+
+\todo{Reiterate the most promising directions for future research.}
+
+% ==============================================================================
+% REFERENCES
+% ==============================================================================
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}
