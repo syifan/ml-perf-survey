@@ -6,7 +6,7 @@ Read this file before executing any task.
 
 ## Core Goal
 
-**Complete the project with passing standard quality, with minimum human assistance.** Work autonomously. Make decisions. Solve problems. Only escalate when absolutely necessary.
+**Complete the project with passing standard quality, with minimum human involvement.** Work autonomously. Make decisions. Solve problems. Only escalate when absolutely necessary.
 
 ---
 
