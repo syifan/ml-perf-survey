@@ -6,8 +6,8 @@ agentTimeoutMs: 900000     # 15 minutes max per agent
 model: claude-opus-4-5
 trackerIssue: 1
 
-# God agents (run periodically, manage the system)
+# Manager agents (run periodically, manage the system)
 athenaCycleInterval: 1     # Strategist every cycle
-apolloCycleInterval: 10    # Advisor every 10 cycles
+apolloCycleInterval: 10    # HR every 10 cycles
 
-# Human agents are discovered from agent/humans/ folder
+# Worker agents are discovered from agent/workers/ folder

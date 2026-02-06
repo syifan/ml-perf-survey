@@ -6,7 +6,7 @@ import { Activity, Users, Sparkles, Settings, ScrollText, RefreshCw } from 'luci
 function App() {
   const [state, setState] = useState({ cycleCount: 0, currentAgentIndex: 0 })
   const [logs, setLogs] = useState([])
-  const [agents, setAgents] = useState({ humans: [], gods: [] })
+  const [agents, setAgents] = useState({ workers: [], managers: [] })
   const [config, setConfig] = useState({ config: null, raw: '' })
   const [lastUpdate, setLastUpdate] = useState(null)
   const [error, setError] = useState(null)
@@ -90,11 +90,11 @@ function App() {
                     {state.currentAgentIndex}
                   </span>
                 </div>
-                {agents.humans.length > 0 && (
+                {agents.workers.length > 0 && (
                   <div className="pt-2 border-t">
                     <span className="text-sm text-neutral-500">Current Agent: </span>
                     <Badge variant="secondary">
-                      {agents.humans[state.currentAgentIndex]?.name || 'N/A'}
+                      {agents.workers[state.currentAgentIndex]?.name || 'N/A'}
                     </Badge>
                   </div>
                 )}
@@ -102,17 +102,17 @@ function App() {
             </CardContent>
           </Card>
 
-          {/* Human Agents Card */}
+          {/* Worker Agents Card */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Users className="w-4 h-4" />
-                Human Agents ({agents.humans.length})
+                Workers ({agents.workers.length})
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {agents.humans.map((agent, idx) => (
+                {agents.workers.map((agent, idx) => (
                   <div
                     key={agent.name}
                     className={`flex items-center justify-between p-2 rounded ${
@@ -134,24 +134,24 @@ function App() {
                     )}
                   </div>
                 ))}
-                {agents.humans.length === 0 && (
-                  <p className="text-sm text-neutral-400">No human agents found</p>
+                {agents.workers.length === 0 && (
+                  <p className="text-sm text-neutral-400">No workers found</p>
                 )}
               </div>
             </CardContent>
           </Card>
 
-          {/* God Agents Card */}
+          {/* Manager Agents Card */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Sparkles className="w-4 h-4" />
-                God Agents ({agents.gods.length})
+                Managers ({agents.managers.length})
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {agents.gods.map((agent) => (
+                {agents.managers.map((agent) => (
                   <div
                     key={agent.name}
                     className="flex items-center justify-between p-2 rounded bg-neutral-50"
@@ -166,8 +166,8 @@ function App() {
                     </div>
                   </div>
                 ))}
-                {agents.gods.length === 0 && (
-                  <p className="text-sm text-neutral-400">No god agents found</p>
+                {agents.managers.length === 0 && (
+                  <p className="text-sm text-neutral-400">No managers found</p>
                 )}
               </div>
             </CardContent>

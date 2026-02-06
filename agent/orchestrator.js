@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
  * ML Performance Survey - Multi-Agent Orchestrator
- * God agents (Athena, Apollo) run periodically.
- * Human agents are discovered from agent/humans/ folder.
+ * Manager agents (Athena, Apollo, Hermes) run periodically.
+ * Worker agents are discovered from agent/workers/ folder.
  */
 
 import { spawn, execSync } from 'child_process';
@@ -13,8 +13,8 @@ import YAML from 'yaml';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_DIR = join(__dirname, '..');
-const GODS_PATH = join(__dirname, 'gods');
-const HUMANS_PATH = join(__dirname, 'humans');
+const MANAGERS_PATH = join(__dirname, 'managers');
+const WORKERS_PATH = join(__dirname, 'workers');
 const SKILLS_PATH = join(__dirname, 'skills');
 const CONFIG_PATH = join(__dirname, 'config.yaml');
 const ORCHESTRATOR_PATH = join(__dirname, 'orchestrator.js');
@@ -68,14 +68,14 @@ function loadConfig() {
   }
 }
 
-function discoverHumans() {
+function discoverWorkers() {
   try {
-    if (!existsSync(HUMANS_PATH)) return [];
-    return readdirSync(HUMANS_PATH)
+    if (!existsSync(WORKERS_PATH)) return [];
+    return readdirSync(WORKERS_PATH)
       .filter(f => f.endsWith('.md') && f !== 'everyone.md')
       .map(f => basename(f, '.md'));
   } catch (e) {
-    log(`Error discovering humans: ${e.message}`);
+    log(`Error discovering workers: ${e.message}`);
     return [];
   }
 }
@@ -106,12 +106,12 @@ function loadSkill(path) {
   }
 }
 
-async function runAgent(agent, config, isGod = false) {
-  log(`Running: ${agent}${isGod ? ' (god)' : ''}`);
+async function runAgent(agent, config, isManager = false) {
+  log(`Running: ${agent}${isManager ? ' (manager)' : ''}`);
   
   exec('git pull --rebase --quiet');
   
-  const skillPath = isGod ? join(GODS_PATH, `${agent}.md`) : join(HUMANS_PATH, `${agent}.md`);
+  const skillPath = isManager ? join(MANAGERS_PATH, `${agent}.md`) : join(WORKERS_PATH, `${agent}.md`);
   const everyoneSkill = loadSkill(join(__dirname, 'everyone.md'));
   const agentSkill = loadSkill(skillPath);
   
@@ -170,11 +170,11 @@ Execute your full cycle as described above. Work autonomously. Complete your tas
 
 async function runCycle() {
   const config = loadConfig();
-  const humans = discoverHumans();
+  const workers = discoverWorkers();
   
   if (currentAgentIndex === 0) {
     cycleCount++;
-    log(`===== CYCLE ${cycleCount} (${humans.length} humans) =====`);
+    log(`===== CYCLE ${cycleCount} (${workers.length} workers) =====`);
     
     // Athena (strategist) at cycle 1, 11, 21...
     if (cycleCount % (config.athenaCycleInterval || 10) === 1) {
@@ -183,7 +183,7 @@ async function runCycle() {
       if (pendingReload) return config;
     }
     
-    // Apollo (advisor) at cycle 1, 11, 21...
+    // Apollo (HR) at cycle 1, 11, 21...
     if (cycleCount % (config.apolloCycleInterval || 10) === 1) {
       await runAgent('apollo', config, true);
       saveState();
@@ -195,12 +195,12 @@ async function runCycle() {
     saveState();
     if (pendingReload) return config;
   } else {
-    log(`===== CYCLE ${cycleCount} (resuming ${currentAgentIndex}/${humans.length}) =====`);
+    log(`===== CYCLE ${cycleCount} (resuming ${currentAgentIndex}/${workers.length}) =====`);
   }
   
-  // Run human agents
-  while (currentAgentIndex < humans.length) {
-    const agent = humans[currentAgentIndex];
+  // Run worker agents
+  while (currentAgentIndex < workers.length) {
+    const agent = workers[currentAgentIndex];
     await runAgent(agent, config, false);
     currentAgentIndex++;
     saveState();

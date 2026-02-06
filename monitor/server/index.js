@@ -51,38 +51,38 @@ app.get('/api/logs', (req, res) => {
   }
 });
 
-// GET /api/agents - List human and god agents
+// GET /api/agents - List worker and manager agents
 app.get('/api/agents', (req, res) => {
   try {
-    const humansDir = path.join(AGENT_DIR, 'humans');
-    const godsDir = path.join(AGENT_DIR, 'gods');
+    const workersDir = path.join(AGENT_DIR, 'workers');
+    const managersDir = path.join(AGENT_DIR, 'managers');
     
-    const humans = [];
-    const gods = [];
+    const workers = [];
+    const managers = [];
     
-    // Read human agents
-    if (fs.existsSync(humansDir)) {
-      const humanFiles = fs.readdirSync(humansDir).filter(f => f.endsWith('.md'));
-      for (const file of humanFiles) {
+    // Read worker agents
+    if (fs.existsSync(workersDir)) {
+      const workerFiles = fs.readdirSync(workersDir).filter(f => f.endsWith('.md'));
+      for (const file of workerFiles) {
         const name = file.replace('.md', '');
-        const content = fs.readFileSync(path.join(humansDir, file), 'utf-8');
+        const content = fs.readFileSync(path.join(workersDir, file), 'utf-8');
         const firstLine = content.split('\n')[0].replace(/^#\s*/, '');
-        humans.push({ name, title: firstLine, file });
+        workers.push({ name, title: firstLine, file });
       }
     }
     
-    // Read god agents
-    if (fs.existsSync(godsDir)) {
-      const godFiles = fs.readdirSync(godsDir).filter(f => f.endsWith('.md'));
-      for (const file of godFiles) {
+    // Read manager agents
+    if (fs.existsSync(managersDir)) {
+      const managerFiles = fs.readdirSync(managersDir).filter(f => f.endsWith('.md'));
+      for (const file of managerFiles) {
         const name = file.replace('.md', '');
-        const content = fs.readFileSync(path.join(godsDir, file), 'utf-8');
+        const content = fs.readFileSync(path.join(managersDir, file), 'utf-8');
         const firstLine = content.split('\n')[0].replace(/^#\s*/, '');
-        gods.push({ name, title: firstLine, file });
+        managers.push({ name, title: firstLine, file });
       }
     }
     
-    res.json({ humans, gods });
+    res.json({ workers, managers });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
