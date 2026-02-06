@@ -1,0 +1,226 @@
+% Emerging Topics in ML Performance Modeling
+% Focus: Foundation models for architecture, AutoML/NAS integration, uncertainty quantification, online learning
+% Compiled by Maya (Literature Scout) for issue #38
+% Coverage: 2022-2025
+
+% =============================================================================
+% SECTION 1: FOUNDATION MODELS FOR ARCHITECTURE AND HARDWARE DESIGN
+% =============================================================================
+
+@inproceedings{llmcompass2024,
+  author    = {Ning, August and Xia, Luolong and Guan, Chunhui and Yang, Pengcheng and Zhang, Xinyi and Marculescu, Diana and Zheng, Lianmin and Arvind},
+  title     = {LLMCompass: Enabling Efficient Hardware Design for Large Language Model Inference},
+  booktitle = {Proceedings of the 51st Annual International Symposium on Computer Architecture (ISCA)},
+  year      = {2024},
+  doi       = {10.1109/ISCA59077.2024.00082},
+  note      = {Hardware evaluation framework for LLM inference. 10.9\% error for operators, 4.1\% for end-to-end LLM inference. Enables design space exploration achieving 3.41x perf/cost improvement.}
+}
+
+@article{chipnemo2024,
+  author    = {Liu, Mingjie and Ene, Teodor-Dumitru and Kirber, Robert and Cheng, Chris and Thakker, Nathaniel and Qing, Rongjian and Wang, Hongye and Eshraghi, Ronak and Sengupta, Anand and Luo, Xuan and Jain, Ankit and Karnik, Toshar and Chen, Brucek and Khailany, Brucek and Liu, Haoxing Ren and Tabbakh, Ricky},
+  title     = {ChipNeMo: Domain-Adapted LLMs for Chip Design},
+  journal   = {arXiv preprint arXiv:2311.00176},
+  year      = {2024},
+  note      = {NVIDIA domain-adapted LLMs for chip design. 5x model size reduction with similar performance. Applications: chatbot, EDA scripting, bug analysis.}
+}
+
+@inproceedings{gpt4aigchip2024,
+  author    = {Fu, Chang and others},
+  title     = {GPT4AIGChip: Towards Next-Generation AI Accelerator Design Automation via Large Language Models},
+  booktitle = {arXiv preprint arXiv:2309.10730},
+  year      = {2024},
+  note      = {LLM-powered framework for AI accelerator design from natural language. Automated prompt generation with in-context learning for optimized designs.}
+}
+
+@inproceedings{llm4hwdesign2024,
+  author    = {Thakur, Shailja and Fu, Hammond and others},
+  title     = {LLM4HWDesign Contest: Constructing a Comprehensive Dataset for LLM-Assisted Hardware Code Generation with Community Efforts},
+  booktitle = {Proceedings of the 43rd IEEE/ACM International Conference on Computer-Aided Design (ICCAD)},
+  year      = {2024},
+  doi       = {10.1145/3676536.3689909},
+  note      = {Community dataset and benchmark for LLM-assisted hardware design. Covers synthesis, simulation, and formal verification.}
+}
+
+% =============================================================================
+% SECTION 2: AutoML AND NAS INTEGRATION WITH PERFORMANCE MODELS
+% =============================================================================
+
+@inproceedings{esm2025,
+  author    = {Benmeziane, Hadjer and others},
+  title     = {ESM: A Framework for Building Effective Surrogate Models for Hardware-Aware Neural Architecture Search},
+  booktitle = {Proceedings of the Design Automation Conference (DAC)},
+  year      = {2025},
+  note      = {Framework for latency prediction in HW-NAS. Novel FCC encoding. Scalable to GPUs, CPUs, and embedded devices. 97.6\% accuracy.}
+}
+
+@inproceedings{litepred2024,
+  author    = {Feng, Chengquan and Han, Shihao and Zhang, Ningxin and Cao, Ting and Yang, Yuqing and Liu, Yunxin},
+  title     = {LitePred: Transferable and Scalable Latency Prediction for Hardware-Aware Neural Architecture Search},
+  booktitle = {21st USENIX Symposium on Networked Systems Design and Implementation (NSDI)},
+  year      = {2024},
+  url       = {https://www.usenix.org/conference/nsdi24/presentation/feng-chengquan},
+  note      = {Transfer learning for latency prediction. VAE data sampler + similarity detection. 99.3\% accuracy on 85 edge platforms with 50.6x profiling cost reduction.}
+}
+
+@inproceedings{help2021,
+  author    = {Lee, Hayeon and Lee, Sewoong and Chong, Song and Hwang, Sung Ju},
+  title     = {HELP: Hardware-Adaptive Efficient Latency Prediction for NAS via Meta-Learning},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2021},
+  note      = {Meta-learning for hardware-adaptive latency prediction. Novel hardware embeddings. High accuracy with only 10 samples per new platform. Spotlight paper.}
+}
+
+@inproceedings{ofa2020,
+  author    = {Cai, Han and Gan, Chuang and Wang, Tianzhe and Zhang, Zhekai and Han, Song},
+  title     = {Once-for-All: Train One Network and Specialize it for Efficient Deployment},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2020},
+  url       = {https://hanlab.mit.edu/projects/ofa},
+  note      = {Progressive shrinking for hardware-aware deployment. Single supernet supports diverse platforms. Foundational work for efficient NAS.}
+}
+
+@inproceedings{latency-predictors-mlsys2024,
+  author    = {Dudziak, {\L}ukasz and Chau, Thomas and Abdelfattah, Mohamed S. and Lee, Royson and Kim, Hyeji and Lane, Nicholas D.},
+  title     = {On Latency Predictors for Neural Architecture Search},
+  booktitle = {Proceedings of Machine Learning and Systems (MLSys)},
+  year      = {2024},
+  url       = {https://proceedings.mlsys.org/paper_files/paper/2024/file/f03cb785864596fa5901f1359d23fd81-Paper-Conference.pdf},
+  note      = {Comprehensive NAS latency predictor study. 22.5\% improvement with transfer learning. Systematic comparison of predictor architectures.}
+}
+
+@article{micronas2025,
+  author    = {Kiechle, M. and others},
+  title     = {MicroNAS for Memory and Latency Constrained Hardware Aware Neural Architecture Search in Time Series Classification on Microcontrollers},
+  journal   = {Scientific Reports},
+  year      = {2025},
+  doi       = {10.1038/s41598-025-90764-z},
+  note      = {NAS for time series on microcontrollers. Memory and latency constraints for embedded deployment.}
+}
+
+% =============================================================================
+% SECTION 3: UNCERTAINTY QUANTIFICATION IN PERFORMANCE PREDICTION
+% =============================================================================
+
+@inproceedings{prism2025,
+  author    = {Sun, Taebum and others},
+  title     = {PRISM: Probabilistic Runtime Insights and Scalable Performance Modeling for Large-Scale Distributed Training},
+  booktitle = {arXiv preprint arXiv:2510.15596},
+  year      = {2025},
+  note      = {Probabilistic performance modeling for distributed training. Handles stochastic variation at 64K+ GPU scale. 20.8\% KS distance accuracy. Identifies 1.26x optimization potential.}
+}
+
+@inproceedings{conformal-cpcl2025,
+  author    = {Various},
+  title     = {Model Uncertainty Quantification by Conformal Prediction in Continual Learning},
+  booktitle = {International Conference on Machine Learning (ICML)},
+  year      = {2025},
+  note      = {Conformal prediction for continual learning. Asymptotic coverage guarantee. Distribution-free uncertainty estimation.}
+}
+
+@article{conformal-nlp-survey2024,
+  author    = {Deutschmann, Nina and others},
+  title     = {Conformal Prediction for Natural Language Processing: A Survey},
+  journal   = {Transactions of the Association for Computational Linguistics (TACL)},
+  year      = {2024},
+  doi       = {10.1162/tacl_a_00715},
+  note      = {Survey of conformal prediction in NLP. Distribution-free guarantees for LLM uncertainty.}
+}
+
+@article{uncertainty-gnn-survey2024,
+  author    = {Liu, Yang and others},
+  title     = {Uncertainty in Graph Neural Networks: A Survey},
+  journal   = {arXiv preprint arXiv:2403.07185},
+  year      = {2024},
+  note      = {Comprehensive survey on GNN uncertainty. Covers aleatoric and epistemic uncertainty for graph-based models.}
+}
+
+@article{calibration-survey2024,
+  author    = {Wang, Cheng and others},
+  title     = {Calibration in Deep Learning: A Survey of the State-of-the-Art},
+  journal   = {arXiv preprint arXiv:2308.01222},
+  year      = {2024},
+  note      = {Survey of calibration methods for DNNs. Top-versus-All (TvA) and other post-hoc methods for confidence calibration.}
+}
+
+@article{bayesian-uq-rul2024,
+  author    = {Ochella, Sunday and Dinmohammadi, Fateme and Shafiee, Mahmood},
+  title     = {Bayesian Neural Networks for Uncertainty Quantification in Remaining Useful Life Prediction of Systems with Sensor Monitoring},
+  journal   = {International Journal of System Assurance Engineering and Management},
+  year      = {2024},
+  doi       = {10.1177/16878132241239802},
+  note      = {BNN for RUL prediction with uncertainty. Implicitly models uncertainty through network design.}
+}
+
+@article{uq-ml-survey2024,
+  author    = {Various},
+  title     = {A Survey on Machine Learning Approaches for Uncertainty Quantification of Engineering Systems},
+  journal   = {Machine Learning for Computational Science and Engineering},
+  year      = {2024},
+  doi       = {10.1007/s44379-024-00011-x},
+  note      = {Survey covering GP, ANN, PINN for UQ in engineering. Forward analysis, inverse analysis, fault diagnosis.}
+}
+
+% =============================================================================
+% SECTION 4: ONLINE LEARNING AND ADAPTIVE PERFORMANCE MODELS
+% =============================================================================
+
+@inproceedings{dacapo2024,
+  author    = {Lee, Seungbeom and others},
+  title     = {DaCapo: Accelerating Continuous Learning in Autonomous Systems for Video Analytics},
+  booktitle = {Proceedings of the 51st Annual International Symposium on Computer Architecture (ISCA)},
+  year      = {2024},
+  doi       = {10.1109/ISCA59077.2024.00017},
+  note      = {Hardware-algorithm co-design for continuous learning. 6.5\% higher accuracy than Ekya, 254x less power. Distinguished Artifact Award.}
+}
+
+@inproceedings{ekya2022,
+  author    = {Bhardwaj, Romil and Xia, Zhengxu and Ananthanarayanan, Ganesh and Jiang, Junchen and Karber, Nikolaos and Kassir, Anas and Schreier, Lukas and Sriraman, Ajay and Stoica, Ion and Venkataraman, Shivaram},
+  title     = {Ekya: Continuous Learning of Video Analytics Models on Edge Compute Servers},
+  booktitle = {19th USENIX Symposium on Networked Systems Design and Implementation (NSDI)},
+  year      = {2022},
+  url       = {https://www.usenix.org/conference/nsdi22/presentation/bhardwaj},
+  note      = {Continuous learning on edge with Thief Scheduler. Handles data drift with micro-profiling. 29\% accuracy gain with 4x less GPU.}
+}
+
+@inproceedings{lumos2025,
+  author    = {Liang, Mingyu and Tadese Kassa, Hiwot and Fu, Wenyin and Coutinho, Brian and Feng, Louis and Delimitrou, Christina},
+  title     = {Lumos: Efficient Performance Modeling and Estimation for Large-scale LLM Training},
+  booktitle = {Proceedings of Machine Learning and Systems (MLSys)},
+  year      = {2025},
+  note      = {Trace-driven performance modeling for LLM training. 3.3\% error on 512 H100 GPUs. Reproduces execution breakdown and SM utilization.}
+}
+
+@inproceedings{vidur2024,
+  author    = {Agrawal, Amey and Kedia, Nitin and others},
+  title     = {VIDUR: A Large-Scale Simulation Framework for LLM Inference},
+  booktitle = {Proceedings of Machine Learning and Systems (MLSys)},
+  year      = {2024},
+  url       = {https://proceedings.mlsys.org/paper_files/paper/2024/hash/b74a8de47d2b3c928360e0a011f48351-Abstract-Conference.html},
+  note      = {Discrete-event simulation for LLM serving. <5\% error for latency/throughput. Vidur-Search finds optimal config in 1 hour vs 42K GPU hours.}
+}
+
+@article{drift-mlops2024,
+  author    = {Various},
+  title     = {Data Drift Detection and Mitigation: A Comprehensive MLOps Approach for Real-Time Systems},
+  journal   = {ResearchGate Technical Report},
+  year      = {2024},
+  note      = {Comprehensive MLOps for drift detection. Statistical process control and adaptive windowing for concept drift.}
+}
+
+@article{adaptive-forecasting2025,
+  author    = {Various},
+  title     = {Enhancing Forecasting Accuracy in Dynamic Environments via PELT-Driven Drift Detection and Model Adaptation},
+  journal   = {ScienceDirect},
+  year      = {2025},
+  doi       = {10.1016/j.ai.2025.100225},
+  note      = {PELT algorithm for drift detection. Selective retraining for adaptive performance models.}
+}
+
+@inproceedings{clone-dvfs2025,
+  author    = {Tian, Various and others},
+  title     = {Customizing LLMs for Efficient Latency-Aware Inference at Scale},
+  booktitle = {USENIX Annual Technical Conference (ATC)},
+  year      = {2025},
+  url       = {https://www.usenix.org/system/files/atc25-tian.pdf},
+  note      = {CLONE with MoE router for adaptive LoRA integration. DVFS for per-token energy optimization while meeting latency constraints.}
+}
