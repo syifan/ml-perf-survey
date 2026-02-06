@@ -7,7 +7,7 @@ model: claude-opus-4-5
 trackerIssue: 1
 
 # God agents (run periodically, manage the system)
-athenaCycleInterval: 10    # Strategist every 10 cycles
+athenaCycleInterval: 1     # Strategist every cycle
 apolloCycleInterval: 10    # Advisor every 10 cycles
 
 # Human agents are discovered from agent/humans/ folder
