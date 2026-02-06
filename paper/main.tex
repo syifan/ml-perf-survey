@@ -1,0 +1,203 @@
+% MICRO 2026 Survey Paper - ML Performance Models
+% Template based on IEEE conference format
+
+\documentclass[conference]{IEEEtran}
+
+% Packages
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{multirow}
+
+% Custom commands
+\newcommand{\todo}[1]{\textcolor{red}{[TODO: #1]}}
+
+\begin{document}
+
+\title{A Survey of Machine Learning Approaches for\\Computer Architecture Performance Modeling}
+
+\author{
+\IEEEauthorblockN{Authors TBD}
+\IEEEauthorblockA{Affiliations TBD}
+}
+
+\maketitle
+
+% ==============================================================================
+% ABSTRACT
+% ==============================================================================
+\begin{abstract}
+\todo{Write abstract summarizing the survey scope, methodology, key findings, and contributions. Target: 150-200 words.}
+\end{abstract}
+
+\begin{IEEEkeywords}
+machine learning, performance modeling, computer architecture, neural networks, survey
+\end{IEEEkeywords}
+
+% ==============================================================================
+% INTRODUCTION
+% ==============================================================================
+\section{Introduction}
+\label{sec:introduction}
+
+\todo{Motivate the importance of performance modeling in computer architecture.}
+
+\todo{Explain why ML approaches are gaining traction over traditional analytical models.}
+
+\todo{State the scope and contributions of this survey:
+\begin{itemize}
+    \item Comprehensive taxonomy of ML-based performance modeling techniques
+    \item Analysis of X papers from MICRO, ISCA, HPCA, MLSys, etc. (2020-2025)
+    \item Comparison of approaches across key dimensions
+    \item Identification of open challenges and future directions
+\end{itemize}
+}
+
+\todo{Outline the paper organization.}
+
+% ==============================================================================
+% BACKGROUND
+% ==============================================================================
+\section{Background}
+\label{sec:background}
+
+\subsection{Traditional Performance Modeling}
+\label{subsec:traditional-modeling}
+
+\todo{Overview of analytical models, simulation-based approaches, and their limitations.}
+
+\subsection{Machine Learning Fundamentals}
+\label{subsec:ml-fundamentals}
+
+\todo{Brief primer on ML techniques relevant to performance modeling: regression, neural networks, graph neural networks, transformers, etc.}
+
+\subsection{Problem Formulation}
+\label{subsec:problem-formulation}
+
+\todo{Define the performance modeling problem formally. Inputs, outputs, common metrics (IPC, latency, throughput, power).}
+
+% ==============================================================================
+% TAXONOMY
+% ==============================================================================
+\section{Taxonomy}
+\label{sec:taxonomy}
+
+\todo{Present the classification framework for organizing the surveyed papers.}
+
+\subsection{By Modeling Target}
+\label{subsec:by-target}
+
+\todo{CPU, GPU, accelerators, memory systems, interconnects, full system.}
+
+\subsection{By ML Technique}
+\label{subsec:by-technique}
+
+\todo{Classical ML (linear regression, random forests, etc.), deep learning (MLP, CNN, RNN), graph neural networks, transformers.}
+
+\subsection{By Input Representation}
+\label{subsec:by-input}
+
+\todo{Hardware counters, microarchitectural features, program features, workload embeddings.}
+
+% ==============================================================================
+% SURVEY OF APPROACHES
+% ==============================================================================
+\section{Survey of Approaches}
+\label{sec:survey}
+
+\subsection{CPU Performance Modeling}
+\label{subsec:cpu-modeling}
+
+\todo{Survey papers on ML-based CPU performance prediction.}
+
+\subsection{GPU Performance Modeling}
+\label{subsec:gpu-modeling}
+
+\todo{Survey papers on ML-based GPU performance prediction.}
+
+\subsection{Accelerator Performance Modeling}
+\label{subsec:accelerator-modeling}
+
+\todo{Survey papers on ML models for DNN accelerators, FPGAs, etc.}
+
+\subsection{Memory System Modeling}
+\label{subsec:memory-modeling}
+
+\todo{Survey papers on cache, DRAM, and memory hierarchy modeling.}
+
+\subsection{Cross-Platform and Transfer Learning}
+\label{subsec:transfer-learning}
+
+\todo{Survey approaches that generalize across hardware configurations.}
+
+% ==============================================================================
+% COMPARISON AND ANALYSIS
+% ==============================================================================
+\section{Comparison and Analysis}
+\label{sec:comparison}
+
+\subsection{Accuracy vs. Training Cost}
+\label{subsec:accuracy-cost}
+
+\todo{Compare prediction accuracy against data collection and training overhead.}
+
+\subsection{Generalization Capabilities}
+\label{subsec:generalization}
+
+\todo{Analyze how well models generalize to unseen workloads and configurations.}
+
+\subsection{Interpretability}
+\label{subsec:interpretability}
+
+\todo{Discuss model interpretability and insights gained from ML models.}
+
+\todo{Create comparison tables summarizing key papers across multiple dimensions.}
+
+% ==============================================================================
+% OPEN CHALLENGES
+% ==============================================================================
+\section{Open Challenges and Future Directions}
+\label{sec:challenges}
+
+\subsection{Data Availability and Quality}
+\label{subsec:data-challenges}
+
+\todo{Discuss challenges in collecting training data, benchmark diversity.}
+
+\subsection{Model Generalization}
+\label{subsec:generalization-challenges}
+
+\todo{Challenges in generalizing to new architectures and workloads.}
+
+\subsection{Integration with Design Flows}
+\label{subsec:integration-challenges}
+
+\todo{Challenges in integrating ML models into architecture exploration workflows.}
+
+\subsection{Emerging Opportunities}
+\label{subsec:opportunities}
+
+\todo{Foundation models for architecture, hardware-software co-design.}
+
+% ==============================================================================
+% CONCLUSION
+% ==============================================================================
+\section{Conclusion}
+\label{sec:conclusion}
+
+\todo{Summarize key findings and takeaways from the survey.}
+
+\todo{Reiterate the most promising directions for future research.}
+
+% ==============================================================================
+% REFERENCES
+% ==============================================================================
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}
