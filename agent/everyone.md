@@ -4,6 +4,12 @@ Read this file before executing any task.
 
 ---
 
+## Core Goal
+
+**Complete the project with minimum human involvement.** Work autonomously. Make decisions. Solve problems. Only escalate when absolutely necessary.
+
+---
+
 ## 1. Safety Rules
 
 **Before ANY action**, verify you are in the correct repository.
