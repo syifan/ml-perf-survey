@@ -1,12 +1,212 @@
 % Bibliography for ML Performance Models Survey
-% Add entries in BibTeX format
 
-% Example entry format:
-% @inproceedings{author2024title,
-%   author    = {Last, First and Last, First},
-%   title     = {Paper Title},
-%   booktitle = {Proceedings of MICRO},
-%   year      = {2024},
-%   pages     = {1--12},
-%   doi       = {10.1145/xxxxx}
-% }
+% ============================================================================
+% Foundational and Traditional Modeling
+% ============================================================================
+
+@article{williams2009roofline,
+  author    = {Williams, Samuel and Waterman, Andrew and Patterson, David},
+  title     = {Roofline: An Insightful Visual Performance Model for Multicore Architectures},
+  journal   = {Communications of the ACM},
+  volume    = {52},
+  number    = {4},
+  pages     = {65--76},
+  year      = {2009},
+  doi       = {10.1145/1498765.1498785}
+}
+
+@article{binkert2011gem5,
+  author    = {Binkert, Nathan and Beckmann, Bradford and Black, Gabriel and Reinhardt, Steven K. and Saidi, Ali and Basu, Arkaprava and Hestness, Joel and Hower, Derek R. and Krishna, Tushar and Sardashti, Somayeh and Sen, Rathijit and Sewell, Korey and Shoaib, Muhammad and Vaish, Nilay and Hill, Mark D. and Wood, David A.},
+  title     = {The gem5 Simulator},
+  journal   = {ACM SIGARCH Computer Architecture News},
+  volume    = {39},
+  number    = {2},
+  pages     = {1--7},
+  year      = {2011},
+  doi       = {10.1145/2024716.2024718}
+}
+
+% ============================================================================
+% ML-Based Performance Modeling - GPUs
+% ============================================================================
+
+@inproceedings{neusight2025,
+  author    = {Lee, Seunghyun and Phanishayee, Amar and Mahajan, Divya},
+  title     = {{NeuSight}: {GPU} Performance Forecasting via Tile-Based Execution Analysis},
+  booktitle = {Proceedings of the 30th ACM International Conference on Architectural Support for Programming Languages and Operating Systems (ASPLOS)},
+  year      = {2025},
+  pages     = {1--15}
+}
+
+@inproceedings{habitat2021,
+  author    = {Yu, Geoffrey X. and Gao, Yubo and Golber, Pavel and Cidon, Asaf},
+  title     = {Habitat: A Runtime-Based Computational Performance Predictor for Deep Neural Network Training},
+  booktitle = {Proceedings of the USENIX Annual Technical Conference (ATC)},
+  year      = {2021},
+  pages     = {503--521}
+}
+
+% ============================================================================
+% ML-Based Performance Modeling - Edge Devices
+% ============================================================================
+
+@inproceedings{nnmeter2021,
+  author    = {Zhang, Li Lyna and Han, Shihao and Wei, Jianyu and Zheng, Ningxin and Cao, Ting and Yang, Yuqing and Liu, Yunxin},
+  title     = {nn-Meter: Towards Accurate Latency Prediction of Deep-Learning Model Inference on Diverse Edge Devices},
+  booktitle = {Proceedings of the 19th Annual International Conference on Mobile Systems, Applications, and Services (MobiSys)},
+  year      = {2021},
+  pages     = {81--93},
+  note      = {Best Paper Award},
+  doi       = {10.1145/3458864.3467882}
+}
+
+@inproceedings{litepred2024,
+  author    = {Feng, Yang and Li, Zhehao and Yang, Jiacheng and Liu, Yunxin},
+  title     = {{LitePred}: Transferable and Scalable Latency Prediction for Hardware-Aware Neural Architecture Search},
+  booktitle = {Proceedings of the 21st USENIX Symposium on Networked Systems Design and Implementation (NSDI)},
+  year      = {2024},
+  pages     = {1--18}
+}
+
+% ============================================================================
+% Analytical Models for Accelerators
+% ============================================================================
+
+@inproceedings{eyeriss2016,
+  author    = {Chen, Yu-Hsin and Emer, Joel and Sze, Vivienne},
+  title     = {Eyeriss: A Spatial Architecture for Energy-Efficient Dataflow for Convolutional Neural Networks},
+  booktitle = {Proceedings of the 43rd International Symposium on Computer Architecture (ISCA)},
+  year      = {2016},
+  pages     = {367--379},
+  doi       = {10.1109/ISCA.2016.40}
+}
+
+@inproceedings{timeloop2019,
+  author    = {Parashar, Angshuman and Raina, Priyanka and Shao, Yakun Sophia and Chen, Yu-Hsin and Ying, Victor A. and Muber, Anurag and Venkatesan, Rangharajan and Khailany, Brucek and Keckler, Stephen W. and Emer, Joel},
+  title     = {Timeloop: A Systematic Approach to {DNN} Accelerator Evaluation},
+  booktitle = {Proceedings of the IEEE International Symposium on Performance Analysis of Systems and Software (ISPASS)},
+  year      = {2019},
+  pages     = {304--315},
+  doi       = {10.1109/ISPASS.2019.00042}
+}
+
+@inproceedings{maestro2019,
+  author    = {Kwon, Hyoukjun and Chatarasi, Prasanth and Sarber, Michael and Pellauer, Michael and Parashar, Angshuman and Krishna, Tushar},
+  title     = {{MAESTRO}: A Data-Centric Approach to Understand Reuse, Performance, and Hardware Cost of {DNN} Mappings},
+  booktitle = {Proceedings of the 52nd IEEE/ACM International Symposium on Microarchitecture (MICRO)},
+  year      = {2019},
+  pages     = {1--14},
+  doi       = {10.1145/3352460.3358292}
+}
+
+@inproceedings{sparseloop2022,
+  author    = {Wu, Yannan Nellie and Emer, Joel and Sze, Vivienne},
+  title     = {Sparseloop: An Analytical Approach to Sparse Tensor Accelerator Modeling},
+  booktitle = {Proceedings of the 55th IEEE/ACM International Symposium on Microarchitecture (MICRO)},
+  year      = {2022},
+  pages     = {1--15},
+  doi       = {10.1109/MICRO56248.2022.00078}
+}
+
+% ============================================================================
+% Compiler Cost Models
+% ============================================================================
+
+@inproceedings{tvm2018,
+  author    = {Chen, Tianqi and Moreau, Thierry and Jiang, Ziheng and Zheng, Lianmin and Yan, Eddie and Cowan, Meghan and Shen, Haichen and Wang, Leyuan and Hu, Yuwei and Ceze, Luis and Guestrin, Carlos and Krishnamurthy, Arvind},
+  title     = {{TVM}: An Automated End-to-End Optimizing Compiler for Deep Learning},
+  booktitle = {Proceedings of the 13th USENIX Symposium on Operating Systems Design and Implementation (OSDI)},
+  year      = {2018},
+  pages     = {578--594}
+}
+
+@inproceedings{ansor2020,
+  author    = {Zheng, Lianmin and Jia, Chengfan and Sun, Minmin and Wu, Zhao and Yu, Cody Hao and Haj-Ali, Ameer and Wang, Yida and Yang, Jun and Zhuo, Danyang and Sen, Koushik and Gonzalez, Joseph E. and Stoica, Ion},
+  title     = {Ansor: Generating High-Performance Tensor Programs for Deep Learning},
+  booktitle = {Proceedings of the 14th USENIX Symposium on Operating Systems Design and Implementation (OSDI)},
+  year      = {2020},
+  pages     = {863--879}
+}
+
+% ============================================================================
+% LLM Inference Modeling
+% ============================================================================
+
+@inproceedings{vidur2024,
+  author    = {Agrawal, Amey and Panwar, Ashish and Mohan, Jayashree and Kwatra, Nipun and Gulavani, Bhargav S. and Ramachandran, Ramachandran},
+  title     = {{VIDUR}: A Large-Scale Simulation Framework for {LLM} Inference},
+  booktitle = {Proceedings of Machine Learning and Systems (MLSys)},
+  year      = {2024},
+  pages     = {1--15}
+}
+
+% ============================================================================
+% Transfer Learning and Cross-Platform
+% ============================================================================
+
+@inproceedings{latencypredictorsnas2024,
+  author    = {Dudziak, Lukasz and Chau, Thomas and Abdelfattah, Mohamed S. and Lee, Royson and Kim, Hyeji and Lane, Nicholas D.},
+  title     = {Latency Predictors for Neural Architecture Search},
+  booktitle = {Proceedings of Machine Learning and Systems (MLSys)},
+  year      = {2024},
+  pages     = {1--14}
+}
+
+% ============================================================================
+% Hybrid Approaches
+% ============================================================================
+
+@inproceedings{archgym2023,
+  author    = {Krishnan, Srivatsan and Yazdanbakhsh, Amir and Prakash, Shvetank and Jouppi, Norman P. and Parmar, Jignesh and Kim, Hyoukjun and Laudon, James and Narayanaswami, Chandrakant},
+  title     = {{ArchGym}: An Open-Source Gymnasium for Machine Learning Assisted Architecture Design},
+  booktitle = {Proceedings of the 50th International Symposium on Computer Architecture (ISCA)},
+  year      = {2023},
+  pages     = {1--16},
+  doi       = {10.1145/3579371.3589049}
+}
+
+% ============================================================================
+% GPU Simulation
+% ============================================================================
+
+@inproceedings{gpgpusim2009,
+  author    = {Bakhoda, Ali and Yuan, George L. and Fung, Wilson W. L. and Wong, Henry and Aamodt, Tor M.},
+  title     = {Analyzing {CUDA} Workloads Using a Detailed {GPU} Simulator},
+  booktitle = {Proceedings of the IEEE International Symposium on Performance Analysis of Systems and Software (ISPASS)},
+  year      = {2009},
+  pages     = {163--174},
+  doi       = {10.1109/ISPASS.2009.4919648}
+}
+
+@inproceedings{accelsim2020,
+  author    = {Khairy, Mahmoud and Jain, Akshay and Shen, Tor M. Aamodt and Rogers, Timothy G.},
+  title     = {Accel-Sim: An Extensible Simulation Framework for Validated {GPU} Modeling},
+  booktitle = {Proceedings of the 47th International Symposium on Computer Architecture (ISCA)},
+  year      = {2020},
+  pages     = {473--486},
+  doi       = {10.1109/ISCA45697.2020.00047}
+}
+
+% ============================================================================
+% Distributed Training Simulation
+% ============================================================================
+
+@article{astrasim2023,
+  author    = {Won, William and Srinivasan, Taekyung and Zheng, Zhiyan and Talati, Saeed and Vepakomma, Praneeth and Krishna, Tushar},
+  title     = {{ASTRA-sim2.0}: Modeling Hierarchical Networks and Disaggregated Systems for Large-Model Training at Scale},
+  journal   = {arXiv preprint arXiv:2303.14006},
+  year      = {2023}
+}
+
+% ============================================================================
+% GNN-Based Performance Modeling
+% ============================================================================
+
+@inproceedings{granite2022,
+  author    = {Sykora, Ondrej and Rucker, Alexis and Mendis, Charith and Barik, Rajkishore and Phothilimthana, Phitchaya Mangpo and Amarasinghe, Saman},
+  title     = {GRANITE: A Graph Neural Network Model for Basic Block Throughput Estimation},
+  booktitle = {Proceedings of the IEEE International Symposium on Workload Characterization (IISWC)},
+  year      = {2022},
+  pages     = {1--13},
+  doi       = {10.1109/IISWC55918.2022.00014}
+}
