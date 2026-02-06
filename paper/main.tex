@@ -86,17 +86,179 @@ Section~\ref{sec:conclusion} concludes.
 \subsection{Traditional Performance Modeling}
 \label{subsec:traditional-modeling}
 
-\todo{Overview of analytical models, simulation-based approaches, and their limitations.}
+Performance modeling has traditionally relied on two complementary approaches: analytical models and cycle-accurate simulation.
+This section reviews both paradigms and their limitations, motivating the emergence of ML-based alternatives.
+
+\subsubsection{Analytical Models}
+
+Analytical models express performance as closed-form functions of hardware and workload parameters.
+The roofline model~\cite{williams2009roofline} exemplifies this approach, bounding attainable performance by peak compute throughput and memory bandwidth.
+Given operational intensity $I$ (FLOP/byte), the roofline predicts performance as $P = \min(\pi, \beta \cdot I)$, where $\pi$ is peak FLOPS and $\beta$ is memory bandwidth.
+Despite its simplicity, roofline reasoning guides optimization by revealing compute-bound versus memory-bound regimes.
+
+For DNN accelerators, analytical cost models have become standard practice.
+Timeloop~\cite{timeloop2019} models data movement across memory hierarchies for any given mapping (loop order and tiling), computing access counts and energy from architectural parameters.
+MAESTRO~\cite{maestro2019} provides a data-centric framework that derives performance from dataflow descriptions.
+Sparseloop~\cite{sparseloop2022} extends this methodology to sparse tensor operations, achieving 2000$\times$ speedup over RTL simulation while maintaining accuracy.
+
+Analytical models offer several advantages: fast evaluation (microseconds per design point), interpretability (designers can trace predictions to specific terms), and extrapolation to unseen configurations.
+However, they require manual derivation for each target architecture, struggle to capture complex microarchitectural effects (contention, pipeline stalls, caching behavior), and may oversimplify non-linear interactions.
+
+\subsubsection{Cycle-Accurate Simulation}
+
+Cycle-accurate simulators model hardware at register-transfer level, faithfully reproducing timing behavior.
+General-purpose simulators like gem5~\cite{binkert2011gem5} support flexible configuration of CPU cores, caches, memory controllers, and interconnects.
+For GPUs, simulators such as GPGPU-Sim~\cite{gpgpusim2009} and Accel-Sim~\cite{accelsim2020} model SIMT execution, warp scheduling, and memory coalescing.
+
+Cycle-accurate simulation achieves high fidelity---typically within 5--15\% of real hardware~\cite{binkert2011gem5}---and supports detailed microarchitectural studies.
+However, simulation speed presents a fundamental limitation: evaluating a single ResNet-50 inference may require hours, making design space exploration impractical.
+ASTRA-sim~\cite{astrasim2023} addresses distributed training at scale through analytical abstractions, but even coarse-grained simulation struggles with the combinatorial explosion of modern ML workloads and hardware configurations.
+
+\subsubsection{The Modeling Gap}
+
+Neither approach fully addresses modern performance modeling needs.
+Analytical models are fast but imprecise for complex microarchitectures.
+Simulators are accurate but too slow for iterative design.
+This tension has intensified as ML workloads diversify (from CNNs to transformers to mixture-of-experts models) and hardware specializes (GPUs, TPUs, custom accelerators).
+ML-based performance models offer a middle path: learning complex relationships from profiling data while enabling millisecond-scale inference.
 
 \subsection{Machine Learning Fundamentals}
 \label{subsec:ml-fundamentals}
 
-\todo{Brief primer on ML techniques relevant to performance modeling: regression, neural networks, graph neural networks, transformers, etc.}
+This section provides a brief primer on ML techniques frequently employed in performance modeling, establishing terminology used throughout the survey.
+
+\subsubsection{Classical Machine Learning}
+
+Linear regression and its regularized variants (ridge, LASSO) remain widely used for performance prediction due to their simplicity and interpretability.
+Given feature vector $\mathbf{x}$ (e.g., operator parameters, hardware counters), linear models predict $\hat{y} = \mathbf{w}^\top \mathbf{x} + b$.
+While unable to capture non-linear relationships, linear models provide baselines and feature importance rankings.
+
+Tree-based ensembles---random forests and gradient boosted trees (XGBoost, LightGBM)---handle non-linearities through recursive partitioning.
+These methods dominate when training data is limited ($<$10K samples) and features are well-engineered, often outperforming deep learning in low-data regimes~\cite{nnmeter2021}.
+
+\subsubsection{Deep Learning}
+
+Multi-layer perceptrons (MLPs) learn hierarchical feature representations through stacked non-linear transformations: $\mathbf{h}_{i+1} = \sigma(\mathbf{W}_i \mathbf{h}_i + \mathbf{b}_i)$.
+MLPs require minimal feature engineering but need sufficient training data and careful regularization to avoid overfitting.
+
+Recurrent neural networks (RNNs) and their gated variants (LSTM, GRU) process sequential inputs, making them suitable for modeling operator sequences in neural network execution graphs.
+However, sequential processing limits parallelization and can miss long-range dependencies.
+
+\subsubsection{Graph Neural Networks}
+
+Graph neural networks (GNNs) operate on graph-structured data through message passing.
+For a node $v$ with features $\mathbf{h}_v$, GNNs iteratively update representations by aggregating information from neighbors $\mathcal{N}(v)$:
+\begin{equation}
+\mathbf{h}_v^{(k+1)} = \phi\left(\mathbf{h}_v^{(k)}, \bigoplus_{u \in \mathcal{N}(v)} \psi(\mathbf{h}_u^{(k)}, \mathbf{e}_{uv})\right)
+\end{equation}
+where $\phi$ and $\psi$ are learnable functions and $\oplus$ is a permutation-invariant aggregation (sum, mean, max).
+
+GNNs are particularly appealing for performance modeling because DNN computation graphs have natural graph structure.
+Nodes represent operators with features (type, parameters), edges represent data dependencies with features (tensor shapes, datatypes).
+GNNs can learn to propagate performance-relevant information along these dependencies~\cite{granite2022}.
+
+\subsubsection{Attention and Transformers}
+
+Attention mechanisms compute weighted combinations over input elements, with weights determined by learned compatibility functions.
+Self-attention allows each position to attend to all other positions:
+\begin{equation}
+\text{Attention}(\mathbf{Q}, \mathbf{K}, \mathbf{V}) = \text{softmax}\left(\frac{\mathbf{Q}\mathbf{K}^\top}{\sqrt{d_k}}\right)\mathbf{V}
+\end{equation}
+
+Transformers stack self-attention with feedforward networks, enabling long-range dependency modeling without sequential processing.
+Recent performance models leverage transformer architectures to capture complex inter-operator interactions across entire computation graphs.
+
+\subsubsection{Transfer Learning}
+
+Transfer learning adapts models trained on one domain (source) to perform well on another (target).
+In performance modeling, this enables training on easily-profiled hardware and transferring to new platforms with limited data.
+Common approaches include fine-tuning (adjusting pre-trained weights with target data), domain adaptation (learning domain-invariant representations), and meta-learning (learning to adapt quickly from few examples)~\cite{litepred2024}.
 
 \subsection{Problem Formulation}
 \label{subsec:problem-formulation}
 
-\todo{Define the performance modeling problem formally. Inputs, outputs, common metrics (IPC, latency, throughput, power).}
+We now formally define the performance modeling problem and establish the evaluation framework used throughout this survey.
+
+\subsubsection{Inputs and Outputs}
+
+Performance modeling maps workload and hardware descriptions to performance metrics.
+Formally, given workload specification $\mathcal{W}$ and hardware configuration $\mathcal{H}$, a performance model $f$ predicts metric $y$:
+\begin{equation}
+\hat{y} = f(\mathcal{W}, \mathcal{H}; \theta)
+\end{equation}
+where $\theta$ represents model parameters (weights for ML models, equations for analytical models).
+
+\textbf{Workload representations} vary by granularity and abstraction:
+\begin{itemize}
+    \item \emph{Operator-level}: Individual layer parameters (kernel size, channels, batch size)
+    \item \emph{Graph-level}: Full computation graph with node and edge features
+    \item \emph{IR-level}: Intermediate representations from compilers (TVM~\cite{tvm2018}, XLA)
+    \item \emph{Trace-level}: Execution traces capturing runtime behavior
+\end{itemize}
+
+\textbf{Hardware representations} similarly span multiple levels:
+\begin{itemize}
+    \item \emph{Specification}: Static parameters (core count, memory size, bandwidth)
+    \item \emph{Counter-based}: Runtime performance counters (cache misses, stalls)
+    \item \emph{Embedding}: Learned dense representations of hardware platforms
+\end{itemize}
+
+\subsubsection{Prediction Targets}
+
+Performance models target various metrics depending on application requirements:
+
+\textbf{Latency} measures execution time, typically end-to-end inference time or per-layer latency.
+Latency prediction is critical for real-time applications with strict deadlines and for optimizing user-facing services.
+
+\textbf{Throughput} captures sustained processing rate: samples per second for inference, tokens per second for language models, or images per second for training.
+Throughput optimization maximizes hardware utilization for batch processing.
+
+\textbf{Energy} encompasses power consumption (Watts) and energy per operation (Joules/inference).
+Energy prediction is essential for mobile deployment, data center cost optimization, and sustainability considerations.
+
+\textbf{Memory} includes peak memory footprint (for feasibility checking), memory bandwidth utilization, and memory access patterns.
+
+\textbf{Multi-objective} formulations jointly predict multiple metrics, enabling Pareto-optimal design selection balancing latency, energy, and accuracy.
+
+\subsubsection{Accuracy Metrics}
+
+The field employs several accuracy metrics, each with distinct interpretations:
+
+\textbf{Mean Absolute Percentage Error (MAPE)} measures average relative deviation:
+\begin{equation}
+\text{MAPE} = \frac{100\%}{n} \sum_{i=1}^{n} \left| \frac{y_i - \hat{y}_i}{y_i} \right|
+\end{equation}
+MAPE is scale-invariant and interpretable (5\% MAPE means predictions typically differ by 5\% from ground truth).
+
+\textbf{Root Mean Square Error (RMSE)} penalizes large errors more heavily:
+\begin{equation}
+\text{RMSE} = \sqrt{\frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2}
+\end{equation}
+
+\textbf{Correlation coefficients} (Pearson, Spearman) measure how well predictions track relative ordering---important when models guide design space exploration.
+
+\textbf{Ranking accuracy} directly evaluates whether models correctly order configurations, often measured via Kendall's $\tau$ or top-$k$ accuracy.
+
+\subsubsection{Hardware Targets}
+
+Modern performance modeling spans diverse hardware platforms:
+
+\textbf{CPUs} remain important for general-purpose inference and training of smaller models.
+CPU modeling must account for complex cache hierarchies, branch prediction, out-of-order execution, and SIMD vectorization.
+
+\textbf{GPUs} dominate ML training and large-scale inference.
+GPU modeling addresses SIMT execution, warp scheduling, memory coalescing, and multi-GPU scaling.
+
+\textbf{TPUs and custom accelerators} employ specialized dataflows for matrix operations.
+Modeling these devices requires understanding systolic arrays, on-chip memory hierarchies, and dataflow mappings.
+
+\textbf{Edge devices} (mobile SoCs, embedded NPUs) impose strict power and memory constraints.
+Edge modeling emphasizes latency under thermal throttling and memory-limited execution.
+
+\textbf{Distributed systems} scale training across multiple devices and nodes.
+Distributed modeling must capture communication overhead, synchronization barriers, and pipeline parallelism.
+
+This diversity of targets, workloads, and metrics motivates our comprehensive taxonomy in Section~\ref{sec:taxonomy}.
 
 % ==============================================================================
 % TAXONOMY
