@@ -12,7 +12,7 @@ const app = express();
 const PORT = 3001;
 
 // Agent directory relative to monitor folder
-const AGENT_DIR = path.resolve(__dirname, '../../agent');
+const AGENT_DIR = path.resolve(__dirname, '../..');
 
 app.use(cors());
 app.use(express.json());
