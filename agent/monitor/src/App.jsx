@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Activity, Users, Sparkles, Settings, ScrollText, RefreshCw, Pause, Play, SkipForward, RotateCcw, Square } from 'lucide-react'
+import { Activity, Users, Sparkles, Settings, ScrollText, RefreshCw, Pause, Play, SkipForward, RotateCcw, Square, Save } from 'lucide-react'
 
 // Proxied through monitor backend to work with Cloudflare tunnel
 const ORCHESTRATOR_API = '/api/orchestrator'
@@ -12,6 +12,10 @@ function App() {
   const [logs, setLogs] = useState([])
   const [agents, setAgents] = useState({ workers: [], managers: [] })
   const [config, setConfig] = useState({ config: null, raw: '' })
+  const [configDraft, setConfigDraft] = useState('')
+  const [configDirty, setConfigDirty] = useState(false)
+  const [configError, setConfigError] = useState(null)
+  const [configSaving, setConfigSaving] = useState(false)
   const [orchestratorStatus, setOrchestratorStatus] = useState(null)
   const [lastUpdate, setLastUpdate] = useState(null)
   const [error, setError] = useState(null)
@@ -33,7 +37,12 @@ function App() {
       setState(await stateRes.json())
       setLogs((await logsRes.json()).logs)
       setAgents(await agentsRes.json())
-      setConfig(await configRes.json())
+      const configData = await configRes.json()
+      setConfig(configData)
+      // Only update draft if not being edited
+      if (!configDirty && configData.raw) {
+        setConfigDraft(configData.raw)
+      }
       setLastUpdate(new Date())
       setError(null)
       
@@ -63,6 +72,40 @@ function App() {
     } catch (err) {
       console.error(`Control action ${action} failed:`, err)
     }
+  }
+  
+  const saveConfig = async () => {
+    setConfigSaving(true)
+    setConfigError(null)
+    try {
+      const res = await fetch('/api/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: configDraft })
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to save')
+      }
+      setConfigDirty(false)
+      await fetchData()
+    } catch (err) {
+      setConfigError(err.message)
+    } finally {
+      setConfigSaving(false)
+    }
+  }
+  
+  const handleConfigChange = (e) => {
+    setConfigDraft(e.target.value)
+    setConfigDirty(true)
+    setConfigError(null)
+  }
+  
+  const resetConfig = () => {
+    setConfigDraft(config.raw || '')
+    setConfigDirty(false)
+    setConfigError(null)
   }
 
   useEffect(() => {
@@ -272,19 +315,44 @@ function App() {
           {/* Config Card */}
           <Card className="lg:col-span-1">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Settings className="w-4 h-4" />
-                Configuration
+              <CardTitle className="flex items-center justify-between">
+                <span className="flex items-center gap-2">
+                  <Settings className="w-4 h-4" />
+                  Configuration
+                </span>
+                <div className="flex items-center gap-2">
+                  {configDirty && (
+                    <Badge variant="warning">Unsaved</Badge>
+                  )}
+                  {configDirty && (
+                    <Button size="sm" variant="ghost" onClick={resetConfig}>
+                      Reset
+                    </Button>
+                  )}
+                  <Button 
+                    size="sm" 
+                    onClick={saveConfig} 
+                    disabled={!configDirty || configSaving}
+                  >
+                    <Save className="w-3 h-3 mr-1" />
+                    {configSaving ? 'Saving...' : 'Save'}
+                  </Button>
+                </div>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="bg-neutral-100 rounded-lg p-3 h-64 overflow-y-auto font-mono text-xs">
-                {config.raw ? (
-                  <pre className="text-neutral-700 whitespace-pre-wrap">{config.raw}</pre>
-                ) : (
-                  <p className="text-neutral-500">No config available</p>
-                )}
-              </div>
+              {configError && (
+                <div className="mb-2 p-2 bg-red-50 border border-red-200 rounded text-red-700 text-xs">
+                  {configError}
+                </div>
+              )}
+              <textarea
+                className="w-full h-56 bg-neutral-100 rounded-lg p-3 font-mono text-xs text-neutral-700 resize-none focus:outline-none focus:ring-2 focus:ring-blue-200"
+                value={configDraft}
+                onChange={handleConfigChange}
+                placeholder="No config available"
+                spellCheck={false}
+              />
             </CardContent>
           </Card>
         </div>

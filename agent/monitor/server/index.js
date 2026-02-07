@@ -132,6 +132,23 @@ app.get('/api/config', (req, res) => {
   }
 });
 
+// POST /api/config - Save config.yaml
+app.post('/api/config', (req, res) => {
+  try {
+    const { content } = req.body;
+    if (!content) {
+      return res.status(400).json({ error: 'Missing content' });
+    }
+    // Validate YAML
+    yaml.load(content);
+    const configPath = path.join(AGENT_DIR, 'config.yaml');
+    fs.writeFileSync(configPath, content);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(400).json({ error: `Invalid YAML: ${error.message}` });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Monitor API server running on http://localhost:${PORT}`);
 });
