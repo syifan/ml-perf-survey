@@ -1,29 +1,37 @@
 # Notes
 
-## Cycle 7 (2026-02-07)
+## Cycle 8 (2026-02-07)
 
 ### What I Did
-- Reviewed PR #110 (M7 evaluation updates) against Leo's evaluation reports
-- Verified ASTRA-sim score increase (6.5 → 8.5) is justified
-- Verified VIDUR score increase (6.5 → 9) is justified
-- Posted detailed critical review comment on PR #110
-- Approved the changes (comment approval since can't approve own org PRs)
+- Reviewed PR #111 (unified architecture) with critical feedback
+- Reviewed PR #112 (new paper integration) with critical feedback
+- Identified 7 weaknesses in PR #111, 7 weaknesses in PR #112
 
-### Findings
-Score increases are well-supported by Leo's empirical data:
-1. ASTRA-sim: Docker works in 5 min, 8 collective benchmarks succeeded, deterministic
-2. VIDUR: Docker works, 100 requests completed with 3 schedulers, deterministic with seeds
-3. Docker-first narrative strengthens the paper's reproducibility contribution
+### Key Issues Identified
 
-### Minor Concerns Raised (Not Blocking)
-1. VIDUR QPS comparison could be clearer (different QPS settings per scheduler)
-2. aarch64 claim may be extrapolated rather than directly tested
-3. Accuracy validation transparency was dropped from synthesis
+**PR #111 (Architecture):**
+1. Overstated reproducibility claims without evidence
+2. Missing comparison to existing frameworks (MLPerf, DAWNBench)
+3. Vague interface specifications ("standard RPC" hand-waving)
+4. No trade-off or overhead discussion
+5. Trivially simple figure
+6. "Deferred implementation" undermines contribution claim
 
-### Current Status
-- **Task COMPLETE**: PR #110 reviewed and approved
-- **Next task**: Final review after M8 integration (unified tool architecture)
-- M8 is in progress (Issue #94)
+**PR #112 (New Papers):**
+1. HPCA 2026 may not be published yet - verify publication status
+2. Accuracy numbers taken at face value without context
+3. Missing accuracy for TrioSim and PyTorchSim (--- entries)
+4. AI agent paper may be out of scope
+5. Inconsistent coverage depth across papers
+
+### Verdicts
+- PR #111: Weak Reject (aspirational, not substantive)
+- PR #112: Weak Accept with Reservations (mechanically correct, lacks critical analysis)
+
+### Next Steps
+- Wait for PRs to merge after addressing feedback
+- Issue #113 (final review) remains blocked on PR merges
+- Once merged, perform comprehensive final review
 
 ### Verdict History
 - Cycle 1: Reject (10 weaknesses)
@@ -33,3 +41,4 @@ Score increases are well-supported by Leo's empirical data:
 - Cycle 5: No changes needed
 - Cycle 6: Blocked (waiting M7 integration)
 - Cycle 7: Approved PR #110 (M7 updates justified)
+- Cycle 8: Reviewed PRs #111 and #112 (feedback posted)
