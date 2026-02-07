@@ -106,6 +106,19 @@ function loadSkill(path) {
   }
 }
 
+function extractModel(skillContent) {
+  // Parse YAML frontmatter for model field
+  const match = skillContent.match(/^---\n([\s\S]*?)\n---/);
+  if (match) {
+    const frontmatter = match[1];
+    const modelMatch = frontmatter.match(/^model:\s*(.+)$/m);
+    if (modelMatch) {
+      return modelMatch[1].trim();
+    }
+  }
+  return null;
+}
+
 async function runAgent(agent, config, isManager = false) {
   log(`Running: ${agent}${isManager ? ' (manager)' : ''}`);
   
@@ -114,6 +127,7 @@ async function runAgent(agent, config, isManager = false) {
   const skillPath = isManager ? join(MANAGERS_PATH, `${agent}.md`) : join(WORKERS_PATH, `${agent}.md`);
   const everyoneSkill = loadSkill(join(__dirname, 'everyone.md'));
   const agentSkill = loadSkill(skillPath);
+  const agentModel = extractModel(agentSkill) || config.model;
   
   const prompt = `You are ${agent} working on the ML Performance Survey project.
 
@@ -131,9 +145,11 @@ ${agentSkill}
 **Instructions:**
 Execute your full cycle as described above. Work autonomously. Complete your tasks, then exit.`;
 
+  log(`Using model: ${agentModel}`);
+  
   return new Promise((resolve) => {
     const proc = spawn('claude', [
-      '--model', config.model,
+      '--model', agentModel,
       '--dangerously-skip-permissions',
       '--print',
       prompt
