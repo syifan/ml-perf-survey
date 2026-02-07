@@ -37,7 +37,10 @@
 %% Additional packages (acmart already loads amsmath, amsfonts, amssymb, booktabs)
 \usepackage{multirow}
 \usepackage{tikz}
-\usetikzlibrary{shapes.geometric,arrows.meta,positioning,fit,backgrounds}
+\usetikzlibrary{shapes.geometric,arrows.meta,positioning,fit,backgrounds,patterns}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepgfplotslibrary{groupplots}
 
 % Custom commands
 \newcommand{\todo}[1]{\textcolor{red}{[TODO: #1]}}
@@ -808,6 +811,68 @@ Timeloop achieves 5--10\% error against RTL through purely analytical means.
 
 \textbf{GPU analytical modeling} remains the most difficult, with AMALI's 23.6\% representing the current state of the art for purely analytical GPU LLM inference prediction---a problem where dynamic microarchitectural effects resist closed-form treatment.
 
+Figure~\ref{fig:accuracy-comparison} visualizes reported accuracy (MAPE) across tools, grouped by methodology type.
+The pattern is clear: hybrid approaches achieve the lowest error on GPU workloads, trace-driven simulators cluster at 2--15\% for distributed systems, and analytical models trade accuracy for speed and interpretability.
+Note that direct comparison across tools is approximate because accuracy numbers are measured on different benchmarks, workloads, and hardware targets; the figure illustrates methodology-level trends rather than head-to-head rankings.
+
+\begin{figure}[t]
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tikzpicture}
+\begin{axis}[
+    xbar,
+    y dir=reverse,
+    xlabel={Reported MAPE (\%)},
+    xmin=0, xmax=28,
+    ytick={0,1,2,3,4,5,6,7,8,9,10,11,12},
+    yticklabels={
+        Timeloop,
+        MAESTRO,
+        AMALI,
+        Accel-Sim,
+        NeuSight,
+        Habitat,
+        SimAI,
+        Lumos,
+        VIDUR,
+        ASTRA-sim,
+        LitePred,
+        HELP,
+        TVM/Ansor
+    },
+    yticklabel style={font=\scriptsize},
+    xticklabel style={font=\scriptsize},
+    xlabel style={font=\small},
+    bar width=6pt,
+    height=7.5cm,
+    width=8cm,
+    nodes near coords,
+    nodes near coords style={font=\tiny, anchor=west},
+    every node near coord/.append style={xshift=1pt},
+    legend style={at={(0.97,0.03)}, anchor=south east, font=\tiny, draw=none, fill=white, fill opacity=0.8, text opacity=1},
+    legend cell align={left},
+    extra y ticks={2.5, 5.5, 9.5},
+    extra y tick labels={},
+    extra y tick style={grid=major, grid style={black!30, dashed}},
+]
+% Analytical (blue)
+\addplot[fill=blue!50, draw=blue!70] coordinates {(7.5,0) (10,1) (23.6,2)};
+% Simulation (red)
+\addplot[fill=red!50, draw=red!70] coordinates {(15,3)};
+% Hybrid (green)
+\addplot[fill=green!50, draw=green!70] coordinates {(2.3,4) (11.8,5)};
+% Trace-driven (orange)
+\addplot[fill=orange!50, draw=orange!70] coordinates {(1.9,6) (3.3,7) (5,8) (10,9)};
+% ML-augmented (purple)
+\addplot[fill=purple!50, draw=purple!70] coordinates {(0.7,10) (1.9,11) (15,12)};
+\legend{Analytical, Simulation, Hybrid, Trace-driven, ML-augmented}
+\end{axis}
+\end{tikzpicture}%
+}
+\caption{Reported accuracy (MAPE) of surveyed tools, grouped by methodology type. Range midpoints are used where ranges are reported (e.g., 7.5\% for Timeloop's 5--10\%). Cross-tool comparison is approximate due to differing benchmarks, workloads, and hardware targets.}
+\label{fig:accuracy-comparison}
+\end{figure}
+
 \subsection{Generalization Challenges}
 \label{subsec:generalization}
 
@@ -835,6 +900,48 @@ ML-augmented approaches (nn-Meter, HELP) provide feature importance rankings but
 Hybrid approaches (NeuSight, Concorde) offer partial interpretability through their analytical components.
 The interpretability gap is practically significant: architects need to understand \emph{why} a design is slow, not just predict \emph{that} it is slow.
 
+\subsection{Methodology Distribution}
+\label{subsec:methodology-distribution}
+
+Figure~\ref{fig:methodology-breakdown} shows the distribution of surveyed tools across methodology types.
+Trace-driven simulation is the most common approach (9 tools), driven by the recent proliferation of distributed training and LLM serving simulators.
+Analytical and ML-augmented approaches are equally represented (8 tools each), reflecting the field's split between interpretable physics-based models and data-driven prediction.
+Hybrid approaches remain the smallest category (4 tools), despite achieving the best accuracy---suggesting significant room for future work combining analytical structure with learned components.
+
+\begin{figure}[t]
+\centering
+\resizebox{0.9\columnwidth}{!}{%
+\begin{tikzpicture}
+\begin{axis}[
+    xbar,
+    y dir=reverse,
+    xlabel={Number of surveyed tools},
+    xmin=0, xmax=12,
+    ytick={0,1,2,3,4},
+    yticklabels={Trace-driven, Analytical, ML-augmented, Simulation, Hybrid},
+    yticklabel style={font=\small},
+    xticklabel style={font=\small},
+    xlabel style={font=\small},
+    bar width=10pt,
+    height=4.5cm,
+    width=7.5cm,
+    nodes near coords,
+    nodes near coords style={font=\small, anchor=west},
+    every node near coord/.append style={xshift=1pt},
+    xtick={0,2,4,6,8,10},
+]
+\addplot[fill=orange!50, draw=orange!70] coordinates {(9,0)};
+\addplot[fill=blue!50, draw=blue!70] coordinates {(8,1)};
+\addplot[fill=purple!50, draw=purple!70] coordinates {(8,2)};
+\addplot[fill=red!50, draw=red!70] coordinates {(5,3)};
+\addplot[fill=green!50, draw=green!70] coordinates {(4,4)};
+\end{axis}
+\end{tikzpicture}%
+}
+\caption{Distribution of surveyed tools by methodology type. Trace-driven simulation dominates due to the recent growth of distributed training and LLM serving tools. Hybrid approaches are the least represented despite their strong accuracy results.}
+\label{fig:methodology-breakdown}
+\end{figure}
+
 % ==============================================================================
 % OPEN CHALLENGES
 % ==============================================================================
@@ -848,6 +955,49 @@ Existing tools are primarily validated on CNN workloads.
 Transformers, mixture-of-experts (MoE), diffusion models, and dynamic inference patterns (e.g., AI agents with tool use~\cite{dynamicreasoning2026}) remain underrepresented in validation benchmarks.
 LLM serving introduces variable sequence lengths (128--128K tokens) and dynamic batching that challenge static models.
 Scaling law prediction~\cite{scalinglaws2024,scalinglawguide2025} connects model size to performance but does not address hardware-specific modeling.
+
+Figure~\ref{fig:workload-coverage} illustrates the shift in workload coverage across surveyed tools over time.
+Before 2022, nearly all tools were validated exclusively on CNN workloads (ResNet, VGG, MobileNet).
+From 2023 onward, transformer and LLM workloads (GPT, LLaMA, BERT) increasingly appear in validation suites, driven by tools targeting LLM serving (VIDUR, Frontier) and distributed LLM training (SimAI, Lumos).
+However, MoE models and diffusion workloads remain almost entirely uncharacterized by existing tools.
+
+\begin{figure}[t]
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tikzpicture}
+\begin{axis}[
+    ybar stacked,
+    bar width=14pt,
+    xlabel={Publication year},
+    ylabel={Number of tools},
+    ymin=0, ymax=16,
+    xtick={2016,2018,2020,2022,2024,2026},
+    xticklabels={2016--17,2018--19,2020--21,2022--23,2024--25,2026},
+    xticklabel style={font=\scriptsize},
+    yticklabel style={font=\scriptsize},
+    xlabel style={font=\small},
+    ylabel style={font=\small},
+    legend style={at={(0.02,0.98)}, anchor=north west, font=\tiny, draw=none, fill=white, fill opacity=0.9, text opacity=1, legend columns=2},
+    legend cell align={left},
+    height=5.5cm,
+    width=8.5cm,
+    enlarge x limits={abs=0.8cm},
+]
+% CNN-only tools per period
+\addplot[fill=blue!50, draw=blue!70] coordinates {(2016,2) (2018,2) (2020,4) (2022,3) (2024,2) (2026,0)};
+% CNN+Transformer tools
+\addplot[fill=orange!50, draw=orange!70] coordinates {(2016,0) (2018,1) (2020,0) (2022,2) (2024,3) (2026,0)};
+% LLM/distributed tools
+\addplot[fill=red!50, draw=red!70] coordinates {(2016,0) (2018,0) (2020,1) (2022,1) (2024,8) (2026,2)};
+% General/cross-workload
+\addplot[fill=green!50, draw=green!70] coordinates {(2016,0) (2018,0) (2020,1) (2022,0) (2024,2) (2026,1)};
+\legend{CNN only, CNN+Transformer, LLM/Distributed, Cross-workload}
+\end{axis}
+\end{tikzpicture}%
+}
+\caption{Workload coverage of surveyed tools by publication period. Early tools (2016--2021) were validated almost exclusively on CNN workloads. The shift toward transformer and LLM workloads accelerates from 2023, but MoE and diffusion models remain largely uncharacterized.}
+\label{fig:workload-coverage}
+\end{figure}
 
 \subsection{The Composition Problem}
 \label{subsec:composition}
