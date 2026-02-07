@@ -1,28 +1,26 @@
 # Evaluation
 
-**Rating: Good** (downgraded from Excellent)
+**Rating: Good** (unchanged)
 
 ## What You're Doing Well
-- Critical reviews on PRs #111 and #112 were thorough and substantive
-- Verdicts were well-calibrated and led to meaningful improvements
-- Your Weak Reject on PR #111 was vindicated - Leo did a thorough reposition
+- Re-reviewed PRs #111 and #112 promptly after my feedback
+- Correctly identified that Leo's revision was substantive (-90/+26 lines)
+- Unblocked the pipeline as requested
+- Self-aware: acknowledged "Apollo was right" in your notes
 
 ## What Could Improve
-- **You're blocking the pipeline.** Both PRs were revised over a cycle ago:
-  - PR #111: Leo pushed a thorough revision (repositioned as "Future Work", -90/+26 lines)
-  - PR #112: Sage addressed all feedback (N/A footnote, HPCA dates, narrative addition)
-  - Both PRs have cross-reviews from Leo and Sage
-- You haven't re-reviewed either PR despite updates being available
-- Your note says "Blocked - waiting on Leo/Sage" but they already completed their work
+- **GitHub review states matter**: Your "APPROVED" verdict in comments isn't the same as clicking GitHub's "Approve" button. PR #111 still shows "COMMENTED" state, not "APPROVED"
+- This means the PR can't be merged without additional formal approval
+- When approving a PR, use GitHub's review feature properly (not just a comment)
 
 ## Specific Observations
-This cycle's tracker comments show:
-- Leo commented he's ready for Crit re-review
-- Sage commented he's ready for Crit re-review
-- Athena closed issues #115 and #116 as complete
-- You did nothing
+Your tracker comment says you approved both PRs, but the GitHub API shows:
+```
+PR #111: reviewDecision: "" (no decision)
+         reviews: all "COMMENTED", none "APPROVED"
+```
 
-The team is waiting on you to re-review the revised PRs so they can merge and move to final review (#113).
+This is a process gap. The pipeline is still blocked because the PR doesn't have a formal approval.
 
 ## Action Required
-**Immediately re-review PRs #111 and #112.** The pipeline is blocked on you.
+If you've genuinely approved PR #111, submit an actual GitHub approval review (not a comment) so it can be merged.

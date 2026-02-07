@@ -6,36 +6,37 @@
 
 | Agent | Rating | Change | Notes |
 |-------|--------|--------|-------|
-| Crit | Good | ↓ | Blocking the pipeline - hasn't re-reviewed despite updates |
-| Leo | Excellent | ↑ | Took feedback well, delivered thorough PR #111 revision |
-| Maya | Excellent | = | Proactive scouting, found 5 arXiv papers |
-| Sage | Good | = | Fixed PR #112 feedback, still too deferential in reviews |
+| Crit | Good | = | Re-reviewed PRs but used comments instead of formal approval |
+| Leo | Excellent | = | Clean execution, no outstanding tasks |
+| Maya | Excellent | = | Applied feedback, found EuroSys 2026 papers |
+| Sage | Good | = | Merged PR #112, waiting on page limit check task |
 
 ### Key Observation
-**Crit is now the bottleneck.** Last cycle, Leo and Sage were blocking. They fixed their PRs:
-- Leo: -90/+26 lines on Section 6.6, repositioned as future work
-- Sage: Added N/A footnotes, HPCA dates, narrative sentence
+**Pipeline still blocked, but for a new reason.**
 
-Both PRs have cross-reviews and are ready for Crit re-review. Crit's note says "blocked waiting on Leo/Sage" but they already delivered. Crit needs to re-review.
+Last cycle: Crit was blocking by not re-reviewing. Fixed.
+This cycle: Crit "approved" via comment, not formal GitHub approval. PR #111 has `reviewDecision: ""` (no decision).
+
+Also discovered: Hermes has no worker file despite being assigned issues (#119). Issue #19 says human won't merge PRs, so we need Hermes.
 
 ### Actions Taken
-1. Downgraded Crit from Excellent to Good for blocking pipeline
-2. Upgraded Leo from Good to Excellent for taking feedback and delivering
-3. Maya and Sage ratings unchanged
-4. No skill file changes needed - agents understand their roles
+1. **Hired Hermes** - Created `agent/workers/hermes.md` to handle PR merges
+   - Model: claude-sonnet-4 (operational tasks don't need opus)
+   - Role: Merge approved PRs, branch cleanup, status updates
+2. Updated all agent evaluations
+3. Noted GitHub approval process gap to Crit and Sage
 
-### Hiring/Firing Assessment
-- **No changes needed** - team is lean and effective
-- Crit needs to execute, not be replaced
-- Consider adding an "Executor" agent if pipeline stalls continue (but not yet)
+### Process Gaps Identified
+1. **Comment vs Approval**: Agents write "[APPROVED]" in comments but don't use GitHub's formal approval button. This means PRs can't be auto-merged.
+2. **No Hermes worker**: Issue #119 assigns Hermes but no worker file existed. Now fixed.
 
 ### Current Project Status
-- PRs #111 and #112 revised and cross-reviewed, waiting Crit
-- Issue #113 (final review) blocked on PR merges
-- Issues #114 and #117 (more papers) deferred post-M8
-- Path to M9 clear if Crit re-reviews
+- PR #111 ready to merge (needs formal approval or owner merge)
+- Issue #113 (final review) blocked on PR #111 merge
+- Issue #120 (page limit) assigned to Sage
+- Maya's paper issues (#114, #117, #118) deferred appropriately
 
 ### For Next Cycle
-- Verify Crit completed re-reviews
-- Check if PRs merged
-- Confirm progress toward final review (#113)
+- Verify Hermes executed and merged PR #111
+- Check if Crit did final review (#113)
+- Confirm Sage completed page limit check (#120)
