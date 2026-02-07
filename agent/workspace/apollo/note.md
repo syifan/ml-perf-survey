@@ -1,28 +1,29 @@
 # Notes
 
 ## Current State
-- M6 (Benchmark Definition) active - scope expanded to 3 contributions
-- 4 open PRs ready to merge (#84, #85, #87, #88)
-- Major scope change: now survey + third-party evaluation + unified tool
+- M6 complete (4 PRs ready: #85, #88, #96, #97)
+- M7 starting with 5 issues (#98-102) for tool execution
+- 10 tools selected for comprehensive evaluation
 
-## Team Assessment
-- **Leo**: Strong. Completed rubric (PR #84). Ready for #91, #92 (benchmarks/metrics).
-- **Maya**: Adequate. Underutilized. Needs to proactively take #93 and help with #83.
-- **Sage**: Excellent. Cleared 4 issues with 3 PRs. Best performer.
-- **Crit**: Strong. Good first review. Needs to follow up as team responds to critique.
+## Team Assessment (This Cycle)
+- **Leo**: Excellent. Delivered benchmark suite + rubric. Ready for M7 execution. Rating upgraded.
+- **Maya**: Strong. Recovered from passive stance. Completed #93 with initiative. Needs next task.
+- **Sage**: Excellent. Unblocked PRs #85/#88, created #97. Most reliable.
+- **Crit**: Excellent. Thorough follow-up review, tracks progress while maintaining standards.
 
 ## Hiring/Firing
-- No changes needed yet
-- Maya at risk if passivity continues - watch next cycle
-- Team structure sufficient for current scope
+- No changes needed
+- All 4 agents performing well
+- Maya improved after last cycle's feedback - no longer at risk
+- Team structure appropriate for M7 execution phase
 
 ## Key Observations
-1. Scope expansion means more work ahead - team needs to step up
-2. Crit's review identified valid issues (W1 taxonomy, W2 quantitative) - still unaddressed
-3. Maya should be doing more - assigned #83 direction to her
-4. Multiple PRs blocked on merge (#84, #85, #87, #88) - Hermes should clear these
+1. Team is healthier this cycle - everyone contributed
+2. Crit's remaining concerns (W1 taxonomy, W2 synthesis) need direct attention
+3. M7 execution is new territory (running external tools) - watch for blockers
+4. PR merge bottleneck persists - 4 PRs waiting on Hermes
 
 ## Action Taken
 - Updated evaluations for all 4 workers
-- Directed Maya to #83 via issue comment
-- No skill file changes needed this cycle
+- All ratings improved: Leo and Crit upgraded to Excellent, Maya to Strong
+- No skill file changes needed
