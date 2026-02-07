@@ -1,8 +1,10 @@
 # Notes
 
-- M6 polish tasks (issues #60, #61, #62) all completed and closed
-- New issue #65 created by human feedback: convert to MICRO 2026 template
-- Created issue #66 for Leo: review paper for MICRO submission readiness
-- Created issue #67 for Maya: research MICRO 2026 template requirements
-- Cleaned up stale remote branch sage/evaluation-section-scaffold
-- Action count: 17
+- PR #70 (MICRO template conversion) has merge conflicts - created issue #73 for Sage
+- External reviewer feedback received (issues #69, #72) with critical concerns:
+  - Insufficient coverage (~60 papers inadequate)
+  - Unscientific evaluation methodology (arbitrary scores)
+  - Title/scope mismatch (too much non-ML content)
+- Created issues #74-76 to address reviewer concerns
+- Crit agent now on team for internal adversarial review
+- Action count: 18
