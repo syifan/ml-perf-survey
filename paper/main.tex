@@ -262,6 +262,8 @@ This approach trades some fidelity for orders-of-magnitude speedup over cycle-ac
 
 \textbf{ML-augmented approaches} learn performance functions from profiling data.
 These range from simple models (random forests in nn-Meter~\cite{nnmeter2021}, XGBoost in TVM~\cite{tvm2018}) to deep learning (NeuSight~\cite{neusight2025}) and meta-learning (HELP~\cite{help2021}).
+The quality of profiling data depends on hardware performance counter infrastructure---PAPI~\cite{papi2000} provides a portable API for accessing hardware counters across architectures, while LIKWID~\cite{likwid2010} offers lightweight topology-aware measurement for x86 multicore environments.
+These tools underpin the data collection pipeline for ML-augmented approaches, though their coverage of GPU-specific counters (e.g., tensor core utilization, warp scheduling events) remains limited.
 ML-augmented approaches can capture complex non-linear relationships that elude analytical treatment, but require training data and may not generalize beyond their training distribution.
 
 \subsection{Problem Formulation}
@@ -531,12 +533,13 @@ LLM execution exhibits qualitatively different prefill (compute-bound) and decod
 VIDUR~\cite{vidur2024} provides discrete-event simulation for LLM serving systems, capturing request scheduling strategies (Orca~\cite{orca2022}, Sarathi~\cite{sarathi2024}) with $<$5\% error.
 LIFE~\cite{life2025} offers hardware-agnostic analytical LLM inference modeling.
 HERMES~\cite{hermes2025} targets heterogeneous multi-stage inference pipelines.
-Emerging work uses LLMs themselves for GPU kernel performance prediction: Omniwise~\cite{omniwise2025} achieves 90\% of predictions within 10\% error on AMD MI250/MI300X.
+Emerging work uses LLMs themselves for GPU kernel performance prediction and optimization: Omniwise~\cite{omniwise2025} achieves 90\% of predictions within 10\% error on AMD MI250/MI300X, while SwizzlePerf~\cite{swizzleperf2025} uses hardware-aware LLMs for spatial optimization of GPU kernels, achieving up to 2.06$\times$ speedup through swizzling---demonstrating that LLMs can both predict \emph{and} optimize kernel performance.
 
 \textbf{Compiler cost models.}
 TVM~\cite{tvm2018} and Ansor~\cite{ansor2020} use ML cost models (XGBoost, MLP) to guide autotuning, achieving $\sim$15\% MAPE.
 The TenSet dataset~\cite{tenset2021} (52M records) enables pre-trained models that accelerate autotuning 10$\times$.
 TLP~\cite{tlp2023} uses deep learning for tensor program cost modeling.
+SynPerf~\cite{synperf2025} takes a complementary approach, synthesizing high-performance GPU kernels via pipeline decomposition---using performance models to guide kernel generation rather than merely evaluating existing kernels.
 These tools prioritize ranking accuracy for schedule selection over absolute error.
 
 \subsection{Distributed Training and LLM Serving}
@@ -565,13 +568,19 @@ Sailor~\cite{sailor2025} addresses automated parallelism selection over heteroge
 VIDUR~\cite{vidur2024} simulates LLM inference serving with scheduling strategies (vLLM~\cite{vllm2023}, Orca~\cite{orca2022}, Sarathi~\cite{sarathi2024}) without requiring GPU hardware.
 Frontier~\cite{frontier2025} extends to MoE and disaggregated inference with stage-centric simulation.
 ThrottLL'eM~\cite{throttllem2025} models GPU throttling for energy-efficient LLM inference.
-These tools enable infrastructure planning and scheduling algorithm comparison at scale.
+Recent LLM inference optimizations also change the performance characteristics that simulators must capture: MEDUSA~\cite{medusa2024} introduces speculative decoding with multiple decode heads that transforms the sequential token-by-token generation into parallel verification, fundamentally altering the compute-to-memory ratio that models like VIDUR assume.
+POD-Attention~\cite{podattention2025} achieves full prefill-decode overlap, breaking the assumption of sequential phase execution that underlies most analytical LLM inference models.
+AQUA~\cite{aqua2025} demonstrates 20$\times$ improved responsiveness through network-accelerated KV cache offloading across GPU domains, introducing network latency into what was previously a local memory management problem.
+These optimizations illustrate a moving-target challenge: performance models must track not just hardware evolution but algorithmic innovations that restructure execution patterns.
+These tools collectively enable infrastructure planning and scheduling algorithm comparison at scale.
 
 \textbf{Memory system interactions.}
 Memory increasingly dominates ML performance.
 KV cache management is the dominant LLM serving challenge; vLLM's PagedAttention~\cite{vllm2023} achieves 2--4$\times$ throughput improvement.
 VIDUR models cache allocation and eviction at the system level.
-Memory simulators (DRAMSim3~\cite{dramsim3_2020}, Ramulator 2~\cite{ramulator2_2023}) provide detailed DRAM modeling but are primarily integrated with CPU/GPU simulators rather than used standalone for ML workloads.
+Memory simulators have evolved through multiple generations: DRAMSim2~\cite{dramsim2_2011} established cycle-accurate DDR2/DDR3 simulation validated against manufacturer Verilog models, while DRAMSim3~\cite{dramsim3_2020} added thermal modeling and HMC support.
+Ramulator~\cite{ramulator2015} introduced extensible support across DDRx, LPDDRx, GDDRx, and HBM standards, with Ramulator 2~\cite{ramulator2_2023} adding DDR5, HBM3, and RowHammer mitigation modeling.
+These simulators are primarily integrated with CPU/GPU simulators rather than used standalone for ML workloads, but they provide critical memory subsystem fidelity for tools like Accel-Sim that model data movement bottlenecks in ML training.
 
 \subsection{Edge Device Modeling}
 \label{subsec:edge-modeling}
