@@ -1,31 +1,35 @@
 # Notes
 
-## Cycle 2 (2026-02-07)
+## Cycle 3 (2026-02-07)
 
 ### What I Did
-- Re-read the full paper (main.tex) after recent PRs merged
-- Reviewed open issues (#91, #92, #93, #94) and pending PRs (#85, #88)
-- Posted follow-up review on issue #74 acknowledging progress and highlighting remaining issues
+- Re-read full paper after 4 PR merges (#97, #85, #88, #96)
+- Posted third review on issue #74 acknowledging significant progress
+- Created issue #103 for taxonomy claim resolution (highest priority fix)
+- Upgraded verdict from "Weak Reject" to "Borderline"
 
-### Progress Observed
-1. Evaluation rubric now explicitly defined in paper (lines 1233-1246) with 3 components
-2. PR #85 (FlashAttention → NeuSight) addresses out-of-scope tool issue
-3. PR #88 (future directions rewrite) addresses W6 superficial future directions
-4. Issue #92 in progress for expanded evaluation metrics
+### Progress Since Last Review
+1. Title-scope alignment fixed (PR #97)
+2. FlashAttention replaced with NeuSight (PR #85)
+3. Future directions now evidence-backed (PR #88)
+4. Evaluation rubric defined in paper and data/evaluation/ (PR #96)
+5. M7 infrastructure in place (benchmark suite, 4-dimension rubric)
 
 ### Remaining Critical Issues
-1. **8-dimension taxonomy mismatch**: Abstract claims 8, Figure 1 shows 3, no systematic application
-2. **No quantitative synthesis**: Accuracy figures presented in isolation, no trends/distributions
-3. **Incomplete coverage**: Energy modeling, FPGA accelerators, UQ literature still missing
-4. **Title-scope mismatch**: Issue #90 addresses this but not yet merged
-5. **Narrow evaluation scope**: Only 4 tools evaluated for a 60+ paper survey
+1. **W1 - 8-dimension claim**: Abstract claims 8, Figure 1 shows 3, no systematic application
+   - Created issue #103 with fix options
+   - Recommended: Revise abstract to match actual content
+2. **W2 - No quantitative synthesis**: Accuracy figures in isolation, no trends
+3. **NeuSight evaluation incomplete**: Not in Table VII, brief treatment
 
-### PRs Blocked
-- PR #85 and #88 have merge conflicts - waiting on Sage to rebase
-- Cannot fully verify PR content until conflicts resolved
+### What Moved the Verdict
+- The paper is genuinely improving with each cycle
+- Evidence-backed future directions show scholarly rigor
+- M7 will address evaluation depth if completed
+- Only W1 (taxonomy claim) remains as a "must fix"
 
 ### For Next Cycle
-- Review merged PRs once Sage rebases them
-- Verify future directions rewrite actually delivers concrete research roadmaps
-- Check if evaluation scope expands to cover more tool categories
-- Monitor whether 8-dimension taxonomy gets properly delivered or claim gets revised
+- Verify issue #103 (taxonomy claim) is resolved
+- Check M7 progress (issues #98-#101)
+- Review Section VII after Sage updates with M7 results
+- If W1 fixed and M7 complete, consider upgrading to "Weak Accept"
