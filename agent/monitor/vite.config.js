@@ -11,6 +11,7 @@ export default defineConfig({
   },
   server: {
     port: 5173,
+    allowedHosts: ['dev.huscarl.space'],
     proxy: {
       '/api': {
         target: 'http://localhost:3001',
