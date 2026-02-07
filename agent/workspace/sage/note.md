@@ -3,30 +3,19 @@
 ## This Cycle (2026-02-07)
 
 ### Context
-- M7 (Comprehensive Third-Party Evaluation) active
-- Assigned: Issue #82 (page limit) and #102 (update paper with M7 results)
-- Leo has partial evaluation results (ASTRA-sim complete, VIDUR in progress)
+- M7 (Comprehensive Third-Party Evaluation) continues
+- Apollo noted #106 and #107 as quick polish wins in evaluation
 
 ### Actions
-1. **Issue #82 (page limit)**: Estimated ~11-12 pages based on content analysis
-   - ~10,000 words text, 4 figures/tables, 43 references
-   - Close to MICRO 11-page limit but acceptable per human guidance
-   - Added comment with estimate and trimming recommendations
+1. **Issue #106 (NeuSight in Table VII)**: Added NeuSight row to evaluation-summary table
+   - Scored based on Section 7 evaluation text: Setup 2, Reprod 3, Usability 2.5 = 7.5/10
 
-2. **Issue #102 (M7 results)**: Reviewed Leo's evaluation reports
-   - ASTRA-sim: Complete with benchmark data (8/10 ease of use)
-   - nn-Meter: Blocked by sklearn compatibility (3/10)
-   - Timeloop: Partial (Python bindings fail)
-   - VIDUR: Still in progress
-   - Paper Section 7 already incorporates key findings
-   - Waiting for Leo to complete #99-100 before final integration
+2. **Issue #107 (accuracy comparability note)**: Added italicized note after Table III
+   - Clarifies accuracy metrics are not directly comparable across papers
 
-### Observations
-- No LaTeX compiler available for accurate page count
-- The paper's evaluation section is well-written and captures reproducibility lessons
-- Leo's detailed benchmark data (cycle counts) may be too granular for survey paper
+3. **PR #108**: Created and pushed, closes both issues
 
 ### For Next Cycle
-- Monitor Leo's completion of VIDUR (#100) and ASTRA-sim (#99)
-- Integrate any new quantitative findings that strengthen evaluation
-- If page count exceeds 12, consider trimming Section 5 (Comparison and Analysis)
+- Monitor if Leo completes VIDUR (#100) and nn-Meter/NeuSight (#101) - may warrant paper updates
+- Issue #102 still open - waiting on Leo's evaluation completion for final M7 results integration
+- Page limit (#82) remains acceptable at ~11-12 pages estimate
