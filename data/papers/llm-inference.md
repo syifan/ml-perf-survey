@@ -30,6 +30,8 @@ Literature focused on LLM-specific performance models, serving systems, attentio
 | Omniwise | Haj-Ali et al. | 2025 | arXiv | Prediction | LLM-based GPU kernel prediction, 90% within 10% error |
 | HERMES | Bambhaniya et al. | 2025 | arXiv | Simulation | Multi-stage AI inference pipeline simulator |
 | POD-Attention | Hao et al. | 2025 | ASPLOS | Attention | Full prefill-decode overlap for LLM inference |
+| Frontier | Ghosh et al. | 2025 | arXiv | Simulation | MoE/disaggregated LLM inference simulator |
+| SwizzlePerf | Tschand et al. | 2025 | arXiv | Optimization | LLM-based GPU kernel spatial optimization, 2.06x speedup |
 
 ## Categorization by Focus Area
 
@@ -177,6 +179,18 @@ Literature focused on LLM-specific performance models, serving systems, attentio
   - Integrates real hardware traces with analytical modeling
   - Captures memory bandwidth contention and batching efficiency
 
+- **Frontier** (arXiv 2025) - Next-gen LLM inference simulation
+  - Stage-centric architecture for MoE and disaggregated systems
+  - Models expert parallelism and cross-cluster routing
+  - Captures inter-node dynamics and straggler effects
+  - High-fidelity execution predictor for data-dependent workflows
+
+- **SwizzlePerf** (arXiv 2025) - LLM-based kernel optimization
+  - Hardware-aware LLMs for GPU kernel spatial optimization
+  - Automatic swizzling pattern generation
+  - Up to 2.06x speedup and 70% L2 hit rate improvement
+  - Replaces weeks of expert effort with 5 minutes of LLM generation
+
 ### 7. Distributed Inference
 
 - **SpotServe** (ASPLOS 2024) - Preemptible instances
@@ -266,11 +280,12 @@ Literature focused on LLM-specific performance models, serving systems, attentio
 
 ## References Summary
 
-Total papers cataloged: 45
+Total papers cataloged: 47
 - Serving systems: 12
 - Attention optimization: 4
 - KV cache: 6
 - Speculative decoding: 5
-- Performance prediction: 5
+- Performance prediction: 7
 - Distributed inference: 5
 - Benchmarks/surveys: 5
+- Kernel optimization: 3

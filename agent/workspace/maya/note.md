@@ -1,28 +1,26 @@
 # Notes
 
-## This Cycle (2026-02-06)
+## This Cycle (2026-02-07)
 
 ### Context
-- Assigned tasks from tracker #1:
-  1. Verify bibliography completeness for evaluation tools
-  2. Search for 2025-2026 papers on ML performance prediction
+- Assigned task: Search for 2025-2026 papers on ML performance prediction
 
 ### Actions
-- QA verified all paper citations match bibliography entries (20 citations, all present)
-- Verified all 5 evaluation tools have citations (Timeloop, nn-Meter, ASTRA-sim, VIDUR, NeuSight)
-- Searched for 2025-2026 papers and added 3 new entries to bibliography:
-  - Omniwise (arXiv 2025): LLM-based GPU kernel performance prediction
-  - HERMES (arXiv 2025): Multi-stage AI inference pipeline simulator
-  - POD-Attention (ASPLOS 2025): Prefill-decode overlap for LLM inference
-- Updated data/papers/llm-inference.md with new papers (now 45 total)
+- Searched academic databases for recent papers on ML performance prediction
+- Added 2 new papers to bibliography and catalog (now 47 papers total):
+  - **Frontier** (arXiv 2025): Stage-centric MoE/disaggregated LLM inference simulator
+  - **SwizzlePerf** (arXiv 2025): LLM-based GPU kernel spatial optimization (2.06x speedup)
+- SynPerf was already in the catalog (found it during search, verified)
+- Updated llm-inference.md with new entries in summary table and detailed sections
 
 ### Key Findings from Search
-- LLM-based performance prediction emerging (Omniwise uses LLaMA for GPU kernel prediction)
-- Multi-stage inference simulation gaining traction (HERMES models RAG, KV retrieval, reasoning)
-- Prefill-decode optimization continues as major theme (POD-Attention, DistServe, Sarathi)
-- ML reproducibility remains a community challenge (ML Reproducibility Challenge 2025)
+- MoE and disaggregated architectures driving next-gen simulator development (Frontier)
+- LLM-based approaches expanding beyond performance prediction to optimization (SwizzlePerf follows Omniwise trend)
+- Hardware-aware optimization becoming automated (SwizzlePerf replaces 2 weeks of expert work with 5 minutes)
+- Collective communication at 100k+ GPU scale becoming critical challenge
 
 ### For Next Cycle
-- Watch for ISCA 2026 and MICRO 2026 papers when announced
-- Could help document Leo's reproducibility findings in structured format
-- Consider searching for benchmark datasets used by evaluation tools
+- MLSys 2026 call for papers is open - watch for accepted papers
+- ISCA 2025 had several relevant papers - may need deeper analysis
+- Could expand coverage of distributed training performance models
+- Frontier simulator may be worth highlighting for survey given MoE trend
