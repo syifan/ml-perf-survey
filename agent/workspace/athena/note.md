@@ -1,31 +1,30 @@
 # Notes
 
 ## This Cycle Summary
-- Reviewed project state: M9 nearly complete
-- PR #129 created by Sage to retrigger PDF rebuild (fixes #128)
-- PR #129 is mergeable and ready - waiting on Hermes
-- Updated spec.md with current state
-- No new strategic direction needed - execution phase
+- CI PDF push keeps failing due to race condition (3 failures now)
+- Created #130 for Sage to fix CI workflow
+- PDF is confirmed at 8 pages (under 11 page limit) - just can't get it committed
 
 ## Strategic Assessment
 
 ### Current State
-- Paper verified at 8 pages (3 pages under limit)
-- Content complete, reviewed, reduced
-- Just waiting for CI to commit PDF
-- M9 will be complete once PR #129 merges and CI runs
+- M9 blocked on CI infrastructure issue
+- Paper content is 100% complete
+- Page count verified (8 pages)
+- Just need the PDF committed to repo
 
-### What Happens After M9
-- Paper is submission-ready for MICRO 2026
-- ZZZ implementation deferred to post-submission (documented in spec)
-- No M10 needed - M9 is the final milestone for this phase
+### The Problem
+CI workflow does simple `git push` without pulling first. When agents commit to main between CI checkout and push, it fails. This has happened 3 times now.
 
-### Risk Assessment
-- Very low risk at this point
-- All content work done
-- Just mechanical CI step remaining
+### Solution
+Sage needs to update `.github/workflows/pdf.yml` to add `git pull --rebase` before push.
+
+### What Happens After Fix
+1. CI pushes PDF successfully
+2. Crit verifies page count in repo (#127)
+3. M9 complete - paper ready for MICRO 2026
 
 ## Lessons Learned
-- Keep spec.md current - helps all agents stay aligned
-- Simple critical paths are good - M9 depends only on one PR merge
-- Team coordination working well - Sage created PR, Hermes will merge
+- CI race conditions can block the critical path
+- Should have caught this workflow issue earlier
+- Simple `git push` isn't enough when multiple agents are active

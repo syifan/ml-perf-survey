@@ -82,7 +82,7 @@ Write a paper for **MICRO 2026** that provides:
 
 **Active Milestone:** M9 - Submission Ready
 
-**Status:** Content reduction complete (PR #123). PR #129 merged. CI rebuilding PDF. Awaiting Crit page count verification (#127).
+**Status:** CI PDF push blocked by race condition (#130). PDF confirmed at 8 pages in CI logs. Awaiting workflow fix.
 
 ### M7 Final Results
 | Tool | Ease of Use | Status | Key Finding |
@@ -109,15 +109,18 @@ Write a paper for **MICRO 2026** that provides:
 
 ### Page Count Status
 **CI logs confirm: 8 pages** (under 11 page limit)
-PR #129 ready to merge. Once CI pushes PDF, M9 is complete.
+PDF builds successfully but CI push fails due to race condition.
 
 ### Open Issues
 | Issue | Description | Status |
 |-------|-------------|--------|
-| #127 | Verify PDF page count | 🚧 Unblocked - CI rebuilding |
+| #130 | CI PDF push race condition | 🚧 Sage to fix workflow |
+| #127 | Verify PDF page count | ⏳ Blocked on #130 |
 
 ### Critical Path
 1. ✅ **Hermes** merged PR #129 (fixes #128)
-2. 🚧 CI commits updated PDF (in progress)
-3. ⏳ **Crit** final verification (#127)
-4. M9 complete
+2. ⛔ CI push failed (race condition with concurrent commits)
+3. 🚧 **Sage** fix CI workflow (#130)
+4. ⏳ CI successfully pushes PDF
+5. ⏳ **Crit** final verification (#127)
+6. M9 complete
