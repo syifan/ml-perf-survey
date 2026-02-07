@@ -1,0 +1,294 @@
+{
+  "metadata": {
+    "generated": "2026-02-07",
+    "author": "Flux (Tool Engineer)",
+    "issues": [
+      194,
+      155,
+      143
+    ],
+    "script": "scripts/cross_tool_accuracy_analysis.py"
+  },
+  "astra_sim": {
+    "tool": "ASTRA-sim",
+    "version": "v2.x analytical backend",
+    "platform": "HGX-H100 (simulated)",
+    "microbenchmarks_8npu_1mb": {
+      "all_reduce": {
+        "wall_time_cycles": 57426,
+        "comm_time_cycles": 57426,
+        "num_npus": 8,
+        "msg_size_bytes": 1048576,
+        "analytical_expected_ns": 17695.0,
+        "sim_to_analytical_ratio": 3.25,
+        "note": "Simulator reports 3.2x the simple analytical model. Discrepancy due to endpoint delay (10 cycles/hop), chunk-based transfer (active-chunks=2, splits=4), and event-driven scheduling overhead."
+      },
+      "all_gather": {
+        "wall_time_cycles": 44058,
+        "comm_time_cycles": 44058,
+        "num_npus": 8,
+        "msg_size_bytes": 1048576
+      },
+      "reduce_scatter": {
+        "wall_time_cycles": 28950,
+        "comm_time_cycles": 28950,
+        "num_npus": 8,
+        "msg_size_bytes": 1048576
+      },
+      "all_to_all": {
+        "wall_time_cycles": 114000,
+        "comm_time_cycles": 114000,
+        "num_npus": 8,
+        "msg_size_bytes": 1048576
+      },
+      "collective_ratios_vs_allreduce": {
+        "all_gather": 0.767,
+        "reduce_scatter": 0.504,
+        "all_to_all": 1.985
+      }
+    },
+    "resnet50_scaling": {
+      "2_gpu": {
+        "wall_time_cycles": 1095888289,
+        "comm_time_cycles": 574289,
+        "gpu_time_cycles": 1095314000,
+        "comm_overhead_pct": 0.052
+      },
+      "4_gpu": {
+        "wall_time_cycles": 1096768270,
+        "comm_time_cycles": 1454270,
+        "gpu_time_cycles": 1095314000,
+        "comm_overhead_pct": 0.133
+      },
+      "8_gpu": {
+        "wall_time_cycles": 1098621886,
+        "comm_time_cycles": 3307886,
+        "gpu_time_cycles": 1095314000,
+        "comm_overhead_pct": 0.301
+      },
+      "comm_scaling_2_to_8": 5.76
+    },
+    "published_accuracy_claims": {
+      "source": "ASTRA-sim HGX-H100 validation (Won et al.)",
+      "metric": "Geomean error vs NCCL all-reduce benchmarks",
+      "claims": {
+        "2_gpu": {
+          "geomean_error_pct": 20.63
+        },
+        "4_gpu": {
+          "geomean_error_pct": 12.01
+        },
+        "8_gpu": {
+          "geomean_error_pct": 9.69
+        }
+      },
+      "verification_status": "CANNOT_VERIFY",
+      "reason": "Independent verification requires HGX-H100 hardware to measure ground-truth NCCL all-reduce latencies. Published validation was against specific NCCL benchmark message sizes, not end-to-end training. Our synthetic workload compute times don't represent real H100 kernel execution."
+    },
+    "independent_verification": {
+      "tool_runs_successfully": true,
+      "scales_tested": [
+        2,
+        4,
+        8
+      ],
+      "communication_scaling_plausible": true,
+      "collective_ratios_plausible": true,
+      "deterministic_results": true,
+      "docker_reproducible": true
+    }
+  },
+  "vidur": {
+    "tool": "VIDUR",
+    "version": "latest (from GitHub)",
+    "scheduler_results": {
+      "vllm": {
+        "scheduler": "vllm",
+        "model": "meta-llama/Llama-2-7b-hf",
+        "device": "a100",
+        "num_requests": 200,
+        "request_config": {
+          "generator": "synthetic",
+          "qps": 2.0
+        },
+        "latency": {
+          "avg_e2e_s": 0.1767,
+          "median_e2e_s": 0.177,
+          "p90_e2e_s": 0.2609,
+          "p99_e2e_s": 0.3198,
+          "stddev_e2e_s": 0.0638
+        },
+        "execution": {
+          "avg_exec_s": 0.1666,
+          "avg_sched_delay_s": 0.001967,
+          "max_sched_delay_s": 0.028845,
+          "avg_preemption_s": 0.00814,
+          "requests_preempted": 53,
+          "requests_restarted": 0
+        },
+        "prefill": {
+          "avg_ttft_s": 0.0273,
+          "p99_ttft_s": 0.0645,
+          "avg_prefill_tokens": 304.5
+        },
+        "decode": {
+          "avg_tpot_s": 0.009347,
+          "p99_tpot_s": 0.012719,
+          "avg_decode_tokens": 15.8
+        },
+        "throughput": {
+          "total_tokens": 64053,
+          "effective_throughput_tok_s": 197966.0,
+          "avg_tokens_per_request": 320.3
+        }
+      },
+      "sarathi": {
+        "scheduler": "sarathi",
+        "model": "meta-llama/Llama-2-7b-hf",
+        "device": "a100",
+        "num_requests": 50,
+        "request_config": {
+          "generator": "synthetic",
+          "qps": 2.0
+        },
+        "latency": {
+          "avg_e2e_s": 0.1575,
+          "median_e2e_s": 0.1563,
+          "p90_e2e_s": 0.2357,
+          "p99_e2e_s": 0.2697,
+          "stddev_e2e_s": 0.0547
+        },
+        "execution": {
+          "avg_exec_s": 0.1561,
+          "avg_sched_delay_s": 0.001453,
+          "max_sched_delay_s": 0.010783,
+          "avg_preemption_s": 0.0,
+          "requests_preempted": 0,
+          "requests_restarted": 0
+        },
+        "prefill": {
+          "avg_ttft_s": 0.0247,
+          "p99_ttft_s": 0.0382,
+          "avg_prefill_tokens": 280.5
+        },
+        "decode": {
+          "avg_tpot_s": 0.009034,
+          "p99_tpot_s": 0.010996,
+          "avg_decode_tokens": 14.5
+        },
+        "throughput": {
+          "total_tokens": 14752,
+          "effective_throughput_tok_s": 54704.9,
+          "avg_tokens_per_request": 295.0
+        }
+      }
+    },
+    "scheduler_comparison": {
+      "schedulers_compared": [
+        "vllm",
+        "sarathi"
+      ],
+      "model": "meta-llama/Llama-2-7b-hf",
+      "device": "a100",
+      "e2e_latency": {
+        "vllm_avg_s": 0.1767,
+        "sarathi_avg_s": 0.1575,
+        "difference_pct": 12.19,
+        "winner": "sarathi"
+      },
+      "ttft": {
+        "vllm_avg_s": 0.0273,
+        "sarathi_avg_s": 0.0247,
+        "difference_pct": 10.53
+      },
+      "tpot": {
+        "vllm_avg_s": 0.009347,
+        "sarathi_avg_s": 0.009034,
+        "difference_pct": 3.46
+      },
+      "preemption": {
+        "vllm_preempted": 53,
+        "sarathi_preempted": 0,
+        "note": "vLLM uses PagedAttention with preemption; Sarathi uses chunked prefill without preemption"
+      },
+      "throughput": {
+        "vllm_tok_s": 197966.0,
+        "sarathi_tok_s": 54704.9
+      }
+    },
+    "published_accuracy_claims": {
+      "source": "VIDUR: A Large-Scale Simulation Framework for LLM Inference (MLSys 2024, Agrawal et al.)",
+      "claimed_error": "<5% vs real LLM serving traces",
+      "validated_against": [
+        "vLLM",
+        "TensorRT-LLM"
+      ],
+      "verification_status": "PARTIALLY_VERIFIED",
+      "what_we_verified": [
+        "Simulation completes for Llama-2-7B on A100 with both vLLM and Sarathi schedulers",
+        "Request-level metrics (E2E, TTFT, TPOT) are physically plausible",
+        "Scheduling delay is near-zero at low QPS (2.0), as expected",
+        "Preemption occurs with vLLM but not Sarathi, matching algorithm design",
+        "Relative scheduler ranking (Sarathi slightly faster) is consistent with literature"
+      ],
+      "what_we_cannot_verify": [
+        "Absolute latency accuracy (requires real A100 GPU running vLLM)",
+        "The specific <5% error claim (requires identical hardware + workload trace)"
+      ]
+    }
+  },
+  "cross_tool_summary": {
+    "tools_evaluated": [
+      "ASTRA-sim",
+      "VIDUR"
+    ],
+    "evaluation_scope": {
+      "ASTRA-sim": "Distributed DNN training communication simulation (ResNet-50, 2/4/8 GPUs)",
+      "VIDUR": "LLM inference serving simulation (Llama-2-7B, vLLM + Sarathi schedulers)"
+    },
+    "key_findings": [
+      {
+        "finding": "Both tools produce physically plausible results",
+        "evidence": "ASTRA-sim communication scales with GPU count as expected. VIDUR scheduler metrics match algorithm design (preemption in vLLM, not Sarathi)."
+      },
+      {
+        "finding": "Published accuracy claims cannot be independently verified without hardware",
+        "evidence": "ASTRA-sim claims 9.69% error (8 GPU) but needs HGX-H100 ground truth. VIDUR claims <5% error but needs real A100 + vLLM deployment."
+      },
+      {
+        "finding": "Relative comparisons are more trustworthy than absolute predictions",
+        "evidence": "ASTRA-sim correctly predicts communication scaling trends. VIDUR correctly ranks scheduler latency and captures preemption behavior."
+      },
+      {
+        "finding": "Docker-based tools achieve better reproducibility than pip-installed tools",
+        "evidence": "ASTRA-sim (Docker): deterministic builds, identical results across runs. VIDUR (pip): Python 3.10 requirement, dependency sensitivity."
+      }
+    ],
+    "reproducibility_comparison": {
+      "ASTRA-sim": {
+        "setup_method": "Docker",
+        "deterministic": true,
+        "time_to_first_result_min": 20,
+        "score": "8/10"
+      },
+      "VIDUR": {
+        "setup_method": "pip (Python 3.10)",
+        "deterministic": true,
+        "time_to_first_result_min": 5,
+        "score": "7/10"
+      }
+    },
+    "accuracy_verification_status": {
+      "ASTRA-sim": {
+        "published_claim": "9.69% geomean error (8 GPU HGX-H100)",
+        "our_verdict": "PLAUSIBLE but UNVERIFIED",
+        "reason": "No hardware access for ground truth"
+      },
+      "VIDUR": {
+        "published_claim": "<5% error vs real serving",
+        "our_verdict": "PLAUSIBLE but UNVERIFIED",
+        "reason": "No hardware access for ground truth"
+      }
+    }
+  }
+}
