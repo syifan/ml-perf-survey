@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -58,6 +58,8 @@ function App() {
   const [newIssueText, setNewIssueText] = useState('')
   const [creatingIssue, setCreatingIssue] = useState(false)
   const [agentModal, setAgentModal] = useState({ open: false, agent: null, data: null, loading: false })
+  const [logsAutoFollow, setLogsAutoFollow] = useState(true)
+  const logsRef = useRef(null)
 
   const fetchData = async () => {
     try {
@@ -219,6 +221,13 @@ apolloCycleInterval: ${configForm.apolloCycleInterval}
     const interval = setInterval(fetchData, 5000)
     return () => clearInterval(interval)
   }, [])
+
+  // Auto-scroll logs to bottom when new logs arrive
+  useEffect(() => {
+    if (logsAutoFollow && logsRef.current) {
+      logsRef.current.scrollTop = logsRef.current.scrollHeight
+    }
+  }, [logs, logsAutoFollow])
 
   const formatTime = (date) => date ? date.toLocaleTimeString() : '--:--:--'
 
@@ -545,7 +554,17 @@ apolloCycleInterval: ${configForm.apolloCycleInterval}
         <Card className="mt-4">
           <CardHeader><CardTitle className="flex items-center gap-2"><ScrollText className="w-4 h-4" />Orchestrator Logs</CardTitle></CardHeader>
           <CardContent>
-            <div className="bg-neutral-900 rounded-lg p-3 h-80 overflow-y-auto font-mono text-xs">
+            <div 
+              ref={logsRef}
+              className="bg-neutral-900 rounded-lg p-3 h-80 overflow-y-auto font-mono text-xs"
+              onScroll={(e) => {
+                const { scrollTop, scrollHeight, clientHeight } = e.target
+                // Disable auto-follow if user scrolled up (not at bottom)
+                const atBottom = scrollHeight - scrollTop - clientHeight < 50
+                if (!atBottom && logsAutoFollow) setLogsAutoFollow(false)
+                if (atBottom && !logsAutoFollow) setLogsAutoFollow(true)
+              }}
+            >
               {logs.length === 0 ? <p className="text-neutral-500">No logs</p> : logs.map((line, idx) => (
                 <div key={idx} className="text-neutral-300 whitespace-pre-wrap break-all">{line}</div>
               ))}
