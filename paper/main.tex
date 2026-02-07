@@ -1,17 +1,35 @@
 % MICRO 2026 Survey Paper - ML Performance Models
-% Template based on IEEE conference format
+% Using MICRO 59 ACM sigconf template
 
-\documentclass[conference]{IEEEtran}
+%%
+%% For submission and review of your manuscript please change the
+%% command to \documentclass[manuscript, screen, review]{acmart}.
+%%
+\documentclass[sigconf, screen, review]{acmart}
 
-% Packages
-\usepackage{cite}
+%%
+%% \BibTeX command to typeset BibTeX logo in the docs
+\AtBeginDocument{%
+  \providecommand\BibTeX{{%
+    Bib\TeX}}}
+
+%% Rights management information - for submission
+\setcopyright{none}
+\copyrightyear{2026}
+\acmYear{2026}
+\acmDOI{XXXXXXX.XXXXXXX}
+
+%% Conference information
+\acmConference[MICRO 2026]{The 59th IEEE/ACM International Symposium on Microarchitecture}{November 2026}{Austin, TX, USA}
+\acmISBN{978-X-XXXX-XXXX-X/XX/XX}
+
+%% Disable ACM reference format printing for submission
+\settopmatter{printfolios=true}
+\settopmatter{printacmref=false}
+
+%% Additional packages
 \usepackage{amsmath,amssymb,amsfonts}
-\usepackage{algorithmic}
-\usepackage{graphicx}
-\usepackage{textcomp}
-\usepackage{xcolor}
 \usepackage{booktabs}
-\usepackage{hyperref}
 \usepackage{multirow}
 \usepackage{tikz}
 \usetikzlibrary{shapes.geometric,arrows.meta,positioning,fit,backgrounds}
@@ -21,18 +39,16 @@
 
 \begin{document}
 
-\title{A Survey of Machine Learning Approaches for\\Computer Architecture Performance Modeling}
+\title{A Survey of Machine Learning Approaches for Computer Architecture Performance Modeling}
+\subtitle{\normalsize{MICRO 2026 Submission
+    \textbf{\#NaN} -- Confidential Draft -- Do NOT Distribute!!}}
 
-\author{
-\IEEEauthorblockN{Authors TBD}
-\IEEEauthorblockA{Affiliations TBD}
-}
+%%
+%% The abstract is a short summary of the work to be presented in the
+%% article.
 
-\maketitle
+%%%%%% -- PAPER CONTENT STARTS-- %%%%%%%%
 
-% ==============================================================================
-% ABSTRACT
-% ==============================================================================
 \begin{abstract}
 Machine learning-based performance modeling has emerged as a powerful alternative to traditional analytical models and cycle-accurate simulators for predicting computer system behavior.
 This survey comprehensively analyzes ML techniques for performance prediction across CPUs, GPUs, accelerators, and distributed systems, covering over 60 papers from architecture and ML venues published between 2016--2025.
@@ -44,9 +60,11 @@ Hybrid approaches combining analytical structure with learned components represe
 This survey provides practitioners guidance for selecting appropriate techniques and researchers a roadmap for advancing the field.
 \end{abstract}
 
-\begin{IEEEkeywords}
-machine learning, performance modeling, computer architecture, neural networks, survey
-\end{IEEEkeywords}
+%%
+%% Keywords
+\keywords{machine learning, performance modeling, computer architecture, neural networks, survey}
+
+\maketitle
 
 % ==============================================================================
 % INTRODUCTION
@@ -1349,10 +1367,12 @@ As ML workloads continue to grow in importance and hardware diversity expands, a
 We hope this survey serves as both a comprehensive reference for practitioners selecting performance modeling approaches and a roadmap for researchers identifying impactful open problems.
 The field's rapid progress suggests that the coming years will bring continued advances in accuracy, generalization, and practical deployment of ML-based performance models.
 
-% ==============================================================================
-% REFERENCES
-% ==============================================================================
-\bibliographystyle{IEEEtran}
+%%%%%%% -- PAPER CONTENT ENDS -- %%%%%%%%
+
+%%
+%% The next two lines define the bibliography style to be used, and
+%% the bibliography file.
+\bibliographystyle{ACM-Reference-Format}
 \bibliography{references}
 
 \end{document}

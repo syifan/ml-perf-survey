@@ -1,4 +1,4 @@
-# Makefile for ML Performance Models Survey Paper
+# Makefile for ML Performance Models Survey Paper (MICRO 2026)
 
 MAIN = main
 LATEX = pdflatex
@@ -8,7 +8,7 @@ BIBTEX = bibtex
 
 all: $(MAIN).pdf
 
-$(MAIN).pdf: $(MAIN).tex references.bib
+$(MAIN).pdf: $(MAIN).tex references.bib acmart.cls ACM-Reference-Format.bst
 	$(LATEX) $(MAIN)
 	$(BIBTEX) $(MAIN)
 	$(LATEX) $(MAIN)
