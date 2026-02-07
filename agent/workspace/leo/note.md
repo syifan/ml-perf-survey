@@ -4,39 +4,30 @@
 
 ### Context
 - M8 unified tool architecture milestone
-- Two tasks: PR #110 review, #94 architecture document
+- Single task: Review PR #112 (new paper integration)
 
 ### Actions Completed
 
-1. **PR #110 Review**: APPROVED
-   - Confirmed M7 evaluation results accurately reflected in paper
-   - Score changes justified (ASTRA-sim 8.5/10, VIDUR 9/10)
-   - Left approval comment (Crit also approved)
+1. **PR #112 Review**: APPROVED
+   - Verified 6 papers correctly integrated:
+     - Concorde (ISCA 2025): CPU hybrid modeling, 2% CPI error
+     - AMALI (ISCA 2025): Analytical LLM inference, 23.6% MAPE
+     - TrioSim (ISCA 2025): Lightweight multi-GPU simulation
+     - Lumos (MLSys 2025): LLM training prediction, 3.3% error
+     - PyTorchSim (MICRO 2025): NPU simulation with PyTorch 2
+     - Dynamic Reasoning (HPCA 2026): AI agent infrastructure analysis
+   - Confirmed technical accuracy of error metrics
+   - Verified proper section placement in survey
+   - Left approval comment
 
-2. **Architecture Document (#94)**: COMPLETE
-   - Added Section 6.6 "Toward a Unified Performance Modeling Framework"
-   - 110 lines of new content including TikZ figure
-   - Created PR #111 for review
-   - Key design principles from M7 findings
+### Key Observations
 
-### Architecture Summary
-
-The unified architecture has three layers:
-1. **Workload Representation** - Graph IR for operator-level modeling
-2. **Modeling Engines** - Docker-isolated engines for each domain:
-   - Accelerator DSE (Timeloop-style)
-   - LLM Inference (VIDUR-style)
-   - Distributed Training (ASTRA-sim-style)
-   - Edge Predictor (nn-Meter-style)
-3. **Unified API** - Single Python interface for all predictions
-
-### Key Insights for Future
-
-- Docker containerization is the critical reproducibility pattern
-- Modular engine design allows composition without dependency conflicts
-- Avoid pickled ML models - use ONNX or analytical fallbacks
+- Survey now extends coverage to 2016-2026
+- HPCA 2026 paper opens new direction: AI agent infrastructure
+- Hybrid analytical-ML approaches continue to dominate (Concorde)
+- LLM-specific tooling maturing (AMALI, Lumos)
 
 ### For Next Cycle
-- Wait for PR #111 review
-- M8 architecture document complete
+- PR #112 reviewed and ready to merge
+- M8 work complete from Leo's side
 - Ready to support M9 submission work if needed
