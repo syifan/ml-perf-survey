@@ -49,7 +49,7 @@
 
 \begin{abstract}
 Machine learning-based performance modeling has emerged as a powerful alternative to traditional analytical models and cycle-accurate simulators for predicting computer system behavior.
-This survey focuses specifically on \emph{ML techniques} for performance prediction across CPUs, GPUs, accelerators, and distributed systems, covering over 60 papers from architecture and ML venues published between 2016--2025.
+This survey focuses specifically on \emph{ML techniques} for performance prediction across CPUs, GPUs, accelerators, and distributed systems, covering over 60 papers from architecture and ML venues published between 2016--2026.
 We position traditional analytical models (Timeloop, MAESTRO) and simulators (gem5, GPGPU-Sim) as \emph{baselines} that ML approaches aim to replace or augment.
 We organize ML approaches along three primary dimensions---modeling technique, target hardware, and input representation---while additionally characterizing papers by workload coverage, prediction targets, accuracy metrics, and evaluation scope.
 Our analysis reveals that specialized ML models achieve remarkable accuracy---below 5\% error for narrow domains---while general-purpose models trade accuracy for broader applicability.
@@ -91,7 +91,7 @@ We focus specifically on \emph{learned} models that acquire predictive capabilit
 We make the following contributions:
 \begin{itemize}
     \item A \textbf{taxonomy} organizing ML approaches along three primary dimensions (modeling technique, target hardware, input representation), with additional characterization by workload coverage, prediction targets, and accuracy.
-    \item A \textbf{systematic survey} of over 60 ML-based performance modeling papers from architecture venues (MICRO, ISCA, HPCA, ASPLOS) and ML venues (MLSys, NeurIPS, ICML) published between 2016--2025.
+    \item A \textbf{systematic survey} of over 60 ML-based performance modeling papers from architecture venues (MICRO, ISCA, HPCA, ASPLOS) and ML venues (MLSys, NeurIPS, ICML) published between 2016--2026.
     \item A \textbf{comparative analysis} examining trade-offs between accuracy, training cost, generalization, and interpretability across ML approaches.
     \item An identification of \textbf{open challenges} including data scarcity, cross-platform generalization, and integration with design automation flows.
 \end{itemize}
@@ -117,10 +117,10 @@ Figure~\ref{fig:timeline} illustrates the evolution of ML-based performance mode
     catnode/.style={font=\tiny, text=white, rounded corners=1pt, inner sep=2pt}
 ]
 % Timeline base
-\draw[thick, ->, black!40] (0,0) -- (13.5,0);
+\draw[thick, ->, black!40] (0,0) -- (14.5,0);
 
 % Year markers
-\foreach \x/\year in {0.5/2016, 2.5/2018, 4.5/2020, 6.5/2022, 8.5/2024, 10.5/2025} {
+\foreach \x/\year in {0.5/2016, 2.5/2018, 4.5/2020, 6.5/2022, 8.5/2024, 10.5/2025, 12.5/2026} {
     \draw[thick, black!40] (\x,-0.15) -- (\x,0.15);
     \node[yearnode, below] at (\x,-0.2) {\year};
 }
@@ -158,17 +158,21 @@ Figure~\ref{fig:timeline} illustrates the evolution of ML-based performance mode
 \node[eventnode, below] at (8.8,-0.4) {LitePred\\VIDUR};
 \node[catnode, fill=red!60] at (8.8,-1.1) {NSDI};
 
-% 2025: NeuSight
-\node[eventnode, above] at (10.5,0.4) {NeuSight\\(hybrid)};
-\node[catnode, fill=purple!60] at (10.5,1.2) {ASPLOS};
+% 2025: NeuSight, Concorde, AMALI
+\node[eventnode, above] at (10.5,0.4) {NeuSight\\Concorde};
+\node[catnode, fill=purple!60] at (10.5,1.2) {ASPLOS/ISCA};
+
+% 2026: AI Agent Analysis
+\node[eventnode, below] at (12.5,-0.4) {AI Agent\\Infra};
+\node[catnode, fill=red!60] at (12.5,-1.1) {HPCA};
 
 % Trend arrow
-\draw[thick, ->, blue!50, dashed] (1,1.6) -- (10,1.6);
-\node[font=\scriptsize, text=blue!60, above] at (5.5,1.6) {Toward hybrid analytical+ML};
+\draw[thick, ->, blue!50, dashed] (1,1.6) -- (12,1.6);
+\node[font=\scriptsize, text=blue!60, above] at (6.5,1.6) {Toward hybrid analytical+ML};
 
 \end{tikzpicture}
 }
-\caption{Evolution of ML-based performance modeling (2016--2025). Early work used analytical models (Eyeriss, Timeloop); ML approaches began with simple regressors (TVM) and progressed to deep learning (Ansor, HELP), GNNs (TC-GNN), and transformers (TLP). Current state-of-the-art combines analytical structure with neural networks (NeuSight).}
+\caption{Evolution of ML-based performance modeling (2016--2026). Early work used analytical models (Eyeriss, Timeloop); ML approaches began with simple regressors (TVM) and progressed to deep learning (Ansor, HELP), GNNs (TC-GNN), and transformers (TLP). Current state-of-the-art combines analytical structure with neural networks (NeuSight, Concorde). Recent work extends to AI agent infrastructure analysis.}
 \label{fig:timeline}
 \end{figure}
 
@@ -488,6 +492,9 @@ ASTRA-sim~\cite{astrasim2023} provides end-to-end distributed training simulatio
 VIDUR~\cite{vidur2024} focuses specifically on LLM inference serving, capturing the unique characteristics of prefill and decode phases, KV cache management, and request scheduling.
 These simulation frameworks achieve 5--15\% accuracy versus real clusters while enabling exploration of parallelization strategies at scale.
 
+TrioSim~\cite{triosim2025} provides lightweight multi-GPU simulation for large-scale DNN workloads, complementing ASTRA-sim with faster execution through selective fidelity modeling.
+Lumos~\cite{lumos2025} specifically targets LLM training performance prediction through trace-driven modeling, achieving 3.3\% error on H100 GPUs by capturing training-specific patterns including gradient accumulation, optimizer states, and activation checkpointing.
+
 \subsection{By ML Technique}
 \label{subsec:by-technique}
 
@@ -607,7 +614,7 @@ Table~\ref{tab:survey-summary} provides a comprehensive comparison of the survey
 
 \begin{table*}[t]
 \centering
-\caption{Summary of surveyed ML-based performance modeling approaches, organized by target hardware platform.}
+\caption{Summary of surveyed ML-based performance modeling approaches, organized by target hardware platform. $^*$PyTorchSim and TrioSim focus on simulation speedup rather than reporting absolute accuracy vs.\ real hardware; accuracy data not comparable to other entries.}
 \label{tab:survey-summary}
 \small
 \begin{tabular}{llllll}
@@ -616,10 +623,12 @@ Table~\ref{tab:survey-summary} provides a comprehensive comparison of the survey
 \midrule
 \multicolumn{6}{l}{\textit{CPU Performance Modeling}} \\
 GRANITE~\cite{granite2022} & CPU & GNN & Basic block throughput & 0.97 corr & Instruction graph encoding \\
+Concorde~\cite{concorde2025} & CPU & Hybrid & CPI & 2\% & Compositional analytical-ML \\
 gem5+ML~\cite{binkert2011gem5} & CPU & Hybrid & Execution time & 10--20\% & Simulation + learning \\
 \midrule
 \multicolumn{6}{l}{\textit{GPU Performance Modeling}} \\
 NeuSight~\cite{neusight2025} & GPU & Hybrid MLP & Kernel/E2E latency & 2.3\% & Tile-based prediction \\
+AMALI~\cite{amali2025} & GPU & Analytical & LLM inference & 23.6\% & Memory hierarchy modeling \\
 Habitat~\cite{habitat2021} & GPU & MLP & Training time & 11.8\% & Wave scaling analysis \\
 Accel-Sim~\cite{accelsim2020} & GPU & Simulation & Cycle-accurate & 10--20\% & SASS trace-driven \\
 \midrule
@@ -627,6 +636,7 @@ Accel-Sim~\cite{accelsim2020} & GPU & Simulation & Cycle-accurate & 10--20\% & S
 Timeloop~\cite{timeloop2019} & NPU & Analytical & Latency/Energy & 5--10\% & Loop-nest DSE \\
 MAESTRO~\cite{maestro2019} & NPU & Analytical & Latency/Energy & 5--15\% & Data-centric directives \\
 Sparseloop~\cite{sparseloop2022} & NPU & Analytical & Sparse tensors & 5--10\% & Compression modeling \\
+PyTorchSim~\cite{pytorchsim2025} & NPU & Simulation & Latency & N/A$^*$ & PyTorch 2 integration \\
 ArchGym~\cite{archgym2023} & Multi & RL+Surrogate & Multi-objective & 0.61\% & ML-aided DSE \\
 \midrule
 \multicolumn{6}{l}{\textit{Edge Device Modeling}} \\
@@ -636,6 +646,8 @@ HELP~\cite{help2021} & Multi & Meta-learning & Latency & 1.9\% & 10-sample adapt
 \midrule
 \multicolumn{6}{l}{\textit{Distributed and LLM Systems}} \\
 ASTRA-sim~\cite{astrasim2023} & Distributed & Simulation & Training time & 5--15\% & Collective modeling \\
+TrioSim~\cite{triosim2025} & Multi-GPU & Simulation & DNN training & N/A$^*$ & Lightweight multi-GPU \\
+Lumos~\cite{lumos2025} & Distributed & Trace-driven & LLM training & 3.3\% & H100 training modeling \\
 VIDUR~\cite{vidur2024} & GPU cluster & Simulation & LLM serving & $<$5\% & Prefill/decode phases \\
 \bottomrule
 \end{tabular}
@@ -681,6 +693,10 @@ Third, CPU-based DNN inference often involves highly optimized library code (Int
 
 Hybrid approaches combining coarse-grained simulation with learned correction factors represent a promising direction.
 Rather than simulating every cycle, these methods use fast simulation to establish approximate behavior, then train ML models to predict residual errors, potentially achieving simulation accuracy at reduced cost.
+
+Concorde~\cite{concorde2025} represents the latest advancement in hybrid CPU modeling, achieving 2\% CPI error at five orders of magnitude faster than gem5.
+The key insight is compositional analytical-ML fusion: Concorde decomposes CPU execution into analytical components (pipeline stages, memory hierarchy) and learns residual corrections for complex microarchitectural interactions.
+This approach bridges the accuracy gap between fast analytical models and slow cycle-accurate simulation, making CPU performance prediction practical for design space exploration.
 
 \subsection{GPU Performance Modeling}
 \label{subsec:gpu-modeling}
@@ -745,6 +761,10 @@ VIDUR achieves $<$5\% error on end-to-end serving metrics including time-to-firs
 Roofline-LLM extends traditional roofline analysis to LLM inference by decomposing transformer execution into compute-bound (prefill attention, FFN) and memory-bound (decode attention, KV cache access) components.
 Combined with learned correction factors, this hybrid approach achieves 87\% reduction in MSE compared to pure roofline predictions.
 
+AMALI~\cite{amali2025} advances analytical LLM inference modeling by accurately capturing GPU memory hierarchy behavior and operator scheduling.
+The framework reduces MAPE from 127.56\% (GCoM baseline) to 23.59\% on modern GPUs by modeling memory access patterns, kernel launch overhead, and tensor core utilization specific to LLM workloads.
+AMALI complements simulation-based approaches like VIDUR by providing faster predictions suitable for online scheduling decisions.
+
 \subsection{Accelerator Performance Modeling}
 \label{subsec:accelerator-modeling}
 
@@ -787,6 +807,10 @@ Trained surrogate models achieve 0.61\% RMSE while providing 2000$\times$ speedu
 
 FPGA-based accelerators present additional modeling challenges due to the flexibility of reconfigurable fabric and the complexity of HLS-generated datapaths.
 Recent work applies transfer learning to FPGA design space exploration: models trained on one design can adapt to new architectures with limited additional profiling.
+
+PyTorchSim~\cite{pytorchsim2025} bridges the gap between high-level ML frameworks and low-level accelerator simulation.
+By integrating directly with PyTorch 2, PyTorchSim enables NPU simulation with custom RISC-V ISA support and systolic array modeling.
+The Tile-Level Simulation (TLS) approach achieves significant speedup without accuracy loss, supporting both inference and training workloads including multi-core and multi-model tenancy scenarios.
 
 Emerging accelerators---including processing-in-memory (PIM), neuromorphic, and analog compute-in-memory designs---remain underexplored.
 These platforms exhibit fundamentally different performance characteristics (energy-dominated by activations, analog noise effects, sparse event-driven computation) that existing frameworks do not address.
@@ -1399,6 +1423,7 @@ These accuracy levels are sufficient for production deployment in neural archite
 The most successful models combine analytical structure with learned components.
 Analytical decomposition provides interpretable baselines and physics-based inductive bias, while ML captures complex effects that elude closed-form analysis.
 This hybrid philosophy---exemplified by NeuSight's tile-based prediction and VIDUR's~\cite{vidur2024} simulation-based framework---consistently outperforms pure analytical or pure ML approaches.
+Recent 2025--2026 publications reinforce this trend: Concorde~\cite{concorde2025} achieves 2\% CPU error through compositional analytical-ML fusion, AMALI~\cite{amali2025} combines analytical memory modeling with learned corrections for LLM inference, and Lumos~\cite{lumos2025} uses trace-driven modeling with learned residuals for H100 training prediction.
 
 \textbf{Transfer learning is essential for scalability.}
 The proliferation of hardware platforms makes per-device training impractical.
@@ -1411,6 +1436,7 @@ By modeling at the kernel level and capturing framework fusion behavior, models 
 \textbf{LLM inference presents unique challenges.}
 Large language model serving has distinct characteristics---autoregressive generation, KV cache growth, prefill-decode phase separation---that require specialized modeling.
 VIDUR~\cite{vidur2024} and similar frameworks provide discrete-event simulation capturing these dynamics with $<$5\% accuracy.
+Beyond traditional LLM serving, agentic workloads introduce additional complexity: Kim et al.~\cite{dynamicreasoning2026} provide the first comprehensive infrastructure-level analysis of AI agents, quantifying how test-time scaling and multi-step reasoning affect resource usage, latency, and datacenter power consumption.
 
 \subsection{Promising Research Directions}
 
