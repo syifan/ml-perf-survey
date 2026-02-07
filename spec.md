@@ -34,6 +34,15 @@ Write a paper for **MICRO 2026** that provides:
 - **Page count**: Paper must be close to the page limit (11 pages), no more than half a page short (per issue #140)
 - **Accuracy claims**: All accuracy numbers must be independently verified by running experiments, not just cited from papers (per issue #143)
 - **Scope**: Survey is about modeling/simulation FOR ML workloads, NOT ML-based modeling (per issue #142)
+- **Figure density**: Paper needs significantly more figures — peer papers have 12-23 figures vs our 2 (per issue #159)
+- **Reference count**: Target 80-100 cited references for a comprehensive MICRO survey (per issue #160)
+
+## Process Requirements (per issue #156)
+
+- **Incremental updates**: Work paragraph-by-paragraph, not whole-paper rewrites in one cycle
+- **Review follow-up**: Crit posts reviews as GitHub issues, then follows up to verify fixes before re-reviewing
+- **Red team structure**: 3 reviewers — (1) overall critical review, (2) paragraph-by-paragraph review, (3) comparative review against peer papers
+- **Standing process**: Paper comparison against top-tier papers must happen every cycle (per issue #83)
 
 ## Milestones
 
@@ -91,60 +100,87 @@ Write a paper for **MICRO 2026** that provides:
 
 ---
 
-### M11: Scope Correction and Methodology (ACTIVE)
+### M11: Scope Correction and Taxonomy Redesign (ACTIVE — CRITICAL PATH)
 
-The external review (#141) identified fundamental issues. This milestone addresses the most critical structural problems.
+The external review (#141) identified fundamental issues. Per Crit's analysis (#144), the taxonomy redesign is the critical missing piece — the current taxonomy (ML technique × target hardware × input representation) does not fit the corrected scope. This is closer to a rewrite than a revision.
 
-**Key issues to fix:**
-1. **Scope alignment** — Reframe paper to clearly survey high-level modeling/simulation FOR ML workloads (not ML-based modeling). Remove or reposition content about ML-based performance prediction that doesn't fit scope
-2. **Systematic methodology section** — Add description of search databases, search terms, inclusion/exclusion criteria, and paper selection process
-3. **Fix coverage claim** — Align "over 60 papers" claim with actual reference count, or expand references to match
-4. **Fix Figure 1 inconsistencies** — Ensure all works in timeline figure are cited in references
-5. **Fix reference formatting** — Remove "et al." in author lists, remove editorial annotations from bibliography entries
-6. **Fix submission metadata** — Remove "#NaN" placeholder
+**M11a: Scope reframing and content audit (~5-10 cycles)**
+1. **Rewrite abstract, intro, and framing** to clearly position paper as surveying modeling/simulation FOR ML workloads
+2. **Audit all sections** — identify content that must be removed or repositioned (e.g., ML-based performance prediction content that doesn't fit scope)
+3. **Decide what to cut** — the plan must address removals, not just additions (per Crit's critique)
 
-### M12: Deepen Analysis and Expand Coverage
+**M11b: Taxonomy redesign (~10-15 cycles)**
+1. **Redesign taxonomy from scratch** for the corrected scope — classify by modeling methodology (analytical, simulation, hybrid), abstraction level, target hardware, and workload coverage
+2. **Rebuild Table 1** to reflect new taxonomy dimensions
+3. **Populate taxonomy matrix** with paper counts per cell, identify empty cells as research opportunities
 
-Address the review's criticism that analysis is shallow and coverage is incomplete.
+**M11c: Presentation fixes (~3-5 cycles)**
+1. Fix "#NaN" submission metadata placeholder
+2. Fix Figure 1 inconsistencies — ensure all timeline entries are cited
+3. Fix reference formatting — remove "et al." in author lists, remove editorial annotations
+4. Add systematic survey methodology section (search databases, terms, inclusion/exclusion criteria)
 
-1. **Expand to ~60 actual cited references** — Add missing categories: simulation acceleration, compiler cost models, memory system modeling tools, LLM inference cost calculators, workload characterization tools
-2. **Deepen analysis per tool** — For each surveyed tool, discuss: conditions where it breaks down, limitations, failure modes, comparison to alternatives on same workloads
-3. **Strengthen taxonomy** — Populate matrix with paper counts per cell, identify empty cells as research opportunities, analyze why certain combinations work
-4. **Normalize comparisons** — Stop grouping accuracy numbers measured on different workloads/hardware. Either run common benchmarks or explicitly discuss incomparability
+### M12: Literature Expansion and Deep Analysis
+
+Address shallow analysis and incomplete coverage. Work paragraph-by-paragraph (per #156).
+
+**M12a: Literature expansion (~10-15 cycles)**
+1. **Integrate uncited references** — 72 entries in bib but only 24 cited; integrate HIGH-priority uncited papers into the text
+2. **Add new references** to reach 80-100 total cited (per #160) — target categories: simulation acceleration, compiler cost models, memory system modeling, LLM inference cost calculators, workload characterization, training-time prediction, distributed training simulation
+3. **Every new reference must include substantive discussion** — at least 2-3 sentences of critical analysis per cited work (not just citation padding)
+
+**M12b: Critical synthesis (~10-15 cycles)**
+1. **Integrate Leo's critical synthesis** (PR #157) into paper text — tool-by-tool analysis of failure modes, limitations, and cross-cutting themes
+2. **Deepen analysis per tool** — conditions where it breaks down, comparison to alternatives on same workloads
+3. **Normalize comparisons** — stop grouping accuracy numbers measured on different workloads/hardware
 
 ### M13: Independent Accuracy Verification
 
 Per issue #143: Do not trust reported accuracy numbers. Run experiments.
 
-1. **Expand evaluation suite** — Add more tools to hands-on evaluation (GRANITE, HELP, LitePred, NeuSight if accessible)
-2. **Run common workloads** — Execute multiple tools on same workloads (e.g., ResNet-50, GPT-2 inference) for normalized comparison
-3. **Report measured vs. claimed accuracy** — Document discrepancies between paper-reported and independently-measured results
-4. **Update Section 7** with expanded, independently-verified evaluation results
+1. **Set up evaluation environments** — at minimum ASTRA-sim and one other accessible tool
+2. **Define concrete benchmark suite** — specific workloads (ResNet-50, BERT-base, GPT-2), specific hardware targets, specific metrics
+3. **Run common workloads** and collect measured results
+4. **Report measured vs. claimed accuracy** — document discrepancies
+5. **Update Section 7** with independently-verified evaluation results
 
-### M14: Paper Expansion to Page Limit
+### M14: Figure Creation and Paper Expansion
 
-Per issue #140: Paper must be close to 11-page limit (currently 8 pages).
+Per issues #140, #159: Paper needs 10.5-11 pages and significantly more figures.
 
-1. **Expand paper to 10.5-11 pages** using content from M11-M13
-2. **Add systematic methodology section** (~0.5 page)
-3. **Expand survey coverage** with deeper analysis (~1-2 pages)
-4. **Expand evaluation section** with new experimental results (~0.5-1 page)
-5. **Add notation table/glossary** for cross-community accessibility
-6. Final formatting and polish
+**M14a: Add figures (~10-15 cycles)**
+1. **Add at minimum 6-8 new figures** to approach peer paper density (target: 8-10 total figures)
+2. Suggested figures: taxonomy visualization, accuracy comparison bar charts, tool coverage scatter plot, unified architecture diagram, methodology flowchart, timeline with more detail, evaluation comparison tables as figures
+3. Each figure must be referenced and discussed in the text
 
-### M15: Final Review and Submission
+**M14b: Paper expansion to page limit (~5-10 cycles)**
+1. Integrate content from M11-M13 into paper
+2. Verify paper reaches 10.5-11 pages
+3. Final formatting and polish
 
-1. **Internal review** — Crit provides fresh review of revised paper
-2. **Address remaining reviewer concerns** from #141
-3. **Verify all quality requirements met**: page count, accuracy verification, scope alignment
-4. **PDF rebuild and commit**
-5. **Final submission**
+### M15: Red Team Review and Submission
+
+Implements the review process from #156. Three-phase review.
+
+**M15a: Red team review (~5-10 cycles)**
+1. **Crit** — Overall critical review posted as GitHub issue, then follow-up to verify fixes
+2. **Paragraph reviewer** — Detailed paragraph-by-paragraph review: logic problems, writing quality, spec compliance
+3. **Comparative reviewer** — Compare revised paper against top-tier peer papers
+
+**M15b: Address review findings (~5-10 cycles)**
+1. Fix all issues raised by red team
+2. Red team verifies fixes
+
+**M15c: Final submission (~3-5 cycles)**
+1. Verify all quality requirements met: page count ≥10.5, reference count ≥80, figure count ≥8, accuracy verification, scope alignment
+2. PDF rebuild and commit
+3. Final submission
 
 ## Current Status
 
 **Project Status:** 🔄 **MAJOR REVISION IN PROGRESS**
 
-The paper received a Reject (3/10) from external review (#141). Combined with human directives (#140, #142, #143), a significant revision is required before submission.
+The paper received a Reject (3/10) from external review (#141). Combined with human directives (#140, #142, #143, #153, #156), a significant revision is required before submission.
 
 ### Critical Review Summary (Issue #141)
 | Dimension | Assessment |
@@ -160,10 +196,40 @@ The paper received a Reject (3/10) from external review (#141). Combined with hu
 - **#140**: Paper must be close to 11-page limit (currently 8 pages, 3 pages short)
 - **#142**: Scope is modeling FOR ML workloads, NOT ML-based modeling
 - **#143**: Run experiments to verify accuracy — don't trust paper-reported numbers
+- **#153**: Unified tool prototype is an important contribution — must be implemented, not deferred
+- **#156**: Process improvements — incremental paragraph-by-paragraph work, review follow-up cycle, red team of 3 reviewers
+- **#83**: Paper comparison against top-tier papers must happen every cycle
 
-### Next Steps
-- M11: Fix scope, add methodology, fix presentation issues
-- M12: Expand coverage and deepen analysis
-- M13: Run independent accuracy experiments
-- M14: Expand paper to page limit
-- M15: Final review and submission
+### Progress on Active Milestones
+
+**M11 (Scope Correction — ACTIVE, CRITICAL PATH):**
+- Sage is actively working on scope reframing (#145) — no PR yet
+- Presentation fixes (#147) — not started
+- Methodology section (#146) — not started, blocked on #145
+- Taxonomy redesign — NOT YET ADDRESSED (per Crit's critique, this is the hardest and most important piece)
+
+**M12 (Literature + Analysis):**
+- Maya: PR #158 open — added 12 bib entries, identified 15 HIGH-priority uncited papers
+- Leo: PR #157 open — critical synthesis of 15+ tools with cross-cutting themes
+- Neither PR is merged yet
+
+**M13 (Accuracy Verification):**
+- Forge assigned (#155) — no work started yet
+- Forge also assigned prototype (#154) — no work started yet
+
+### Key Metrics
+| Metric | Current | Target |
+|--------|---------|--------|
+| Paper pages | ~8 | 10.5-11 |
+| Cited references | 24 | 80-100 |
+| Bib entries | 72 | 100+ |
+| Figures | 2 | 8-10 |
+| Tools evaluated independently | 2 (ASTRA-sim, VIDUR) | 4+ |
+
+### Next Steps (Priority Order)
+1. **M11a/b**: Scope reframing + taxonomy redesign (CRITICAL PATH — blocks everything)
+2. **M11c**: Presentation fixes (can parallel with M11a/b)
+3. **M12a/b**: Integrate pending PRs (#157, #158), expand literature, deepen analysis
+4. **M13**: Forge runs accuracy experiments + starts prototype
+5. **M14**: Add figures, expand to page limit
+6. **M15**: Red team review cycle, final submission
