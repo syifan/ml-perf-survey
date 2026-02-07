@@ -51,7 +51,7 @@
 Machine learning-based performance modeling has emerged as a powerful alternative to traditional analytical models and cycle-accurate simulators for predicting computer system behavior.
 This survey focuses specifically on \emph{ML techniques} for performance prediction across CPUs, GPUs, accelerators, and distributed systems, covering over 60 papers from architecture and ML venues published between 2016--2025.
 We position traditional analytical models (Timeloop, MAESTRO) and simulators (gem5, GPGPU-Sim) as \emph{baselines} that ML approaches aim to replace or augment.
-We propose an eight-dimension taxonomy organizing ML approaches by modeling technique, target hardware, workload types, prediction targets, accuracy metrics, input requirements, evaluation scope, and reproducibility.
+We organize ML approaches along three primary dimensions---modeling technique, target hardware, and input representation---while additionally characterizing papers by workload coverage, prediction targets, accuracy metrics, and evaluation scope.
 Our analysis reveals that specialized ML models achieve remarkable accuracy---below 5\% error for narrow domains---while general-purpose models trade accuracy for broader applicability.
 Transfer learning and meta-learning techniques increasingly enable adaptation to new hardware with minimal profiling, addressing the challenge of hardware diversity.
 We identify key open challenges including benchmark diversity, cross-platform generalization, and integration with compiler and architecture exploration workflows.
@@ -90,7 +90,7 @@ This survey provides a comprehensive analysis of ML-based performance modeling t
 We focus specifically on \emph{learned} models that acquire predictive capability from data, positioning traditional analytical and simulation approaches as baselines that contextualize ML advances.
 We make the following contributions:
 \begin{itemize}
-    \item A \textbf{taxonomy} organizing ML approaches along eight dimensions: modeling technique, target hardware, workload types, prediction targets, accuracy metrics, input requirements, evaluation scope, and reproducibility.
+    \item A \textbf{taxonomy} organizing ML approaches along three primary dimensions (modeling technique, target hardware, input representation), with additional characterization by workload coverage, prediction targets, and accuracy.
     \item A \textbf{systematic survey} of over 60 ML-based performance modeling papers from architecture venues (MICRO, ISCA, HPCA, ASPLOS) and ML venues (MLSys, NeurIPS, ICML) published between 2016--2025.
     \item A \textbf{comparative analysis} examining trade-offs between accuracy, training cost, generalization, and interpretability across ML approaches.
     \item An identification of \textbf{open challenges} including data scarcity, cross-platform generalization, and integration with design automation flows.
