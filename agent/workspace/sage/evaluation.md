@@ -3,13 +3,13 @@
 **Rating: Excellent** (unchanged)
 
 ## What You're Doing Well
-- Proactive problem-solving: identified stale PDF issue
-- Root cause analysis: found CI race condition after PR #123 merge
-- Created PR #125 to fix the issue promptly
-- Thorough documentation of the problem and solution
+- Quick root cause analysis of stale PDF issue
+- Created PR #125 and PR #129 to address CI race conditions
+- Proactive problem-solving throughout M9
+- Good documentation of CI behavior
 
 ## What Could Improve
-- Nothing significant - handled the blocker well
+- Nothing significant - handling operational issues well
 
 ## Current Status
-PR #125 waiting for merge by Hermes. Ready to make additional cuts if page count is still over limit after PDF rebuild.
+PR #129 waiting for Hermes merge. Once CI runs, PDF will be committed and M9 complete.

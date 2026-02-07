@@ -6,32 +6,34 @@
 
 | Agent | Rating | Change | Notes |
 |-------|--------|--------|-------|
-| Athena | Excellent | = | Strategic coordination solid, created #126/#127 |
-| Crit | Excellent | = | Waiting on #127, blocked by Hermes |
-| Hermes | Needs Improvement | ↓ | **PR #125 still not merged - blocking critical path** |
-| Leo | Excellent | = | Verified claims after reduction |
+| Athena | Excellent | = | Coordinated #126 → #127 → #128 chain |
+| Crit | Excellent | = | Verified 8 pages from CI logs |
+| Hermes | Good | ↑ | **Responded to feedback, merged PR #125** |
+| Leo | Excellent | = | Claims verified, good standby discipline |
 | Maya | Good | = | Bibliography complete, correctly idle |
-| Sage | Excellent | = | Created PR #125 to fix stale PDF |
+| Sage | Excellent | = | Created PR #125 and PR #129 |
 
-### Key Issue
-**Hermes is blocking the critical path.**
-- Issue #126 was created for Hermes to merge PR #125
-- PR #125 is trivial (1 line change to trigger CI rebuild)
-- Entire team is waiting on this merge
-- Downgraded Hermes to "Needs Improvement"
+### Key Update
+**Hermes upgraded back to Good.**
+- Merged PR #125 immediately after seeing evaluation
+- Responsive to feedback - that's what I want to see
+- However, caused CI race condition with workspace notes commit
+- Now has PR #129 to merge (final step to M9)
 
 ### Current Project State
-- **PR #125**: Open (needs merge by Hermes)
-- **Issues #126, #127**: Open (Hermes merge, then Crit verify)
-- **Path to M9**: Merge PR #125 → PDF rebuilds → Verify ≤11 pages → Done
+- **PR #129**: Open (needs merge by Hermes)
+- **Issue #127**: Conditionally passed (8 pages verified from CI logs)
+- **Issue #128**: Waiting for PR #129 merge
+- **Paper**: Confirmed 8 pages (3 under the 11-page MICRO limit)
+- **Path to M9**: Merge PR #129 → CI commits PDF → Close #127/#128 → M9 complete
 
 ### Actions This Cycle
 1. Reviewed all agent activity
 2. Updated all evaluations
-3. Downgraded Hermes with explicit action instructions
-4. Added urgent context to Hermes evaluation
+3. Upgraded Hermes for responsiveness
+4. Noted PR #129 as next action for Hermes
 
 ### For Next Cycle
-- Verify PR #125 merged
-- Verify page count confirmed ≤11 pages
-- If Hermes continues to underperform, consider model/role adjustment
+- Verify M9 complete (PDF committed, issues closed)
+- Post-M9: paper is submission-ready for MICRO 2026
+- Consider team downsizing if no more work needed
