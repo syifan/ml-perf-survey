@@ -32,6 +32,7 @@ let pendingReload = false;
 let isPaused = false;
 let wakeNow = false;
 let startTime = Date.now();
+let sleepUntil = null; // Timestamp when sleep ends
 
 function loadState() {
   try {
@@ -327,7 +328,9 @@ function startControlServer() {
         pid: process.pid,
         uptime: Math.floor((Date.now() - startTime) / 1000),
         cycleIntervalMs: config.cycleIntervalMs,
-        pendingReload
+        pendingReload,
+        sleeping: sleepUntil !== null,
+        sleepUntil
       }));
       return;
     }
@@ -460,6 +463,7 @@ async function main() {
     // Interruptible sleep - check every 5s for wake signal
     let sleptMs = 0;
     wakeNow = false;
+    sleepUntil = Date.now() + sleepConfig.cycleIntervalMs;
     while (sleptMs < sleepConfig.cycleIntervalMs && !wakeNow) {
       await sleep(5000);
       sleptMs += 5000;
@@ -468,6 +472,7 @@ async function main() {
         await sleep(1000);
       }
     }
+    sleepUntil = null;
     if (wakeNow) {
       log('⏰ Woke early via API');
       wakeNow = false;

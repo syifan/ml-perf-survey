@@ -11,6 +11,28 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 
 const ORCHESTRATOR_API = '/api/orchestrator'
 
+function SleepCountdown({ sleepUntil }) {
+  const [remaining, setRemaining] = useState('')
+  
+  useEffect(() => {
+    const update = () => {
+      const diff = sleepUntil - Date.now()
+      if (diff <= 0) {
+        setRemaining('Starting...')
+        return
+      }
+      const mins = Math.floor(diff / 60000)
+      const secs = Math.floor((diff % 60000) / 1000)
+      setRemaining(`${mins}m ${secs}s`)
+    }
+    update()
+    const interval = setInterval(update, 1000)
+    return () => clearInterval(interval)
+  }, [sleepUntil])
+  
+  return <span className="text-sm font-mono text-blue-600">{remaining}</span>
+}
+
 function App() {
   const [state, setState] = useState({ cycleCount: 0, currentAgentIndex: 0 })
   const [logs, setLogs] = useState([])
@@ -281,8 +303,14 @@ apolloCycleInterval: ${configForm.apolloCycleInterval}
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-neutral-600">Agent</span>
-                  <Badge variant="secondary">{orchestratorStatus?.currentAgent || 'None'}</Badge>
+                  <Badge variant="secondary">{orchestratorStatus?.currentAgent || (orchestratorStatus?.sleeping ? '💤 Sleeping' : 'None')}</Badge>
                 </div>
+                {orchestratorStatus?.sleeping && orchestratorStatus.sleepUntil && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-neutral-600">Next cycle</span>
+                    <SleepCountdown sleepUntil={orchestratorStatus.sleepUntil} />
+                  </div>
+                )}
                 {orchestratorStatus && (
                   <div className="flex justify-between items-center">
                     <span className="text-neutral-600">Uptime</span>
