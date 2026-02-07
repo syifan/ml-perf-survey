@@ -1,14 +1,13 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Activity, Users, Sparkles, Settings, ScrollText, RefreshCw, Pause, Play, SkipForward, RotateCcw, Square, Save, MessageSquare, X, User } from 'lucide-react'
+import { Activity, Users, Sparkles, Settings, ScrollText, RefreshCw, Pause, Play, SkipForward, RotateCcw, Square, Save, MessageSquare, X } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { Separator } from '@/components/ui/separator'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 
-// Proxied through monitor backend to work with Cloudflare tunnel
 const ORCHESTRATOR_API = '/api/orchestrator'
 
 function App() {
@@ -17,12 +16,8 @@ function App() {
   const [agents, setAgents] = useState({ workers: [], managers: [] })
   const [config, setConfig] = useState({ config: null, raw: '' })
   const [configForm, setConfigForm] = useState({
-    cycleIntervalMs: 1800000,
-    agentTimeoutMs: 900000,
-    model: 'claude-opus-4-5',
-    trackerIssue: 1,
-    athenaCycleInterval: 1,
-    apolloCycleInterval: 1
+    cycleIntervalMs: 1800000, agentTimeoutMs: 900000, model: 'claude-opus-4-5',
+    trackerIssue: 1, athenaCycleInterval: 1, apolloCycleInterval: 1
   })
   const [configDirty, setConfigDirty] = useState(false)
   const [configError, setConfigError] = useState(null)
@@ -34,30 +29,19 @@ function App() {
   const [commentsPage, setCommentsPage] = useState(1)
   const [commentsHasMore, setCommentsHasMore] = useState(true)
   const [commentsLoading, setCommentsLoading] = useState(false)
-  const [selectedAgent, setSelectedAgent] = useState(() => {
-    return localStorage.getItem('selectedAgent') || null
-  })
-  // Refs removed - no auto-scrolling
+  const [selectedAgent, setSelectedAgent] = useState(() => localStorage.getItem('selectedAgent') || null)
 
   const fetchData = async () => {
     try {
       const [stateRes, logsRes, agentsRes, configRes] = await Promise.all([
-        fetch('/api/state'),
-        fetch('/api/logs?lines=100'),
-        fetch('/api/agents'),
-        fetch('/api/config'),
+        fetch('/api/state'), fetch('/api/logs?lines=100'), fetch('/api/agents'), fetch('/api/config')
       ])
-
-      if (!stateRes.ok || !logsRes.ok || !agentsRes.ok || !configRes.ok) {
-        throw new Error('Failed to fetch data')
-      }
-
+      if (!stateRes.ok || !logsRes.ok || !agentsRes.ok || !configRes.ok) throw new Error('Failed to fetch')
       setState(await stateRes.json())
       setLogs((await logsRes.json()).logs)
       setAgents(await agentsRes.json())
       const configData = await configRes.json()
       setConfig(configData)
-      // Only update form if not being edited
       if (!configDirty && configData.config) {
         setConfigForm({
           cycleIntervalMs: configData.config.cycleIntervalMs || 1800000,
@@ -70,70 +54,43 @@ function App() {
       }
       setLastUpdate(new Date())
       setError(null)
-      
-      // Fetch orchestrator status via proxy
       try {
         const statusRes = await fetch(`${ORCHESTRATOR_API}/status`)
         const statusData = await statusRes.json()
-        if (!statusData.offline) {
-          setOrchestratorStatus(statusData)
-        } else {
-          setOrchestratorStatus(null)
-        }
-      } catch {
-        setOrchestratorStatus(null)
-      }
-    } catch (err) {
-      setError(err.message)
-    }
+        setOrchestratorStatus(statusData.offline ? null : statusData)
+      } catch { setOrchestratorStatus(null) }
+    } catch (err) { setError(err.message) }
   }
   
   const controlAction = async (action) => {
     try {
       const res = await fetch(`${ORCHESTRATOR_API}/${action}`, { method: 'POST' })
-      if (res.ok) {
-        await fetchData()
-      }
-    } catch (err) {
-      console.error(`Control action ${action} failed:`, err)
-    }
+      if (res.ok) await fetchData()
+    } catch (err) { console.error(`Control action ${action} failed:`, err) }
   }
   
   const saveConfig = async () => {
     setConfigSaving(true)
     setConfigError(null)
     try {
-      // Generate YAML from form
       const yaml = `# ML Performance Survey - Orchestrator Configuration
-# Reloaded at the start of each cycle
-
 cycleIntervalMs: ${configForm.cycleIntervalMs}
 agentTimeoutMs: ${configForm.agentTimeoutMs}
 model: ${configForm.model}
 trackerIssue: ${configForm.trackerIssue}
-
-# Manager agents (run periodically, manage the system)
 athenaCycleInterval: ${configForm.athenaCycleInterval}
 apolloCycleInterval: ${configForm.apolloCycleInterval}
-
-# Worker agents are discovered from agent/workers/ folder
 `
       const res = await fetch('/api/config', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: yaml })
       })
       const data = await res.json()
-      if (!res.ok) {
-        throw new Error(data.error || 'Failed to save')
-      }
+      if (!res.ok) throw new Error(data.error || 'Failed to save')
       setConfigDirty(false)
       await fetchData()
-    } catch (err) {
-      setConfigError(err.message)
-    } finally {
-      setConfigSaving(false)
-    }
+    } catch (err) { setConfigError(err.message) }
+    finally { setConfigSaving(false) }
   }
   
   const updateConfigField = (field, value) => {
@@ -162,28 +119,18 @@ apolloCycleInterval: ${configForm.apolloCycleInterval}
     try {
       const params = new URLSearchParams({ page, per_page: 10 })
       if (agent) params.set('author', agent)
-      
       const res = await fetch(`/api/comments?${params}`)
       const data = await res.json()
-      
-      if (append) {
-        setComments(prev => [...prev, ...data.comments])
-      } else {
-        setComments(data.comments)
-      }
+      if (append) setComments(prev => [...prev, ...data.comments])
+      else setComments(data.comments)
       setCommentsHasMore(data.hasMore)
       setCommentsPage(page)
-    } catch (err) {
-      console.error('Failed to fetch comments:', err)
-    } finally {
-      setCommentsLoading(false)
-    }
+    } catch (err) { console.error('Failed to fetch comments:', err) }
+    finally { setCommentsLoading(false) }
   }
   
   const loadMoreComments = () => {
-    if (!commentsLoading && commentsHasMore) {
-      fetchComments(commentsPage + 1, selectedAgent, true)
-    }
+    if (!commentsLoading && commentsHasMore) fetchComments(commentsPage + 1, selectedAgent, true)
   }
   
   const selectAgent = (agent) => {
@@ -202,17 +149,34 @@ apolloCycleInterval: ${configForm.apolloCycleInterval}
 
   useEffect(() => {
     fetchData()
-    // Fetch comments with persisted filter on mount
     const savedAgent = localStorage.getItem('selectedAgent')
     fetchComments(1, savedAgent, false)
     const interval = setInterval(fetchData, 5000)
     return () => clearInterval(interval)
   }, [])
 
-  // Removed auto-scroll for logs - was causing page jumps
+  const formatTime = (date) => date ? date.toLocaleTimeString() : '--:--:--'
 
-  const formatTime = (date) => {
-    return date ? date.toLocaleTimeString() : '--:--:--'
+  const AgentItem = ({ agent, isManager = false }) => {
+    const isActive = orchestratorStatus?.currentAgent === agent.name
+    const isSelected = selectedAgent === agent.name
+    return (
+      <div
+        onClick={() => selectAgent(agent.name)}
+        className={`flex items-center justify-between p-2 rounded cursor-pointer transition-colors ${
+          isActive ? 'bg-blue-50 border border-blue-200' : isSelected ? 'bg-purple-50 border border-purple-200' : 'bg-neutral-50 hover:bg-neutral-100'
+        }`}
+      >
+        <div>
+          <span className="font-medium text-neutral-800 capitalize">{agent.name}</span>
+          <p className="text-xs text-neutral-500 truncate max-w-[180px]">{agent.title}</p>
+        </div>
+        <div className="flex items-center gap-1">
+          {isSelected && <Badge variant="secondary">Viewing</Badge>}
+          {isActive && <Badge variant="success">Active</Badge>}
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -231,349 +195,150 @@ apolloCycleInterval: ${configForm.apolloCycleInterval}
           </div>
         </div>
 
-        {/* Main Grid */}
+        {/* Row 1: State, Config, Logs */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          {/* State Card */}
+          {/* State */}
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Activity className="w-4 h-4" />
-                Orchestrator State
-              </CardTitle>
-            </CardHeader>
+            <CardHeader><CardTitle className="flex items-center gap-2"><Activity className="w-4 h-4" />Orchestrator State</CardTitle></CardHeader>
             <CardContent>
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="text-neutral-600">Status</span>
                   {orchestratorStatus ? (
                     <Badge variant={orchestratorStatus.paused ? 'warning' : 'success'}>
-                      {orchestratorStatus.paused && orchestratorStatus.currentAgent
-                        ? '⏳ Pausing...'
-                        : orchestratorStatus.paused
-                        ? '⏸️ Paused'
-                        : '▶️ Running'}
+                      {orchestratorStatus.paused && orchestratorStatus.currentAgent ? '⏳ Pausing...' : orchestratorStatus.paused ? '⏸️ Paused' : '▶️ Running'}
                     </Badge>
-                  ) : (
-                    <Badge variant="destructive">Offline</Badge>
-                  )}
+                  ) : <Badge variant="destructive">Offline</Badge>}
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-neutral-600">Cycle Count</span>
-                  <span className="text-2xl font-mono font-bold text-neutral-800">
-                    {orchestratorStatus?.cycleCount ?? state.cycleCount}
-                  </span>
+                  <span className="text-neutral-600">Cycle</span>
+                  <span className="text-2xl font-mono font-bold">{orchestratorStatus?.cycleCount ?? state.cycleCount}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-neutral-600">Current Agent</span>
-                  <Badge variant="secondary">
-                    {orchestratorStatus?.currentAgent || 'None'}
-                  </Badge>
+                  <span className="text-neutral-600">Agent</span>
+                  <Badge variant="secondary">{orchestratorStatus?.currentAgent || 'None'}</Badge>
                 </div>
                 {orchestratorStatus && (
                   <div className="flex justify-between items-center">
                     <span className="text-neutral-600">Uptime</span>
-                    <span className="text-sm font-mono text-neutral-700">
-                      {Math.floor(orchestratorStatus.uptime / 3600)}h {Math.floor((orchestratorStatus.uptime % 3600) / 60)}m
-                    </span>
+                    <span className="text-sm font-mono">{Math.floor(orchestratorStatus.uptime / 3600)}h {Math.floor((orchestratorStatus.uptime % 3600) / 60)}m</span>
                   </div>
                 )}
-                
-                {/* Control Buttons */}
                 {orchestratorStatus && (
                   <div className="pt-3 border-t flex flex-wrap gap-2">
                     {orchestratorStatus.paused ? (
-                      <Button size="sm" onClick={() => controlAction('resume')} className="flex-1">
-                        <Play className="w-3 h-3 mr-1" /> Resume
-                      </Button>
+                      <Button size="sm" onClick={() => controlAction('resume')} className="flex-1"><Play className="w-3 h-3 mr-1" />Resume</Button>
                     ) : (
-                      <Button size="sm" variant="outline" onClick={() => controlAction('pause')} className="flex-1">
-                        <Pause className="w-3 h-3 mr-1" /> Pause
-                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => controlAction('pause')} className="flex-1"><Pause className="w-3 h-3 mr-1" />Pause</Button>
                     )}
-                    <Button size="sm" variant="outline" onClick={() => controlAction('skip')} className="flex-1">
-                      <SkipForward className="w-3 h-3 mr-1" /> Skip
-                    </Button>
-                    <Button size="sm" variant="outline" onClick={() => controlAction('reload')}>
-                      <RotateCcw className="w-3 h-3" />
-                    </Button>
-                    <Button size="sm" variant="destructive" onClick={() => {
-                      if (confirm('Stop the orchestrator?')) controlAction('stop')
-                    }}>
-                      <Square className="w-3 h-3" />
-                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => controlAction('skip')} className="flex-1"><SkipForward className="w-3 h-3 mr-1" />Skip</Button>
+                    <Button size="sm" variant="outline" onClick={() => controlAction('reload')}><RotateCcw className="w-3 h-3" /></Button>
+                    <Button size="sm" variant="destructive" onClick={() => confirm('Stop?') && controlAction('stop')}><Square className="w-3 h-3" /></Button>
                   </div>
                 )}
               </div>
             </CardContent>
           </Card>
 
-          {/* Worker Agents Card */}
+          {/* Config */}
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="w-4 h-4" />
-                Workers ({agents.workers.length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                {agents.workers.map((agent) => {
-                  const isActive = orchestratorStatus?.currentAgent === agent.name
-                  const isSelected = selectedAgent === agent.name
-                  return (
-                    <div
-                      key={agent.name}
-                      onClick={() => selectAgent(agent.name)}
-                      className={`flex items-center justify-between p-2 rounded cursor-pointer transition-colors ${
-                        isActive
-                          ? 'bg-blue-50 border border-blue-200'
-                          : isSelected
-                          ? 'bg-purple-50 border border-purple-200'
-                          : 'bg-neutral-50 hover:bg-neutral-100'
-                      }`}
-                    >
-                      <div>
-                        <span className="font-medium text-neutral-800 capitalize">
-                          {agent.name}
-                        </span>
-                        <p className="text-xs text-neutral-500 truncate max-w-[180px]">
-                          {agent.title}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        {isSelected && <Badge variant="secondary">Viewing</Badge>}
-                        {isActive && <Badge variant="success">Active</Badge>}
-                      </div>
-                    </div>
-                  )
-                })}
-                {agents.workers.length === 0 && (
-                  <p className="text-sm text-neutral-400">No workers found</p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Manager Agents Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4" />
-                Managers ({agents.managers.length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                {agents.managers.map((agent) => {
-                  const isActive = orchestratorStatus?.currentAgent === agent.name
-                  const isSelected = selectedAgent === agent.name
-                  return (
-                    <div
-                      key={agent.name}
-                      onClick={() => selectAgent(agent.name)}
-                      className={`flex items-center justify-between p-2 rounded cursor-pointer transition-colors ${
-                        isActive
-                          ? 'bg-blue-50 border border-blue-200'
-                          : isSelected
-                          ? 'bg-purple-50 border border-purple-200'
-                          : 'bg-neutral-50 hover:bg-neutral-100'
-                      }`}
-                    >
-                      <div>
-                        <span className="font-medium text-neutral-800 capitalize">
-                          {agent.name}
-                        </span>
-                        <p className="text-xs text-neutral-500 truncate max-w-[180px]">
-                          {agent.title}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        {isSelected && <Badge variant="secondary">Viewing</Badge>}
-                        {isActive && <Badge variant="success">Active</Badge>}
-                      </div>
-                    </div>
-                  )
-                })}
-                {agents.managers.length === 0 && (
-                  <p className="text-sm text-neutral-400">No managers found</p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Bottom Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
-          {/* Logs Card */}
-          <Card className="lg:col-span-1">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <ScrollText className="w-4 h-4" />
-                Orchestrator Logs
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="bg-neutral-900 rounded-lg p-3 h-64 overflow-y-auto font-mono text-xs">
-                {logs.length === 0 ? (
-                  <p className="text-neutral-500">No logs available</p>
-                ) : (
-                  logs.map((line, idx) => (
-                    <div key={idx} className="text-neutral-300 whitespace-pre-wrap break-all">
-                      {line}
-                    </div>
-                  ))
-                )}
-                
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Config Card */}
-          <Card className="lg:col-span-1">
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
-                <span className="flex items-center gap-2">
-                  <Settings className="w-4 h-4" />
-                  Configuration
-                </span>
+                <span className="flex items-center gap-2"><Settings className="w-4 h-4" />Configuration</span>
                 <div className="flex items-center gap-2">
-                  {configDirty && (
-                    <Badge variant="warning">Unsaved</Badge>
-                  )}
-                  {configDirty && (
-                    <Button size="sm" variant="ghost" onClick={resetConfig}>
-                      Reset
-                    </Button>
-                  )}
-                  <Button 
-                    size="sm" 
-                    onClick={saveConfig} 
-                    disabled={!configDirty || configSaving}
-                  >
-                    <Save className="w-3 h-3 mr-1" />
-                    {configSaving ? 'Saving...' : 'Save'}
+                  {configDirty && <Badge variant="warning">Unsaved</Badge>}
+                  {configDirty && <Button size="sm" variant="ghost" onClick={resetConfig}>Reset</Button>}
+                  <Button size="sm" onClick={saveConfig} disabled={!configDirty || configSaving}>
+                    <Save className="w-3 h-3 mr-1" />{configSaving ? '...' : 'Save'}
                   </Button>
                 </div>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {configError && (
-                <div className="mb-2 p-2 bg-red-50 border border-red-200 rounded text-red-700 text-xs">
-                  {configError}
-                </div>
-              )}
-              <div className="space-y-3 text-sm">
-                {/* Cycle Interval */}
+              {configError && <div className="mb-2 p-2 bg-red-50 border border-red-200 rounded text-red-700 text-xs">{configError}</div>}
+              <div className="space-y-2 text-sm">
                 <div className="flex items-center justify-between">
-                  <label className="text-neutral-600">Cycle Interval</label>
-                  <select 
-                    className="px-2 py-1 bg-neutral-100 border rounded text-sm"
-                    value={configForm.cycleIntervalMs}
-                    onChange={(e) => updateConfigField('cycleIntervalMs', Number(e.target.value))}
-                  >
-                    <option value={0}>No delay</option>
-                    <option value={300000}>5 minutes</option>
-                    <option value={600000}>10 minutes</option>
-                    <option value={1200000}>20 minutes</option>
-                    <option value={1800000}>30 minutes</option>
-                    <option value={3600000}>1 hour</option>
+                  <label className="text-neutral-600">Interval</label>
+                  <select className="px-2 py-1 bg-neutral-100 border rounded text-sm" value={configForm.cycleIntervalMs} onChange={(e) => updateConfigField('cycleIntervalMs', Number(e.target.value))}>
+                    <option value={0}>No delay</option><option value={300000}>5m</option><option value={600000}>10m</option><option value={1200000}>20m</option><option value={1800000}>30m</option><option value={3600000}>1h</option>
                   </select>
                 </div>
-                
-                {/* Agent Timeout */}
                 <div className="flex items-center justify-between">
-                  <label className="text-neutral-600">Agent Timeout</label>
-                  <select 
-                    className="px-2 py-1 bg-neutral-100 border rounded text-sm"
-                    value={configForm.agentTimeoutMs}
-                    onChange={(e) => updateConfigField('agentTimeoutMs', Number(e.target.value))}
-                  >
-                    <option value={300000}>5 minutes</option>
-                    <option value={600000}>10 minutes</option>
-                    <option value={900000}>15 minutes</option>
-                    <option value={1800000}>30 minutes</option>
+                  <label className="text-neutral-600">Timeout</label>
+                  <select className="px-2 py-1 bg-neutral-100 border rounded text-sm" value={configForm.agentTimeoutMs} onChange={(e) => updateConfigField('agentTimeoutMs', Number(e.target.value))}>
+                    <option value={300000}>5m</option><option value={600000}>10m</option><option value={900000}>15m</option><option value={1800000}>30m</option>
                   </select>
                 </div>
-                
-                {/* Model */}
                 <div className="flex items-center justify-between">
-                  <label className="text-neutral-600">Default Model</label>
-                  <select 
-                    className="px-2 py-1 bg-neutral-100 border rounded text-sm"
-                    value={configForm.model}
-                    onChange={(e) => updateConfigField('model', e.target.value)}
-                  >
-                    <option value="claude-sonnet-4-20250514">Sonnet 4</option>
-                    <option value="claude-opus-4-5">Opus 4.5</option>
-                    <option value="claude-opus-4-6">Opus 4.6</option>
+                  <label className="text-neutral-600">Model</label>
+                  <select className="px-2 py-1 bg-neutral-100 border rounded text-sm" value={configForm.model} onChange={(e) => updateConfigField('model', e.target.value)}>
+                    <option value="claude-sonnet-4-20250514">Sonnet 4</option><option value="claude-opus-4-5">Opus 4.5</option><option value="claude-opus-4-6">Opus 4.6</option>
                   </select>
                 </div>
-                
-                {/* Athena Cycle Interval */}
-                <div className="flex items-center justify-between">
-                  <label className="text-neutral-600">Athena runs every</label>
-                  <div className="flex items-center gap-1">
-                    <input 
-                      type="number"
-                      className="w-16 px-2 py-1 bg-neutral-100 border rounded text-sm text-right"
-                      value={configForm.athenaCycleInterval}
-                      onChange={(e) => updateConfigField('athenaCycleInterval', Number(e.target.value))}
-                      min={1}
-                    />
-                    <span className="text-neutral-500 text-xs">cycles</span>
-                  </div>
-                </div>
-                
-                {/* Apollo Cycle Interval */}
-                <div className="flex items-center justify-between">
-                  <label className="text-neutral-600">Apollo runs every</label>
-                  <div className="flex items-center gap-1">
-                    <input 
-                      type="number"
-                      className="w-16 px-2 py-1 bg-neutral-100 border rounded text-sm text-right"
-                      value={configForm.apolloCycleInterval}
-                      onChange={(e) => updateConfigField('apolloCycleInterval', Number(e.target.value))}
-                      min={1}
-                    />
-                    <span className="text-neutral-500 text-xs">cycles</span>
-                  </div>
-                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Logs */}
+          <Card>
+            <CardHeader><CardTitle className="flex items-center gap-2"><ScrollText className="w-4 h-4" />Logs</CardTitle></CardHeader>
+            <CardContent>
+              <div className="bg-neutral-900 rounded-lg p-3 h-48 overflow-y-auto font-mono text-xs">
+                {logs.length === 0 ? <p className="text-neutral-500">No logs</p> : logs.map((line, idx) => (
+                  <div key={idx} className="text-neutral-300 whitespace-pre-wrap break-all">{line}</div>
+                ))}
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Comments Section */}
+        {/* Row 2: Agents */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+          {/* Workers */}
+          <Card>
+            <CardHeader><CardTitle className="flex items-center gap-2"><Users className="w-4 h-4" />Workers ({agents.workers.length})</CardTitle></CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {agents.workers.map((agent) => <AgentItem key={agent.name} agent={agent} />)}
+                {agents.workers.length === 0 && <p className="text-sm text-neutral-400">No workers</p>}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Managers */}
+          <Card>
+            <CardHeader><CardTitle className="flex items-center gap-2"><Sparkles className="w-4 h-4" />Managers ({agents.managers.length})</CardTitle></CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {agents.managers.map((agent) => <AgentItem key={agent.name} agent={agent} isManager />)}
+                {agents.managers.length === 0 && <p className="text-sm text-neutral-400">No managers</p>}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Row 3: Agent Reports */}
         <Card className="mt-4">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center justify-between">
               <span className="flex items-center gap-2">
-                <MessageSquare className="w-4 h-4" />
-                Agent Comments
+                <MessageSquare className="w-4 h-4" />Agent Reports
                 {selectedAgent && (
                   <Badge variant="secondary" className="ml-2 capitalize">
                     {selectedAgent}
-                    <button onClick={clearAgentFilter} className="ml-1 hover:text-red-500">
-                      <X className="w-3 h-3" />
-                    </button>
+                    <button onClick={clearAgentFilter} className="ml-1 hover:text-red-500"><X className="w-3 h-3" /></button>
                   </Badge>
                 )}
               </span>
-              <span className="text-sm font-normal text-neutral-500">
-                {comments.length} loaded
-              </span>
+              <span className="text-sm font-normal text-neutral-500">{comments.length} loaded</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
             <div className="max-h-[600px] overflow-y-auto pr-2" onScroll={(e) => {
               const { scrollTop, scrollHeight, clientHeight } = e.target
-              if (scrollHeight - scrollTop - clientHeight < 100) {
-                loadMoreComments()
-              }
+              if (scrollHeight - scrollTop - clientHeight < 100) loadMoreComments()
             }}>
-              {comments.length === 0 && !commentsLoading && (
-                <p className="text-sm text-neutral-400 text-center py-8">No comments found</p>
-              )}
+              {comments.length === 0 && !commentsLoading && <p className="text-sm text-neutral-400 text-center py-8">No reports found</p>}
               {comments.map((comment, idx) => (
                 <div key={comment.id}>
                   {idx > 0 && <Separator className="my-4" />}
@@ -585,22 +350,11 @@ apolloCycleInterval: ${configForm.apolloCycleInterval}
                     </Avatar>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-sm font-semibold text-neutral-800 capitalize">
-                          {comment.agent || comment.author}
-                        </span>
-                        <span className="text-xs text-neutral-400">
-                          {new Date(comment.created_at).toLocaleString()}
-                        </span>
+                        <span className="text-sm font-semibold text-neutral-800 capitalize">{comment.agent || comment.author}</span>
+                        <span className="text-xs text-neutral-400">{new Date(comment.created_at).toLocaleString()}</span>
                       </div>
-                      <div className="text-sm text-neutral-700 prose prose-sm prose-neutral max-w-none 
-                        prose-headings:text-neutral-800 prose-headings:font-semibold prose-headings:mt-3 prose-headings:mb-2
-                        prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0
-                        prose-ul:list-disc prose-ul:pl-4 prose-ol:list-decimal prose-ol:pl-4
-                        prose-code:bg-neutral-100 prose-code:px-1 prose-code:rounded prose-code:text-neutral-700
-                        prose-pre:bg-neutral-900 prose-pre:text-neutral-100">
-                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                          {comment.body}
-                        </ReactMarkdown>
+                      <div className="text-sm text-neutral-700 prose prose-sm prose-neutral max-w-none prose-headings:mt-3 prose-headings:mb-2 prose-p:my-1 prose-ul:list-disc prose-ul:pl-4 prose-ol:list-decimal prose-ol:pl-4 prose-code:bg-neutral-100 prose-code:px-1 prose-code:rounded prose-pre:bg-neutral-900 prose-pre:text-neutral-100">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>{comment.body}</ReactMarkdown>
                       </div>
                     </div>
                   </div>
@@ -608,23 +362,12 @@ apolloCycleInterval: ${configForm.apolloCycleInterval}
               ))}
               {commentsLoading && (
                 <div className="flex items-center justify-center py-4 gap-2 text-neutral-400">
-                  <RefreshCw className="w-4 h-4 animate-spin" />
-                  <span className="text-sm">Loading...</span>
+                  <RefreshCw className="w-4 h-4 animate-spin" /><span className="text-sm">Loading...</span>
                 </div>
               )}
               {!commentsLoading && commentsHasMore && (
-                <div className="pt-4">
-                  <Separator className="mb-4" />
-                  <Button 
-                    variant="outline" 
-                    onClick={loadMoreComments}
-                    className="w-full"
-                  >
-                    Load more comments
-                  </Button>
-                </div>
+                <div className="pt-4"><Separator className="mb-4" /><Button variant="outline" onClick={loadMoreComments} className="w-full">Load more</Button></div>
               )}
-              
             </div>
           </CardContent>
         </Card>
