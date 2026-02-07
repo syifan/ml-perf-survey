@@ -28,6 +28,11 @@ Read the `agent/workers/` folder to discover your teammates and their capabiliti
 
 Assign tasks based on each teammate's skills (from their skill files).
 
+**PR Reviews:** Assign agents to review and approve each other's PRs. Cross-review improves quality:
+- Assign PR reviews as tasks (e.g., "Review PR #XX")
+- Once approved, the reviewer can merge it
+- Don't let PRs sit unreviewed
+
 ### 5. Update Task Board (Tracker Issue Body)
 
 The tracker issue body is the task board. Structure:
