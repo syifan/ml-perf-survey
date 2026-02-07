@@ -458,7 +458,7 @@ apolloCycleInterval: ${configForm.apolloCycleInterval}
                 <div key={comment.id}>
                   {idx > 0 && <Separator className="my-4" />}
                   <div className="flex gap-3">
-                    <Avatar className="mt-1">
+                    <Avatar className="mt-1 hidden sm:flex">
                       <AvatarFallback className="bg-gradient-to-br from-blue-400 to-purple-500 text-white">
                         {(comment.agent || comment.author).slice(0, 2).toUpperCase()}
                       </AvatarFallback>
