@@ -365,7 +365,7 @@ apolloCycleInterval: ${configForm.apolloCycleInterval}
         <Card className="mt-4">
           <CardHeader><CardTitle className="flex items-center gap-2"><ScrollText className="w-4 h-4" />Orchestrator Logs</CardTitle></CardHeader>
           <CardContent>
-            <div className="bg-neutral-900 rounded-lg p-3 h-48 overflow-y-auto font-mono text-xs">
+            <div className="bg-neutral-900 rounded-lg p-3 h-80 overflow-y-auto font-mono text-xs">
               {logs.length === 0 ? <p className="text-neutral-500">No logs</p> : logs.map((line, idx) => (
                 <div key={idx} className="text-neutral-300 whitespace-pre-wrap break-all">{line}</div>
               ))}
