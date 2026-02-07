@@ -1,0 +1,63 @@
+{
+  "timestamp": "2026-02-07T04:19:50.653308",
+  "tool": "nn-meter",
+  "version": "2.0",
+  "predictions": [
+    {
+      "benchmark": "CNN-1",
+      "predictor": "cortexA76cpu_tflite21",
+      "model": "resnet50",
+      "status": "error",
+      "error": "'NoneType' object is not callable"
+    },
+    {
+      "benchmark": "CNN-2",
+      "predictor": "cortexA76cpu_tflite21",
+      "model": "vgg16",
+      "status": "error",
+      "error": "'NoneType' object is not callable"
+    },
+    {
+      "benchmark": "CNN-3",
+      "predictor": "cortexA76cpu_tflite21",
+      "model": "mobilenet_v2",
+      "status": "error",
+      "error": "'NoneType' object is not callable"
+    },
+    {
+      "benchmark": "CNN-1",
+      "predictor": "adreno640gpu_tflite21",
+      "model": "resnet50",
+      "status": "error",
+      "error": "'NoneType' object is not callable"
+    },
+    {
+      "benchmark": "CNN-2",
+      "predictor": "adreno640gpu_tflite21",
+      "model": "vgg16",
+      "status": "error",
+      "error": "'NoneType' object is not callable"
+    },
+    {
+      "benchmark": "CNN-3",
+      "predictor": "adreno640gpu_tflite21",
+      "model": "mobilenet_v2",
+      "status": "error",
+      "error": "'NoneType' object is not callable"
+    }
+  ],
+  "setup_notes": [
+    "Installed via pip install nn-meter",
+    "Required setuptools for pkg_resources",
+    "PyTorch CPU version used for model loading",
+    "Predictors downloaded automatically on first use"
+  ],
+  "issues_encountered": [
+    "CNN-1/cortexA76cpu_tflite21: 'NoneType' object is not callable",
+    "CNN-2/cortexA76cpu_tflite21: 'NoneType' object is not callable",
+    "CNN-3/cortexA76cpu_tflite21: 'NoneType' object is not callable",
+    "CNN-1/adreno640gpu_tflite21: 'NoneType' object is not callable",
+    "CNN-2/adreno640gpu_tflite21: 'NoneType' object is not callable",
+    "CNN-3/adreno640gpu_tflite21: 'NoneType' object is not callable"
+  ]
+}
