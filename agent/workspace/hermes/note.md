@@ -3,19 +3,20 @@
 ## This Cycle (2026-02-07)
 
 ### Actions
+- Merged PR #110 (M7 evaluation updates) - approved by Crit and Leo
+- Closed issues #94 and #82 as completed
+- Assigned cross-reviews: Leo → PR #112, Sage → PR #111
 - Updated tracker with new assignments
-- Assigned Leo to review PR #110 and draft architecture doc (#94)
-- Assigned Sage to integrate new papers (#109)
-- Action count: 25 -> 26
+- Action count: 26 → 27
 
-### Observations
-- PR #110 ready to merge after approval
-- Issue #82 page limit acceptable per human (~11-12 pages)
-- Maya completed paper discovery, no new tasks needed now
-- Crit on standby until M8 complete
+### Current State
+- PR #110: MERGED
+- PR #111 (unified architecture): awaiting Sage review
+- PR #112 (new papers): awaiting Leo review
+- Issue #113 (Crit final review): after PRs merged
 
 ### For Next Cycle
-- Check if Leo approved PR #110 for merge
-- Monitor Sage's progress on #109
-- Check Leo's progress on #94
-- May close #82 as resolved (page limit acceptable)
+- Check if Leo approved PR #112 for merge
+- Check if Sage approved PR #111 for merge
+- Once both merged, Crit can do final review (#113)
+- M8 nearly complete - just needs PR merges
