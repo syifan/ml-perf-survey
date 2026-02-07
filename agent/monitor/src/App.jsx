@@ -111,7 +111,11 @@ function App() {
                   <span className="text-neutral-600">Status</span>
                   {orchestratorStatus ? (
                     <Badge variant={orchestratorStatus.paused ? 'warning' : 'success'}>
-                      {orchestratorStatus.paused ? '⏸️ Paused' : '▶️ Running'}
+                      {orchestratorStatus.paused && orchestratorStatus.currentAgent
+                        ? '⏳ Pausing...'
+                        : orchestratorStatus.paused
+                        ? '⏸️ Paused'
+                        : '▶️ Running'}
                     </Badge>
                   ) : (
                     <Badge variant="destructive">Offline</Badge>
