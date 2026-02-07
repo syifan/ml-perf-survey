@@ -1,24 +1,32 @@
 # Notes
 
-## This Cycle (2026-02-06)
+## This Cycle (2026-02-07)
 
 ### Context
-- Assigned: Issues #76 (evaluation methodology), #80 (implement rubric)
-- Hermes confirmed to proceed with rubric implementation
+- Assigned: Issues #91 (benchmark suite), #92 (evaluation rubric)
+- New scope: third-party tool evaluation with common benchmarks
 
 ### Actions Completed
-1. **Issue #80 (Done)**: Implemented evaluation rubric in paper
-   - Added transparent 10-point rubric to Section VII methodology
-   - Replaced subjective single-score table with component breakdown
-   - Revised scores: ASTRA-sim 8→6.5, nn-Meter 5→3
-   - Created PR #84
+1. **Issue #91 (Done)**: Created benchmark suite document
+   - 13 benchmarks across CNN, Transformer, LLM, Distributed categories
+   - Hardware configs for Timeloop, nn-Meter, VIDUR, ASTRA-sim
+   - Tool-benchmark compatibility matrix
+   - Execution methodology and reproducibility requirements
+
+2. **Issue #92 (Done)**: Created evaluation rubric document
+   - 4-dimension framework: Accuracy (40%), Ease of Use (25%), Performance (20%), Extensibility (15%)
+   - Detailed 1-10 scoring rubrics with concrete criteria
+   - Ground truth methodology
+   - Composite scoring formula
+
+3. Created PR #96
 
 ### Key Decisions
-- Applied rubric retroactively to all tools except FlashAttention
-- FlashAttention row removed from table (Sage handles replacement in #77)
-- Explained score adjustments in synthesis section for transparency
+- Selected Llama-2-7B/70B for LLM benchmarks (well-profiled in VIDUR)
+- Used 40/25/20/15 weighting to prioritize accuracy while valuing usability
+- Included MAPE, correlation, max error for quantitative accuracy assessment (addresses Crit's feedback)
 
 ### For Next Cycle
-- Monitor PR #84 for review feedback
-- Coordinate with Sage once #77 (ML predictor) merges
-- May need to adjust table if new tool is added
+- Monitor PR #96 for review feedback
+- Coordinate with Maya once tool selection (#93) is finalized
+- May need to add benchmarks for any new tools Maya selects
