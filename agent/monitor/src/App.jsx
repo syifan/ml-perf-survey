@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Activity, Users, Sparkles, Settings, ScrollText, RefreshCw, Pause, Play, SkipForward, RotateCcw, Square, Save, MessageSquare, X, GitPullRequest, CircleDot, Clock } from 'lucide-react'
+import { Activity, Users, Sparkles, Settings, ScrollText, RefreshCw, Pause, Play, SkipForward, RotateCcw, Square, Save, MessageSquare, X, GitPullRequest, CircleDot, Clock, User, UserCheck } from 'lucide-react'
 import { Modal, ModalHeader, ModalContent } from '@/components/ui/modal'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -248,7 +248,7 @@ apolloCycleInterval: ${configForm.apolloCycleInterval}
     <div className="min-h-screen bg-neutral-50 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-2">
           <div>
             <h1 className="text-2xl font-bold text-neutral-800">Agent Monitor</h1>
             <p className="text-sm text-neutral-500">Orchestrator Dashboard</p>
@@ -394,7 +394,7 @@ apolloCycleInterval: ${configForm.apolloCycleInterval}
         {/* Row 3: Agent Reports + Issues */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
           {/* Agent Reports */}
-          <Card>
+          <Card className="order-2 lg:order-1">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center justify-between">
               <span className="flex items-center gap-2">
@@ -410,7 +410,7 @@ apolloCycleInterval: ${configForm.apolloCycleInterval}
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
-            <div className="max-h-[600px] overflow-y-auto pr-2" onScroll={(e) => {
+            <div className="max-h-[600px] overflow-y-auto overflow-x-hidden pr-2" onScroll={(e) => {
               const { scrollTop, scrollHeight, clientHeight } = e.target
               if (scrollHeight - scrollTop - clientHeight < 100) loadMoreComments()
             }}>
@@ -425,7 +425,7 @@ apolloCycleInterval: ${configForm.apolloCycleInterval}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-0 sm:gap-2 mb-1">
                         <span className="text-sm font-semibold text-neutral-800 capitalize">{comment.agent || comment.author}</span>
                         <span className="text-xs text-neutral-400">{new Date(comment.created_at).toLocaleString()}</span>
                       </div>
@@ -448,8 +448,8 @@ apolloCycleInterval: ${configForm.apolloCycleInterval}
           </CardContent>
         </Card>
 
-          {/* Issues (1/3 width) */}
-          <Card>
+          {/* Issues */}
+          <Card className="order-1 lg:order-2">
             <CardHeader><CardTitle className="flex items-center gap-2"><CircleDot className="w-4 h-4" />Open Issues ({issues.length})</CardTitle></CardHeader>
             <CardContent>
               <div className="space-y-2 max-h-[500px] overflow-y-auto mb-4">
@@ -459,6 +459,18 @@ apolloCycleInterval: ${configForm.apolloCycleInterval}
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-neutral-400">#{issue.number}</span>
                       <span className="text-sm font-medium text-neutral-800 truncate">{issue.title}</span>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-neutral-500">
+                      <span className="flex items-center gap-1">
+                        <User className="w-3 h-3" />
+                        {issue.author?.login || 'unknown'}
+                      </span>
+                      {issue.assignees?.length > 0 && (
+                        <span className="flex items-center gap-1 text-green-600">
+                          <UserCheck className="w-3 h-3" />
+                          {issue.assignees.map(a => a.login).join(', ')}
+                        </span>
+                      )}
                     </div>
                     {issue.labels?.length > 0 && (
                       <div className="flex gap-1 mt-1 flex-wrap">
