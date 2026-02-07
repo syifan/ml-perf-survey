@@ -24,6 +24,7 @@ const CONTROL_PORT = 3002;
 
 let currentAgentProcess = null;
 let currentAgentName = null;
+let currentAgentStartTime = null;
 let cycleCount = 0;
 let currentAgentIndex = 0;
 let managersRun = []; // Track which managers have run this cycle
@@ -178,6 +179,7 @@ Execute your full cycle as described above. Work autonomously. Complete your tas
 
     currentAgentProcess = proc;
     currentAgentName = agent;
+    currentAgentStartTime = Date.now();
     let timedOut = false;
 
     const timeout = setTimeout(() => {
@@ -189,6 +191,7 @@ Execute your full cycle as described above. Work autonomously. Complete your tas
     proc.on('close', (code) => {
       clearTimeout(timeout);
       currentAgentProcess = null;
+      currentAgentStartTime = null;
       
       // Post timeout comment to tracker
       if (timedOut) {
@@ -311,6 +314,8 @@ function startControlServer() {
         running: !isPaused,
         paused: isPaused,
         currentAgent: currentAgentName,
+        currentAgentStartTime,
+        currentAgentRuntime: currentAgentStartTime ? Math.floor((Date.now() - currentAgentStartTime) / 1000) : null,
         currentAgentIndex,
         cycleCount,
         managersRun,

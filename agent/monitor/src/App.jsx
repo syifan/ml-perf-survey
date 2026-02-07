@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Activity, Users, Sparkles, Settings, ScrollText, RefreshCw, Pause, Play, SkipForward, RotateCcw, Square, Save, MessageSquare, X, GitPullRequest, CircleDot } from 'lucide-react'
+import { Activity, Users, Sparkles, Settings, ScrollText, RefreshCw, Pause, Play, SkipForward, RotateCcw, Square, Save, MessageSquare, X, GitPullRequest, CircleDot, Clock } from 'lucide-react'
+import { Modal, ModalHeader, ModalContent } from '@/components/ui/modal'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { Separator } from '@/components/ui/separator'
@@ -34,6 +35,7 @@ function App() {
   const [issues, setIssues] = useState([])
   const [newIssueText, setNewIssueText] = useState('')
   const [creatingIssue, setCreatingIssue] = useState(false)
+  const [agentModal, setAgentModal] = useState({ open: false, agent: null, data: null, loading: false })
 
   const fetchData = async () => {
     try {
@@ -154,6 +156,17 @@ apolloCycleInterval: ${configForm.apolloCycleInterval}
     fetchComments(1, null, false)
   }
   
+  const openAgentModal = async (agentName) => {
+    setAgentModal({ open: true, agent: agentName, data: null, loading: true })
+    try {
+      const res = await fetch(`/api/agents/${agentName}`)
+      const data = await res.json()
+      setAgentModal({ open: true, agent: agentName, data, loading: false })
+    } catch (err) {
+      setAgentModal({ open: true, agent: agentName, data: null, loading: false })
+    }
+  }
+  
   const createIssue = async () => {
     if (!newIssueText.trim() || creatingIssue) return
     setCreatingIssue(true)
@@ -187,22 +200,44 @@ apolloCycleInterval: ${configForm.apolloCycleInterval}
 
   const formatTime = (date) => date ? date.toLocaleTimeString() : '--:--:--'
 
+  const formatRuntime = (seconds) => {
+    if (!seconds) return ''
+    const m = Math.floor(seconds / 60)
+    const s = seconds % 60
+    return `${m}m ${s}s`
+  }
+
   const AgentItem = ({ agent, isManager = false }) => {
     const isActive = orchestratorStatus?.currentAgent === agent.name
     const isSelected = selectedAgent === agent.name
+    const runtime = isActive ? orchestratorStatus?.currentAgentRuntime : null
+    
     return (
       <div
-        onClick={() => selectAgent(agent.name)}
+        onClick={(e) => {
+          if (e.shiftKey || e.ctrlKey || e.metaKey) {
+            openAgentModal(agent.name)
+          } else {
+            selectAgent(agent.name)
+          }
+        }}
+        onDoubleClick={() => openAgentModal(agent.name)}
         className={`flex items-center justify-between p-2 rounded cursor-pointer transition-colors ${
           isActive ? 'bg-blue-50 border border-blue-200' : isSelected ? 'bg-purple-50 border border-purple-200' : 'bg-neutral-50 hover:bg-neutral-100'
         }`}
+        title="Click to filter reports, double-click for details"
       >
-        <div>
+        <div className="min-w-0 flex-1">
           <span className="font-medium text-neutral-800 capitalize">{agent.name}</span>
-          <p className="text-xs text-neutral-500 truncate max-w-[180px]">{agent.title}</p>
+          <p className="text-xs text-neutral-500 truncate">{agent.title}</p>
         </div>
-        <div className="flex items-center gap-1">
-          {isSelected && <Badge variant="secondary">Viewing</Badge>}
+        <div className="flex items-center gap-1 ml-2 shrink-0">
+          {isActive && runtime !== null && (
+            <span className="text-xs text-blue-600 flex items-center gap-1">
+              <Clock className="w-3 h-3" />{formatRuntime(runtime)}
+            </span>
+          )}
+          {isSelected && <Badge variant="secondary">Filter</Badge>}
           {isActive && <Badge variant="success">Active</Badge>}
         </div>
       </div>
@@ -467,6 +502,50 @@ apolloCycleInterval: ${configForm.apolloCycleInterval}
           </CardContent>
         </Card>
       </div>
+
+      {/* Agent Details Modal */}
+      <Modal open={agentModal.open} onClose={() => setAgentModal({ ...agentModal, open: false })}>
+        <ModalHeader onClose={() => setAgentModal({ ...agentModal, open: false })}>
+          <span className="capitalize">{agentModal.agent}</span>
+          {agentModal.data?.isManager && <Badge variant="secondary" className="ml-2">Manager</Badge>}
+        </ModalHeader>
+        <ModalContent>
+          {agentModal.loading ? (
+            <div className="flex items-center justify-center py-8">
+              <RefreshCw className="w-6 h-6 animate-spin text-neutral-400" />
+            </div>
+          ) : agentModal.data ? (
+            <div className="space-y-4">
+              <div>
+                <h3 className="font-semibold text-sm text-neutral-600 mb-2">Skill Definition</h3>
+                <div className="bg-neutral-50 rounded p-3 text-sm prose prose-sm max-w-none max-h-64 overflow-y-auto">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{agentModal.data.skill}</ReactMarkdown>
+                </div>
+              </div>
+              {agentModal.data.workspaceFiles?.length > 0 && (
+                <div>
+                  <h3 className="font-semibold text-sm text-neutral-600 mb-2">Workspace Files</h3>
+                  <div className="space-y-2">
+                    {agentModal.data.workspaceFiles.map((file) => (
+                      <div key={file.name} className="bg-neutral-50 rounded p-3">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="font-medium text-sm">{file.name}</span>
+                          <span className="text-xs text-neutral-400">{new Date(file.modified).toLocaleString()}</span>
+                        </div>
+                        {file.content && (
+                          <pre className="text-xs text-neutral-600 whitespace-pre-wrap max-h-32 overflow-y-auto">{file.content}</pre>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <p className="text-neutral-400 text-center py-8">Failed to load agent details</p>
+          )}
+        </ModalContent>
+      </Modal>
     </div>
   )
 }

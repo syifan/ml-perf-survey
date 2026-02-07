@@ -85,6 +85,7 @@ app.get('/api/agents', (req, res) => {
   try {
     const workersDir = path.join(AGENT_DIR, 'workers');
     const managersDir = path.join(AGENT_DIR, 'managers');
+    const workspaceDir = path.join(AGENT_DIR, 'workspace');
     
     const workers = [];
     const managers = [];
@@ -112,6 +113,48 @@ app.get('/api/agents', (req, res) => {
     }
     
     res.json({ workers, managers });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /api/agents/:name - Get agent details
+app.get('/api/agents/:name', (req, res) => {
+  try {
+    const { name } = req.params;
+    const workersDir = path.join(AGENT_DIR, 'workers');
+    const managersDir = path.join(AGENT_DIR, 'managers');
+    const workspaceDir = path.join(AGENT_DIR, 'workspace', name);
+    
+    let skillPath = path.join(workersDir, `${name}.md`);
+    let isManager = false;
+    if (!fs.existsSync(skillPath)) {
+      skillPath = path.join(managersDir, `${name}.md`);
+      isManager = true;
+    }
+    
+    if (!fs.existsSync(skillPath)) {
+      return res.status(404).json({ error: 'Agent not found' });
+    }
+    
+    const skill = fs.readFileSync(skillPath, 'utf-8');
+    
+    // Get workspace files
+    let workspaceFiles = [];
+    if (fs.existsSync(workspaceDir)) {
+      workspaceFiles = fs.readdirSync(workspaceDir).map(f => {
+        const filePath = path.join(workspaceDir, f);
+        const stat = fs.statSync(filePath);
+        return {
+          name: f,
+          size: stat.size,
+          modified: stat.mtime,
+          content: stat.size < 50000 ? fs.readFileSync(filePath, 'utf-8') : null
+        };
+      });
+    }
+    
+    res.json({ name, isManager, skill, workspaceFiles });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
