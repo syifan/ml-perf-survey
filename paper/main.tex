@@ -41,6 +41,7 @@
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.18}
 \usepgfplotslibrary{groupplots}
+\usetikzlibrary{plotmarks}
 
 % Custom commands
 \newcommand{\todo}[1]{\textcolor{red}{[TODO: #1]}}
@@ -107,7 +108,7 @@ Section~\ref{sec:methodology} describes our survey methodology.
 Section~\ref{sec:background} provides background on ML workload characteristics and modeling fundamentals.
 Section~\ref{sec:taxonomy} presents our classification taxonomy.
 Section~\ref{sec:survey} surveys approaches organized by target platform.
-Section~\ref{sec:comparison} offers comparative analysis across key dimensions.
+Section~\ref{sec:comparison} offers comparative analysis across key dimensions and a practitioner tool selection guide.
 Section~\ref{sec:challenges} discusses open challenges and future directions.
 Section~\ref{sec:evaluation} presents hands-on reproducibility evaluations.
 Section~\ref{sec:conclusion} concludes.
@@ -300,7 +301,7 @@ The \emph{secondary axes} are target platform and abstraction level, which toget
 We additionally characterize tools by workload coverage, exposing a pervasive CNN-validation bias in the literature.
 
 Figure~\ref{fig:taxonomy-overview} illustrates the primary and secondary dimensions.
-Table~\ref{tab:taxonomy-matrix} provides a quantitative coverage matrix showing the number of surveyed tools in each methodology--platform cell, with empty cells highlighting research gaps.
+Table~\ref{tab:taxonomy-matrix} provides a unified view combining the coverage matrix (number of surveyed tools per methodology--platform cell) with trade-off profiles (evaluation speed, data requirements, interpretability, and failure modes), with empty cells highlighting research gaps.
 
 \begin{figure}[t]
 \centering
@@ -360,56 +361,38 @@ Table~\ref{tab:taxonomy-matrix} provides a quantitative coverage matrix showing 
 \label{fig:taxonomy-overview}
 \end{figure}
 
-% --- Taxonomy Coverage Matrix (Table for #176) ---
-\begin{table}[t]
+% --- Unified Taxonomy Table (merged from Tables 1+2, issue #192) ---
+\begin{table*}[t]
 \centering
-\caption{Taxonomy coverage matrix: number of surveyed tools per methodology--platform cell.
-Empty cells (\textbf{0}) represent explicit research gaps where no surveyed tool exists.
-Total counts exceed the number of unique tools because some tools span multiple platforms.}
+\caption{Methodology taxonomy: coverage matrix and trade-off profile.
+Platform columns show the number of surveyed tools per cell; \textbf{0} indicates an explicit research gap.
+Speed, data requirements, and interpretability determine practical applicability; the failure mode column identifies the primary condition under which each methodology breaks down.}
 \label{tab:taxonomy-matrix}
 \small
-\begin{tabular}{lccccc}
+\begin{tabular}{l|ccccc|cccc}
 \toprule
- & \textbf{DNN} & & \textbf{Distrib.} & \textbf{Edge/} & \\
-\textbf{Methodology} & \textbf{Accel.} & \textbf{GPU} & \textbf{Systems} & \textbf{Mobile} & \textbf{CPU} \\
+ & \textbf{DNN} & & \textbf{Distrib.} & \textbf{Edge/} & & \textbf{Eval.} & \textbf{Data} & & \textbf{Failure} \\
+\textbf{Methodology} & \textbf{Accel.} & \textbf{GPU} & \textbf{Systems} & \textbf{Mobile} & \textbf{CPU} & \textbf{Speed} & \textbf{Req.} & \textbf{Interp.} & \textbf{Mode} \\
 \midrule
-Analytical       & 3 & 3 & 2 & \textbf{0} & \textbf{0} \\
-Cycle-Accurate   & 1 & 2 & \textbf{0} & \textbf{0} & 1 \\
-Trace-Driven     & \textbf{0} & \textbf{0} & 7 & \textbf{0} & \textbf{0} \\
-ML-Augmented     & \textbf{0} & 3 & \textbf{0} & 3 & 1 \\
-Hybrid           & 1 & 3 & \textbf{0} & \textbf{0} & 1 \\
+Analytical       & 3 & 3 & 2 & \textbf{0} & \textbf{0} & $\mu$s & None & High & Dynamic effects \\
+Cycle-Accurate   & 1 & 2 & \textbf{0} & \textbf{0} & 1 & Hours & Binary & High & Scale \\
+Trace-Driven     & \textbf{0} & \textbf{0} & 7 & \textbf{0} & \textbf{0} & Min. & Traces & Med. & Trace fidelity \\
+ML-Augmented     & \textbf{0} & 3 & \textbf{0} & 3 & 1 & ms & Profiling & Low & Distrib.\ shift \\
+Hybrid           & 1 & 3 & \textbf{0} & \textbf{0} & 1 & ms & Mixed & Med. & Training domain \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
 
-The matrix in Table~\ref{tab:taxonomy-matrix} reveals three structural observations.
+Table~\ref{tab:taxonomy-matrix} reveals three structural observations.
 First, trace-driven simulation is exclusively used for distributed systems---no surveyed tool applies trace-driven methods to single-device GPU or accelerator modeling, despite the potential for trace-driven approaches to avoid the slowdown of cycle-accurate simulation while retaining more fidelity than analytical models.
 Second, edge/mobile devices are served exclusively by ML-augmented approaches; the absence of analytical or hybrid models for edge devices reflects the hardware diversity problem but also represents a research gap, since hybrid approaches could combine the interpretability of analytical models with the adaptability of learned components.
 Third, no ML-augmented or hybrid tool specifically targets distributed system modeling---tools like VIDUR use ML internally for kernel prediction but are architecturally trace-driven simulators.
+The trade-off columns further show that methodologies cluster into two speed regimes: sub-millisecond (analytical, ML-augmented, hybrid) suitable for design space exploration, and minutes-to-hours (simulation, trace-driven) suitable for detailed validation.
 
 \subsection{Primary Axis: Methodology Type}
 \label{subsec:by-methodology}
 
-The choice of methodology determines fundamental trade-offs between accuracy, evaluation speed, data requirements, and interpretability.
-Table~\ref{tab:methodology-tradeoffs} summarizes these trade-offs.
-
-\begin{table}[t]
-\centering
-\caption{Trade-off profile by methodology type. Evaluation speed and data requirements determine practical applicability; the failure mode column identifies the primary condition under which each methodology breaks down.}
-\label{tab:methodology-tradeoffs}
-\small
-\begin{tabular}{lcccc}
-\toprule
-\textbf{Methodology} & \textbf{Speed} & \textbf{Data Req.} & \textbf{Interp.} & \textbf{Failure Mode} \\
-\midrule
-Analytical & $\mu$s & None & High & Dynamic effects \\
-Cycle-Acc. & Hours & Binary & High & Scale \\
-Trace-Driven & Min. & Traces & Med. & Trace fidelity \\
-ML-Augmented & ms & Profiling & Low & Distrib.\ shift \\
-Hybrid & ms & Mixed & Med. & Training domain \\
-\bottomrule
-\end{tabular}
-\end{table}
+The choice of methodology determines fundamental trade-offs between accuracy, evaluation speed, data requirements, and interpretability, as summarized in the right columns of Table~\ref{tab:taxonomy-matrix}.
 
 \subsubsection{Analytical Models}
 
@@ -873,6 +856,65 @@ Note that direct comparison across tools is approximate because accuracy numbers
 \label{fig:accuracy-comparison}
 \end{figure}
 
+Figure~\ref{fig:speed-accuracy} plots representative tools on two axes---evaluation speed versus reported accuracy---revealing the fundamental trade-off space.
+Analytical models (upper-left) achieve the fastest evaluation but sacrifice accuracy on complex workloads.
+Cycle-accurate simulators (lower-right) provide the highest fidelity but at impractical speeds.
+Hybrid approaches (NeuSight, Concorde) occupy the desirable upper-right region: fast evaluation \emph{and} high accuracy, though at the cost of training data requirements and reduced interpretability compared to analytical models.
+Trace-driven simulators span a wide range, from VIDUR's seconds-scale LLM serving simulation to ASTRA-sim's minutes-scale distributed training, reflecting the diversity of system-level modeling targets.
+
+\begin{figure}[t]
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tikzpicture}
+\begin{axis}[
+    xlabel={Reported MAPE (\%)},
+    ylabel={Evaluation Speed},
+    xmin=0, xmax=28,
+    ymin=-0.5, ymax=5.5,
+    ytick={0,1,2,3,4,5},
+    yticklabels={Hours, Minutes, Seconds, ms, $\mu$s--ms, $\mu$s},
+    xticklabel style={font=\scriptsize},
+    yticklabel style={font=\scriptsize},
+    xlabel style={font=\small},
+    ylabel style={font=\small},
+    height=6.5cm,
+    width=8.5cm,
+    legend style={at={(0.97,0.03)}, anchor=south east, font=\tiny, draw=none, fill=white, fill opacity=0.9, text opacity=1},
+    legend cell align={left},
+    grid=both,
+    grid style={gray!20},
+]
+% Analytical (blue squares)
+\addplot[only marks, mark=square*, blue!70, mark size=3pt] coordinates {(7.5,5) (10,5) (23.6,3)};
+\node[font=\tiny, anchor=south west] at (axis cs:7.5,5) {Timeloop};
+\node[font=\tiny, anchor=south west] at (axis cs:10,5) {MAESTRO};
+\node[font=\tiny, anchor=south east] at (axis cs:23.6,3) {AMALI};
+% Simulation (red triangles)
+\addplot[only marks, mark=triangle*, red!70, mark size=3pt] coordinates {(15,0)};
+\node[font=\tiny, anchor=south west] at (axis cs:15,0) {Accel-Sim};
+% Trace-driven (orange diamonds)
+\addplot[only marks, mark=diamond*, orange!80, mark size=3pt] coordinates {(10,1) (3.3,1) (1.9,1) (5,2)};
+\node[font=\tiny, anchor=south west] at (axis cs:10,1) {ASTRA-sim};
+\node[font=\tiny, anchor=south east] at (axis cs:3.3,1) {Lumos};
+\node[font=\tiny, anchor=south west] at (axis cs:1.9,1) {SimAI};
+\node[font=\tiny, anchor=south west] at (axis cs:5,2) {VIDUR};
+% ML-augmented (purple circles)
+\addplot[only marks, mark=*, purple!70, mark size=3pt] coordinates {(0.7,3) (1.9,3) (15,3)};
+\node[font=\tiny, anchor=south west] at (axis cs:0.7,3) {LitePred};
+\node[font=\tiny, anchor=south east] at (axis cs:1.9,3) {HELP};
+\node[font=\tiny, anchor=south west] at (axis cs:15,3) {TVM};
+% Hybrid (green pentagons)
+\addplot[only marks, mark=pentagon*, green!60!black, mark size=3pt] coordinates {(2.3,3) (11.8,3)};
+\node[font=\tiny, anchor=north west] at (axis cs:2.3,3) {NeuSight};
+\node[font=\tiny, anchor=north west] at (axis cs:11.8,3) {Habitat};
+\legend{Analytical, Simulation, Trace-driven, ML-augmented, Hybrid}
+\end{axis}
+\end{tikzpicture}%
+}
+\caption{Speed--accuracy trade-off for surveyed tools. The y-axis represents evaluation speed (higher is faster); the x-axis shows reported MAPE (lower is better). The desirable region is the upper-left quadrant (fast and accurate). Hybrid approaches cluster in the fast-and-accurate region; analytical models are fastest but less accurate on complex workloads; cycle-accurate simulation is slowest but captures microarchitectural detail.}
+\label{fig:speed-accuracy}
+\end{figure}
+
 \subsection{Generalization Challenges}
 \label{subsec:generalization}
 
@@ -941,6 +983,77 @@ Hybrid approaches remain the smallest category (4 tools), despite achieving the 
 \caption{Distribution of surveyed tools by methodology type. Trace-driven simulation dominates due to the recent growth of distributed training and LLM serving tools. Hybrid approaches are the least represented despite their strong accuracy results.}
 \label{fig:methodology-breakdown}
 \end{figure}
+
+\subsection{Practitioner Tool Selection Guide}
+\label{subsec:tool-selection}
+
+To address the gap between taxonomy and actionable guidance, Figure~\ref{fig:decision-flowchart} presents a decision flowchart for practitioners selecting a performance modeling tool.
+The flowchart captures the key decision points that emerge from our comparative analysis: target platform determines the candidate set, the required speed--accuracy trade-off narrows the methodology, and data availability constrains the final choice.
+
+\begin{figure}[t]
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tikzpicture}[
+    node distance=0.5cm and 0.3cm,
+    decision/.style={diamond, draw=black!60, fill=yellow!10, text width=1.5cm, align=center, inner sep=1pt, font=\tiny, aspect=2},
+    block/.style={rectangle, rounded corners=3pt, draw=black!50, fill=blue!8, text width=2.0cm, align=center, minimum height=0.6cm, font=\tiny},
+    result/.style={rectangle, rounded corners=3pt, draw=green!60!black, fill=green!10, text width=1.8cm, align=center, minimum height=0.6cm, font=\tiny\bfseries},
+    arr/.style={-{Stealth[length=1.5mm]}, thick, draw=black!50},
+    lbl/.style={font=\tiny, text=black!60}
+]
+
+% Start
+\node[block, fill=gray!15, font=\tiny\bfseries] (start) {What is your target platform?};
+
+% Platform branches
+\node[decision, below left=0.6cm and 1.5cm of start] (accel) {DNN\\Accel?};
+\node[decision, below=0.6cm of start] (gpu) {GPU?};
+\node[decision, below right=0.6cm and 1.5cm of start] (dist) {Distributed\\system?};
+
+\draw[arr] (start.south) -- ++(0,-0.2) -| (accel.north);
+\draw[arr] (start.south) -- (gpu.north);
+\draw[arr] (start.south) -- ++(0,-0.2) -| (dist.north);
+
+% Accelerator path
+\node[decision, below=0.5cm of accel] (accel-dse) {Design space\\exploration?};
+\draw[arr] (accel.south) -- node[lbl,right]{Yes} (accel-dse.north);
+\node[result, below left=0.4cm and 0.3cm of accel-dse] (r-timeloop) {Timeloop /\\MAESTRO};
+\node[result, below right=0.4cm and 0.3cm of accel-dse] (r-archgym) {ArchGym};
+\draw[arr] (accel-dse.south) -- ++(0,-0.1) -| node[lbl,above left,pos=0.25]{Analytical} (r-timeloop.north);
+\draw[arr] (accel-dse.south) -- ++(0,-0.1) -| node[lbl,above right,pos=0.25]{ML-aided} (r-archgym.north);
+
+% GPU path
+\node[decision, below=0.5cm of gpu] (gpu-speed) {Need\\fast eval?};
+\draw[arr] (gpu.south) -- node[lbl,right]{Yes} (gpu-speed.north);
+\node[result, below left=0.4cm and 0.1cm of gpu-speed] (r-neusight) {NeuSight /\\Habitat};
+\node[result, below right=0.4cm and 0.1cm of gpu-speed] (r-accelsim) {Accel-Sim /\\GPGPU-Sim};
+\draw[arr] (gpu-speed.south) -- ++(0,-0.1) -| node[lbl,above left,pos=0.25]{Yes} (r-neusight.north);
+\draw[arr] (gpu-speed.south) -- ++(0,-0.1) -| node[lbl,above right,pos=0.25]{No} (r-accelsim.north);
+
+% Distributed path
+\node[decision, below=0.5cm of dist] (dist-type) {Training or\\serving?};
+\draw[arr] (dist.south) -- node[lbl,right]{Yes} (dist-type.north);
+\node[result, below left=0.4cm and 0.1cm of dist-type] (r-astra) {ASTRA-sim /\\SimAI / Lumos};
+\node[result, below right=0.4cm and 0.1cm of dist-type] (r-vidur) {VIDUR /\\Frontier};
+\draw[arr] (dist-type.south) -- ++(0,-0.1) -| node[lbl,above left,pos=0.25]{Training} (r-astra.north);
+\draw[arr] (dist-type.south) -- ++(0,-0.1) -| node[lbl,above right,pos=0.25]{Serving} (r-vidur.north);
+
+% Edge fallback from accel/gpu No paths
+\node[result, right=0.3cm of dist] (r-edge) {nn-Meter /\\LitePred / HELP};
+\node[lbl, above=0.05cm of r-edge] {Edge/Mobile:};
+\draw[arr] (accel.east) -- node[lbl,above]{No} ++(0.3,0) |- (gpu.west);
+\draw[arr] (dist.east) -- node[lbl,above]{No} (r-edge.west);
+
+\end{tikzpicture}%
+}
+\caption{Practitioner decision flowchart for tool selection. Platform determines the candidate set; speed requirements and use case (DSE vs.\ validation, training vs.\ serving) narrow the choice. Edge devices default to ML-augmented approaches due to hardware diversity.}
+\label{fig:decision-flowchart}
+\end{figure}
+
+Three practical recommendations emerge from this analysis:
+(1)~For \emph{accelerator design space exploration}, start with Timeloop or MAESTRO---their microsecond evaluation enables exhaustive search over dataflow mappings, and their analytical nature provides interpretable feedback on bottlenecks.
+(2)~For \emph{GPU workload evaluation}, NeuSight offers the best accuracy--speed balance for LLM workloads; fall back to Accel-Sim when microarchitectural detail is required (e.g., debugging cache behavior).
+(3)~For \emph{distributed system planning}, use VIDUR for LLM serving configuration (scheduler comparison, batch sizing) and ASTRA-sim or SimAI for training parallelism exploration at scale.
 
 % ==============================================================================
 % OPEN CHALLENGES
