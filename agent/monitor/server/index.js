@@ -268,11 +268,20 @@ app.get('/api/comments', async (req, res) => {
 app.get('/api/prs', async (req, res) => {
   try {
     const { execSync } = await import('child_process');
-    const output = execSync('gh pr list --state open --json number,title,author,createdAt,headRefName --limit 50', {
+    const output = execSync('gh pr list --state open --json number,title,createdAt,headRefName --limit 50', {
       cwd: path.resolve(AGENT_DIR, '..'),
-      encoding: 'utf-8'
+      encoding: 'utf-8',
+      timeout: 30000
     });
-    res.json({ prs: JSON.parse(output) });
+    // Parse author from title format: [AgentName] Description
+    const prs = JSON.parse(output).map(pr => {
+      const match = pr.title.match(/^\[([^\]]+)\]\s*(.*)$/);
+      if (match) {
+        return { ...pr, agent: match[1], shortTitle: match[2] };
+      }
+      return { ...pr, agent: null, shortTitle: pr.title };
+    });
+    res.json({ prs });
   } catch (e) {
     console.error('Error fetching PRs:', e.message);
     res.json({ prs: [] });

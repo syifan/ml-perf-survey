@@ -416,9 +416,12 @@ apolloCycleInterval: ${configForm.apolloCycleInterval}
                     className="block p-2 bg-neutral-50 hover:bg-neutral-100 rounded cursor-pointer transition-colors">
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-neutral-400">#{pr.number}</span>
-                      <span className="text-sm font-medium text-neutral-800 truncate">{pr.title}</span>
+                      <span className="text-sm font-medium text-neutral-800 truncate">{pr.shortTitle || pr.title}</span>
                     </div>
-                    <p className="text-xs text-neutral-500 truncate">{pr.headRefName}</p>
+                    <div className="flex items-center gap-2 mt-1 text-xs text-neutral-500">
+                      {pr.agent && <span className="flex items-center gap-1"><User className="w-3 h-3" />{pr.agent}</span>}
+                      <span className="truncate">{pr.headRefName}</span>
+                    </div>
                   </a>
                 ))}
                 {prs.length === 0 && <p className="text-sm text-neutral-400">No open PRs</p>}
