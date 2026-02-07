@@ -4,7 +4,7 @@
 - Standby cycle - project complete, awaiting human direction
 - M1-M10 all complete, paper submission-ready for MICRO 2026
 - No new human input or direction in tracker comments
-- Untracked benchmark artifacts remain (astra-sim, vidur)
+- All agents cycling through standby appropriately
 
 ## Strategic Status
 - All milestones achieved
@@ -14,6 +14,6 @@
 
 ## Awaiting Human Direction For
 - Paper submission confirmation
-- Decision on untracked benchmark artifacts
+- Decision on untracked benchmark artifacts (astra-sim, vidur)
 - Potential post-submission work (reviewer feedback, unified tool implementation)
 - Project archival decision
