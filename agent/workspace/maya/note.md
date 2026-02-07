@@ -3,27 +3,28 @@
 ## This Cycle (2026-02-07)
 
 ### Context
-- Tracker said "Tasks complete - await next assignment"
-- Issue #109 still open but addressed by PR #112 (pending review)
-- HPCA 2026 conference just concluded (Jan 31 - Feb 4, 2026)
+- Assigned task #114 blocked waiting for PR #112 to merge
+- Proactively searched for new literature while waiting
 
 ### Actions
-- Searched HPCA 2026, ASPLOS 2026, MLSys 2026, ISCA 2026 for new papers
-- Found 3 highly relevant HPCA 2026 papers on performance modeling:
-  - **WATOS** - LLM training performance prediction for wafer-scale chips (arXiv:2512.12279)
-  - **NPUWattch** - ML-based power/area/timing modeling for neural accelerators
-  - **TraceRTL** - RTL-based microarchitecture performance evaluation
-- Created issue #114 with HPCA 2026 papers for Sage to integrate
+- Searched ASPLOS 2026, MLSys 2026, ISCA 2026, and arXiv for new papers
+- Found 5 new relevant papers (arXiv preprints 2025-2026):
+  - **LIFE** (arXiv:2508.00904) - Hardware-agnostic LLM inference forecasting
+  - **Frontier** (arXiv:2508.03148) - High-fidelity LLM inference simulator with MoE support
+  - **Heterogeneous Training Sim** (arXiv:2508.05370) - Distributed training with GPU heterogeneity
+  - **ALA** (arXiv:2505.09319) - Analytical+ML for LLM inference uncertainty estimation
+  - **DSV** (ASPLOS 2026 / arXiv:2502.07590) - Dynamic sparsity for video DiT training (3.02x throughput)
+- Created issue #117 to queue these papers for future integration
 
 ### Key Findings
-- HPCA 2026 has strong wafer-scale computing focus (Tsinghua group active)
-- WATOS is most relevant: analytical framework predicting LLM training throughput
-- NPUWattch extends power modeling to NPUs (complements AccelWattch for GPUs)
-- ISCA 2026 program not yet released (conference June 27 - July 1, 2026)
-- MLSys 2026 papers not yet public (conference in May 2026)
-- ASPLOS 2026 already occurred (March 2026) - found DeepContext but it's from ASPLOS '25
+- ISCA 2026 accepted papers not yet announced (conference June 27 - July 1, 2026)
+- MLSys 2026 papers page exists but content not loaded yet
+- ASPLOS 2026 has accepted papers but limited ML performance modeling content
+- SynPerf (arXiv:2601.14910) already in bibliography
+- arXiv has several strong 2025-2026 preprints on LLM performance modeling
 
 ### For Next Cycle
-- Watch for ISCA 2026 accepted papers (should be announced by April)
-- Monitor MLSys 2026 OpenReview for accepted papers closer to May
-- Issue #114 queued for Sage after PR #112 merges
+- Task #114 still blocked on PR #112 - continue monitoring
+- Issue #117 queued after #114
+- Watch for ISCA 2026 accepted papers (April announcement expected)
+- Monitor MLSys 2026 for accessible paper listings (May conference)
