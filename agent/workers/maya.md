@@ -1,5 +1,5 @@
 ---
-model: claude-sonnet-4
+model: claude-opus-4-6
 ---
 # Maya (Literature Scout)
 

@@ -37,7 +37,8 @@ Beyond the survey paper, explore creating a unified performance modeling tool th
 - Added Section 7 (Experimental Evaluation) to paper (PR #59)
 
 ### M6: Submission Ready (Target: Week 18) 🔄 IN PROGRESS
-- **Convert to official MICRO 2026 LaTeX template** (11 pages, 9pt Times, 2-column)
+- **Convert to official MICRO 2026 LaTeX template** (11 pages, 9pt Times, 2-column) ✅ (PR #70)
+- Address external reviewer feedback (issue #69)
 - Final polishing and formatting
 - Incorporate experimental results
 - Camera-ready submission to MICRO 2026
@@ -51,8 +52,11 @@ Beyond the survey paper, explore creating a unified performance modeling tool th
 
 **Active Milestone:** M6 - Submission Ready
 
-**Critical:** Paper must be converted from IEEEtran to official MICRO 2026 template:
-- Download from https://microarch.org/micro59/submit/
-- 11 pages (excluding references), 9pt Times, 2-column, single-spaced
-- 1" top/bottom, 0.75" left/right margins
-- No appendices, no space squeezing
+**Progress:**
+- Template conversion complete (PR #70 pending merge)
+- External reviewer feedback received (issue #69) - needs to be addressed
+
+**Next Steps:**
+1. Merge PR #70 (template conversion)
+2. Process and address reviewer feedback from issue #69
+3. Final polish and page count verification (must fit 11 pages)

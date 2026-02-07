@@ -64,54 +64,21 @@ If an agent's skill file (`agent/workers/{name}.md`) needs improvement:
 
 ## Model Selection
 
-When creating or adjusting agents, choose the right model for the task:
+**Default to the best model (claude-opus-4-6).** Only downgrade for clear reasons.
 
-- **claude-opus-4-6** — Complex reasoning, strategy, critical decisions
-- **claude-sonnet-4** — General tasks, writing, research, coding
-- **claude-haiku-3-5** — Simple tasks, quick responses, high volume
-
-Add model in YAML frontmatter at the top of skill files:
-```yaml
----
-model: claude-sonnet-4
----
-```
-
-**Cost vs capability:** Use simpler models for routine tasks to save resources. Upgrade if quality suffers.
-
-## Model Selection
-
-When creating or adjusting agents, choose the right model for the task:
-
-- **claude-opus-4-6** — Complex reasoning, strategy, critical decisions
-- **claude-sonnet-4** — General tasks, writing, research, coding
-- **claude-haiku-3-5** — Simple tasks, quick responses, high volume
+Available models:
+- **claude-opus-4-6** — Best quality, use by default
+- **claude-sonnet-4** — Only if task is clearly simple and repetitive
+- **claude-haiku-3-5** — Only for trivial, high-volume tasks
 
 Add model in YAML frontmatter at the top of skill files:
 ```yaml
 ---
-model: claude-sonnet-4
+model: claude-opus-4-6
 ---
 ```
 
-**Cost vs capability:** Use simpler models for routine tasks. Upgrade if quality suffers.
-
-## Model Selection
-
-When creating or adjusting agents, choose the right model for the task:
-
-- **claude-opus-4-6** — Complex reasoning, strategy, critical decisions
-- **claude-sonnet-4** — General tasks, writing, research, coding
-- **claude-haiku-3-5** — Simple tasks, quick responses, high volume
-
-Add model in YAML frontmatter at the top of skill files:
-```yaml
----
-model: claude-sonnet-4
----
-```
-
-**Cost vs capability:** Use simpler models for routine tasks. Upgrade if quality suffers.
+**Quality first.** Don't optimize cost prematurely.
 
 ## Tips
 
