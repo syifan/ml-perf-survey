@@ -48,19 +48,19 @@
 %%%%%% -- PAPER CONTENT STARTS-- %%%%%%%%
 
 \begin{abstract}
-As machine learning workloads grow in scale and complexity, architects and system designers need fast, accurate methods to predict their performance across diverse hardware platforms.
-This survey provides a comprehensive analysis of modeling and simulation methods for predicting the performance of ML workloads, covering analytical models, cycle-accurate simulators, trace-driven approaches, and ML-augmented hybrid techniques.
-We survey over 50 tools and methods from architecture and systems venues published between 2016--2026, spanning DNN accelerator modeling (Timeloop, MAESTRO, Sparseloop), GPU simulation (GPGPU-Sim, Accel-Sim, NeuSight), distributed training simulation (ASTRA-sim, Lumos, SimAI), and LLM inference serving (VIDUR, Frontier, AMALI).
-We organize the literature along two primary dimensions---methodology type (analytical, simulation, ML-augmented, hybrid) and target platform (accelerators, GPUs, distributed systems, edge devices)---while additionally characterizing tools by workload coverage, prediction targets, and independently verified accuracy.
+As machine learning workloads grow in scale and complexity---spanning training and inference for CNNs, transformers, mixture-of-experts models, and LLMs---architects and system designers need fast, accurate methods to predict their performance across diverse hardware platforms.
+This survey provides a comprehensive analysis of the tools and methods available for modeling and simulating the performance of ML workloads, covering analytical models, cycle-accurate simulators, trace-driven approaches, and ML-augmented hybrid techniques.
+We survey over 50 tools from architecture venues (MICRO, ISCA, HPCA, ASPLOS) and systems venues (MLSys, OSDI, NSDI) published between 2016--2026, spanning DNN accelerator modeling (Timeloop, MAESTRO, Sparseloop), GPU simulation (GPGPU-Sim, Accel-Sim, NeuSight), distributed training simulation (ASTRA-sim, Lumos, SimAI), and LLM inference serving (VIDUR, Frontier, AMALI).
+We organize the literature along two primary dimensions---methodology type (analytical, simulation, ML-augmented, hybrid) and target platform (accelerators, GPUs, distributed systems, edge devices)---while additionally characterizing tools by workload coverage, prediction targets, and reported accuracy.
 Our analysis reveals that hybrid approaches combining analytical structure with learned components achieve the best accuracy-speed trade-offs, while pure analytical models offer superior interpretability for design space exploration.
-We conduct hands-on reproducibility evaluations and report independently measured accuracy, finding significant gaps between paper-reported and independently verified numbers.
+We conduct hands-on reproducibility evaluations of five representative tools, finding that reproducibility varies dramatically: Docker-first tools score 8.5+/10 on our rubric while tools relying on serialized ML models risk becoming unusable.
 We identify key open challenges including cross-workload generalization beyond CNNs, composition of kernel-level predictions to end-to-end accuracy, and support for emerging architectures.
-This survey provides practitioners guidance for selecting appropriate modeling tools and researchers a roadmap for advancing ML workload performance prediction.
+This survey provides practitioners guidance for selecting appropriate modeling tools and researchers a roadmap for advancing the field of ML workload performance prediction.
 \end{abstract}
 
 %%
 %% Keywords
-\keywords{performance modeling, machine learning workloads, simulation, computer architecture, design space exploration, survey}
+\keywords{ML workload performance prediction, DNN accelerator modeling, GPU simulation, distributed training simulation, LLM inference serving, design space exploration, survey}
 
 \maketitle
 
@@ -81,15 +81,15 @@ Trace-driven simulators like ASTRA-sim~\cite{astrasim2023} and VIDUR~\cite{vidur
 ML-augmented approaches like NeuSight~\cite{neusight2025} learn performance functions from profiling data, achieving 2.3\% error on GPU kernel prediction.
 Each methodology occupies a distinct point in the accuracy-speed-generality trade-off space.
 
-Despite this rich tool landscape, no comprehensive survey organizes these methods from the perspective of the ML workload practitioner.
+Despite this rich tool landscape, no comprehensive survey organizes these methods from the perspective of the ML workload practitioner---the architect or engineer who needs to select a modeling tool for a specific design or deployment task.
 Existing surveys focus on ML \emph{techniques} for performance modeling~\cite{granite2022} or on specific hardware targets~\cite{timeloop2019}, leaving practitioners without guidance on which tools suit their needs across the full modeling spectrum.
-This survey fills that gap.
+This survey fills that gap by providing a methodology-centric view of the tools and methods available for predicting ML workload performance.
 
 We make the following contributions:
 \begin{itemize}
     \item A \textbf{methodology-centric taxonomy} organizing tools along two primary dimensions: methodology type (analytical, simulation, ML-augmented, hybrid) and target platform (DNN accelerators, GPUs, distributed systems, edge devices), with additional characterization by workload coverage, prediction targets, and verified accuracy.
     \item A \textbf{systematic survey} of over 50 modeling tools and methods from architecture venues (MICRO, ISCA, HPCA, ASPLOS) and systems venues (MLSys, OSDI, NSDI) published between 2016--2026, using documented selection criteria.
-    \item A \textbf{comparative analysis} examining trade-offs between accuracy, speed, generalization, and interpretability, with independently measured accuracy where feasible rather than relying solely on paper-reported numbers.
+    \item A \textbf{comparative analysis} examining trade-offs between accuracy, speed, generalization, and interpretability, with careful qualification of paper-reported accuracy claims and identification of cases where reported numbers are unverifiable.
     \item \textbf{Hands-on reproducibility evaluations} of representative tools with a 10-point rubric, and identification of \textbf{open challenges} including the CNN-to-transformer generalization gap, kernel-to-end-to-end error composition, and emerging accelerator support.
 \end{itemize}
 
@@ -813,14 +813,14 @@ Projects should prefer portable formats (ONNX) or pin exact dependency versions.
 \section{Conclusion}
 \label{sec:conclusion}
 
-This survey analyzed over 50 tools and methods for modeling and predicting performance of ML workloads, spanning analytical models, cycle-accurate simulators, trace-driven simulation, and ML-augmented hybrid approaches.
+This survey analyzed over 50 tools and methods for modeling and simulating the performance of ML workloads, spanning analytical models, cycle-accurate simulators, trace-driven simulation, and ML-augmented hybrid approaches.
 
 \textbf{Key findings:}
 (1) Analytical frameworks (Timeloop, MAESTRO) remain the most effective for DNN accelerator design space exploration, offering microsecond evaluation with full interpretability.
 (2) Trace-driven simulators (ASTRA-sim, VIDUR, SimAI, Lumos) have emerged as the practical choice for system-level modeling of distributed training and LLM serving, achieving 2--15\% accuracy at practical speeds.
 (3) Hybrid approaches combining analytical structure with learned components (NeuSight, Concorde) achieve the best accuracy on GPU kernel prediction (2--3\% error).
 (4) LLM workloads require specialized modeling for prefill/decode phases, KV cache management, and multi-stage inference pipelines.
-(5) Reproducibility varies dramatically across tools---Docker-first tools score 8.5+ on our rubric while tools relying on serialized ML models risk becoming unusable.
+(5) Reproducibility varies dramatically---Docker-first tools (Timeloop, ASTRA-sim, VIDUR) score 8.5+/10 on our rubric while tools relying on serialized ML models (nn-Meter) risk becoming unusable within months of release.
 
 \textbf{Gaps and opportunities:}
 Most tools are validated on CNN workloads; transformer/MoE validation is sparse.
@@ -828,8 +828,8 @@ The kernel-to-end-to-end composition problem remains unsolved.
 Emerging hardware (PIM, chiplets) lacks mature modeling support.
 The community needs standardized benchmarks for cross-tool accuracy comparison.
 
-As ML workloads grow in scale and diversity, accurate performance prediction becomes critical for efficient hardware design, system provisioning, and serving infrastructure planning.
-This survey provides practitioners a guide for selecting appropriate tools and researchers a roadmap for advancing the field.
+As ML workloads grow in scale and diversity---from edge inference to multi-thousand-GPU training---accurate performance prediction becomes critical for efficient hardware design, system provisioning, and serving infrastructure planning.
+This survey provides practitioners a guide for selecting appropriate modeling tools for their specific use case and researchers a roadmap for advancing the field of ML workload performance prediction.
 
 %%%%%%% -- PAPER CONTENT ENDS -- %%%%%%%%
 
