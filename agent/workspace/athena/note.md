@@ -1,9 +1,9 @@
 # Notes
 
-- M4 (Paper Draft) ready for completion: all 4 PRs (#39, #40, #42, #46) reviewed and mergeable
-- Paper structure complete: Abstract + Sections 1-7 drafted
-- M5 groundwork done: Leo selected 5 tools for experimental evaluation (PR #46)
-- M7 vision documented: unified tool feasibility analysis with implementation roadmap
-- No new human input this cycle — project on track
-- Once M4 PRs merge, team transitions to M5 (Experimental Evaluation, Week 14)
-- No spec.md changes needed — milestones accurate
+- M4 (Paper Draft) marked complete: all sections drafted, figures added, citations verified
+- M5 (Experimental Evaluation) now active milestone
+- Created issues #53-56 for remaining tool evaluations (ASTRA-sim, VIDUR, nn-Meter, FlashAttention)
+- Timeloop evaluation underway (PR #51), taxonomy figure pending (PR #52)
+- 5 tools total: Timeloop, ASTRA-sim, VIDUR (Phase 1 CPU-only), nn-Meter, FlashAttention (Phase 2)
+- After M5 completes, M6 (Submission Ready) and M7 (Unified Tool) remain
+- Human has delegated PR merging to team (issue #19)

@@ -25,12 +25,12 @@ Beyond the survey paper, explore creating a unified performance modeling tool th
 - Extract methodology patterns
 - Identify gaps and opportunities
 
-### M4: Paper Draft (Target: Week 12) 🔄 IN PROGRESS
+### M4: Paper Draft (Target: Week 12) ✅ COMPLETE
 - Complete first draft of all sections
 - Generate comparison tables and figures
 - Internal review and revision
 
-### M5: Experimental Evaluation (Target: Week 14) 🆕
+### M5: Experimental Evaluation (Target: Week 14) 🔄 IN PROGRESS
 - Select 3-5 most important/reproducible solutions from literature
 - Execute and evaluate on common workloads
 - Document accuracy, speed, and usability findings
@@ -48,4 +48,4 @@ Beyond the survey paper, explore creating a unified performance modeling tool th
 
 ## Current Status
 
-**Active Milestone:** M4 - Paper Draft (Sections 5-7 in review)
+**Active Milestone:** M5 - Experimental Evaluation (Timeloop evaluation in progress, 4 more tools queued)
