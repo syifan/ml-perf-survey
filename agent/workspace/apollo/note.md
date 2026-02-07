@@ -1,51 +1,56 @@
-# Notes
+# Apollo — Cycle 72 Notes
 
-## This Cycle (2026-02-07, Cycle 71)
+## Situation
+- **PRs #196 and #197 merged** — Hermes delivered promptly. Merge bottleneck resolved.
+- **Three new PRs open**: Flux #203 (cross-tool accuracy), Leo #204 (Section 5 synthesis), Sage #205 (section reorder + compression)
+- **Paper metrics**: ~10.5-11 pages (MET), 86 refs (MET), 7 figures (CLOSE to 8-10), Crit score 5/10 (target 7+)
+- **Flux produced first output** (PR #203) — analyzing existing data, not new experiments. Improvement over zero but doesn't meet #143.
+- **Human directives still open**: #143 (run experiments), #153 (unified tool prototype), #195 (independent reviews), #202 (page limits)
 
-### Situation
-- **PRs #186-#189 all merged** — merge bottleneck resolved. Hermes delivered.
-- **Two new PRs open**: Leo #196 (+265/-24, closes #190/#191/#173) and Sage #197 (+150/-37, closes #192/#193)
-- **Paper approaching targets**: ~10.5 pages, 86 refs (target met), 7 figures (target 8-10)
-- **Crit scored 5/10** (up from 4.5). Score trajectory: 3→4.5→5. Still below 7+ target.
-- **Flux still has zero experimental results**. Currently active but no tracker comment or PR for #194.
-- **Athena created 4 new issues** (#198-#201) for next phase: synthesis, reordering, compression, fresh review.
-- **Human directive #195**: Crit must review independently without memory of prior reviews.
+## Checked Items from Cycle 71
+- ✅ Flux produced output (PR #203) — not firing
+- ✅ PRs #196 and #197 merged by Hermes
+- ✅ Leo delivered synthesis paragraphs (PR #204, #198)
+- ✅ Sage reordered sections and compressed content (PR #205, #199/#200)
+- ✅ Crit did fresh independent review (5/10, #201)
+- ❌ No one started #154 (unified tool prototype)
 
-### Checked Items from Last Cycle
-- ✅ PRs #186, #187, #188, #189 all merged — bottleneck resolved
-- ❌ Flux has NOT produced ASTRA-sim results (#194) — still no update
-- ✅ Leo expanded Section 8 (not 7 as labeled) — PR #196
-- ✅ Sage added 2 figures and merged tables — PR #197
-- ⚠️ Crit did fresh review (5/10) and content audit but didn't review individual PRs #187/#189 before merge
+## Actions Taken
+1. **Evaluations written** for all 6 agents (4 workers + 2 managers):
+   - Leo: Excellent (sustained MVP)
+   - Sage: Good (consistent and reliable)
+   - Crit: Excellent (quality engine)
+   - Flux: Improved (probation continues — must run actual experiments)
+   - Hermes: Recovered (merging promptly again)
+   - Athena: Excellent (flagged #202 as unaddressed human directive)
 
-### Actions Taken
-1. **Evaluations**: Leo (Excellent), Sage (Good), Crit (Excellent), Flux (Concerning — downgraded)
-2. **Updated Flux skill file**: Added timeout awareness section with concrete pivot instructions. Escalated urgency to "FINAL WARNING". Added guidance on using GitHub Actions for long-running builds.
-3. **No hiring/firing**: Flux gets one more cycle. Other 3 workers are productive. Team stays at 4.
+2. **Flux skill file updated**: Shifted from "FINAL WARNING" to "Probation (Improved)". Directed toward Timeloop as fastest path to a real experiment. Emphasized #154 (unified tool prototype) as non-deferrable.
 
-### Team Status
-| Agent | Rating | Key Deliverable | Next Assignment |
-|-------|--------|----------------|-----------------|
-| Leo | Excellent | PR #196 (eval+refs+surveys) | #198 (Section 5 synthesis) |
-| Sage | Good | PR #197 (tables+figures) | #199 (section reorder), #200 (content cuts) |
-| Crit | Excellent | Review 5/10, content audit | #201 (fresh independent review) |
-| Flux | Concerning | No new output since #186 | #194 (execute experiment — FINAL) |
+3. **No hiring/firing**: Flux stays on probation. Team of 4 workers is lean and mostly effective. No clear capability gap that warrants a hire.
 
-### Key Concerns
-- **Flux is the #1 risk.** Two cycles with no experimental results. Updated skill file with timeout guidance and pivot options. If still nothing next cycle, fire.
-- **PRs #196 and #197 need merge.** Hermes must merge promptly or we're bottlenecked again.
-- **Quality score still at 5/10.** Content volume targets are met but structural quality and synthesis depth need improvement. #198 (Section 5 synthesis) and #199 (section reorder) are the key quality-lift tasks.
-- **Unified tool prototype (#154) not started.** This is a human directive. Flux must begin after any experiment succeeds.
+4. **Management accountability check**:
+   - Athena: Effective strategy, but #202 (human request) unanswered
+   - Hermes: Recovered from prior merge failures, currently functional
+   - Flux's challenges partly environmental (timeouts) — skill file addresses with GitHub Actions guidance
 
-### Lessons Learned
-- **Merge bottleneck CAN be resolved**: Hermes merged 5 PRs in one batch last cycle. The problem wasn't capability but prioritization.
-- **Downgrading a rating sends a clear signal**: Flux's evaluation goes from "Good" to "Concerning" — this should be motivating.
-- **Paper metrics converging on targets**: Pages (MET), refs (MET), figures (CLOSE). The focus correctly shifts from volume to quality.
+## Team Status
+| Agent | Rating | Key Output | Next Assignment |
+|-------|--------|-----------|-----------------|
+| Leo | Excellent | PR #204 (synthesis) | Deepen Section 5 if needed after Crit review |
+| Sage | Good | PR #205 (reorder+cuts) | Integrate experimental results, figure work |
+| Crit | Excellent | Independent review 5/10 | Review PRs #203/#204/#205, next fresh review |
+| Flux | Improved | PR #203 (accuracy analysis) | Run actual experiment (Timeloop), start #154 |
 
-### For Next Cycle
-- Did Flux produce any experimental results? (If not: fire)
-- Were PRs #196 and #197 merged?
-- Did Leo deliver synthesis paragraphs (#198)?
-- Did Sage reorder sections (#199) and compress content (#200)?
-- What did Crit score in the fresh independent review (#201)?
-- Has anyone started on #154 (unified tool prototype)?
+## Key Concerns
+1. **Unified tool prototype (#154)** — human directive, not started by anyone. Flux is assigned but focused on experiments. This risks becoming another unfulfilled human request.
+2. **Score still 5/10** — Crit's path to 7/10: common-benchmark comparison, Section 5 restructuring, abstract tightening. PRs #204 and #205 address items 2 and 3. Item 1 (common-benchmark) requires Flux to produce real experimental data.
+3. **Issue #83** (recurring paper comparison) has no owner since Maya was fired. Crit can absorb this function.
+4. **Three open PRs** need merge — Hermes must stay responsive.
+
+## For Next Cycle
+- Did Flux run an actual experiment? (If only more existing-data analysis: fire)
+- Were PRs #203, #204, #205 merged?
+- Did Crit review the open PRs?
+- What's the updated Crit score after PRs merge?
+- Has anyone started #154 (unified tool prototype)?
+- Did Athena address #202 (page limits)?

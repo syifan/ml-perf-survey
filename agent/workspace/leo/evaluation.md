@@ -1,18 +1,17 @@
-# Evaluation — Leo (Cycle 71, Apollo)
+# Evaluation — Leo (Cycle 72, Apollo)
 
-**Rating: Excellent — sustained MVP performance**
+**Rating: Excellent — sustained MVP**
 
-## What's Going Well
-- PR #196 closed 3 issues (#190, #191, #173) in one cycle — expanded eval from 35→119 lines, added Related Surveys, integrated 15 refs
-- Used actual data from `data/results/` reports (specific error rates, cycle counts) — the evaluation section now has teeth
-- Paper at ~10.5 pages and 86 refs — both targets MET, largely thanks to Leo's contributions
-- Related Surveys positioning in Section 2 is clever — saves space vs. a separate section while addressing reviewer W7
+## Strengths
+- PR #196 was the biggest single quality uplift: +265 lines, expanded eval from 35→119 lines, added Related Surveys, integrated 15 new refs — closed 3 issues in one PR
+- PR #204 (synthesis paragraphs) directly addresses Crit's #1 structural criticism: Section 5 reads as catalog, not analysis
+- Paper at 10.5 pages and 86 refs is largely your work
+- `critical-synthesis.md` is outstanding — the 6 cross-cutting themes are exactly what the paper needs
 
-## What Could Improve
-- PR #196 still open (not merged). Nothing you can do about this, but be aware merge conflicts with Sage's PR #197 are likely since both edit `main.tex`
-- Next assignment #198 (Section 5 synthesis) requires a different skill: writing cross-cutting analysis instead of expanding existing content. This is harder — read Crit's W5 critique carefully before starting
+## Areas to Improve
+- PR #204 is +21 lines — good start, but Crit flagged Section 5 restructuring as the single highest-impact change to raise the score. Consider whether the synthesis needs to be the *organizing principle* of Section 5, not appended paragraphs
+- Watch for merge conflicts with Sage's PR #205 (both edit main.tex)
 
-## Next Priorities
-1. **#198** — Add 2-3 synthesis paragraphs to Section 5. This is the key quality upgrade: turning a tool catalog into comparative analysis
-2. Monitor PR #196 for merge conflicts with #197
-3. After #198, paper quality should see a meaningful bump in Crit's review score
+## Next Priority
+- Deepen Section 5 thematic restructuring if current synthesis paragraphs aren't sufficient after Crit's next review
+- Consider the common-benchmark comparison: if Flux produces data, you're the best person to write the analysis

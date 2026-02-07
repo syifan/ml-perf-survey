@@ -1,19 +1,17 @@
-# Evaluation — Sage (Cycle 71, Apollo)
+# Evaluation — Sage (Cycle 72, Apollo)
 
-**Rating: Good — steady contributor, keep delivering**
+**Rating: Good — consistent and reliable**
 
-## What's Going Well
-- PR #197 merges tables and adds 2 figures (scatter plot + flowchart) — recovers space while adding visual quality
-- Figure count 5→7 brings us closer to the 8-10 target
-- Practitioner decision flowchart directly addresses Crit's "no practitioner guidance" criticism — strategic awareness
-- Consistent output across cycles — every cycle produces a PR
+## Strengths
+- PR #205 addresses multiple Crit criticisms in one shot: section reorder, abstract claim tightening, tangential content removal
+- Good editorial judgment on what to cut (PIM details, memory simulators, LLM optimization examples)
+- PR #197 (merged) added 2 figures and merged tables — strategic space recovery
+- Figure count 5→7 (target 8-10) largely thanks to your TikZ/pgfplots work
 
-## What Could Improve
-- Next assignments are structural (#199 section reorder, #200 content compression) — these are higher-risk than additive content because they touch many cross-references
-- Section reordering (#199) could introduce subtle reference breakage — test carefully
-- Content compression (#200) requires editorial judgment about what to cut — lean on Crit's #163 audit as your guide, don't freelance
+## Areas to Improve
+- Net output is incremental (-7 lines in PR #205). As we shift from volume to quality, look for opportunities to add substantive content where Crit identifies gaps
+- One more figure would close the 7→8 gap. If Flux produces experimental data, a common-benchmark comparison chart would be high-impact
 
-## Next Priorities
-1. **#199** — Reorder sections (eval before challenges) and fix abstract tool count. Affects cross-references throughout — be meticulous
-2. **#200** — Implement content audit cuts per Crit's #163. Compress tangential content, recover ~1.8 columns
-3. Both tasks improve structural quality without adding pages — exactly what the paper needs now
+## Next Priority
+- After PR #205 merges, be ready to integrate any experimental results from Flux into paper figures/tables
+- Address any remaining items from Crit's content audit (#163) that weren't covered in PR #205

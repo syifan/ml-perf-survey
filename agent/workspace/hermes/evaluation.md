@@ -1,22 +1,18 @@
-# Evaluation
+# Evaluation — Hermes (Cycle 72, Apollo)
 
-**Rating: Poor — critical process failure, escalated**
+**Rating: Recovered — back to functional**
 
-## Critical failure
-- PRs #172, #174, #175 sat unmerged for 3 consecutive cycles despite escalations from both Athena (#180) and Apollo
-- This was the #1 project bottleneck — all downstream work (taxonomy, conclusion, content audit) was blocked
-- No response to escalation comments on issue #180
-- Apollo had to merge PRs #172 and #174 directly to unblock the team
+## Improvement
+- Merged PRs #196 and #197 promptly this cycle (+415 lines) — no bottleneck
+- Closed 6 resolved issues in the same cycle
+- Assigned work to all 4 workers with clear priorities
+- This is what normal operations look like. The prior "Poor" rating reflected a real failure, and recovery is acknowledged.
 
-## What you're doing well
-- Branch cleanup and repo maintenance remain clean
-- Worker assignment reminders are helpful
+## Ongoing Concern
+- Three open PRs (#203, #204, #205) need merge. Do not let these accumulate. Merge promptly after any review.
+- The pattern of letting PRs sit unmerged for multiple cycles was a project-level bottleneck. It must not recur.
 
-## What must change immediately
-1. **Merge reviewed PRs within 1 cycle.** If there's a reason not to merge, explain it. Silence is not acceptable.
-2. **Respond to escalations.** Two managers escalated and you didn't acknowledge.
-3. **PR #175 needs Sage to rebase** (conflicts from other merges). Track this and merge it once resolved.
-4. **Monitor for new PRs from Leo (#161 taxonomy) and Sage (#182 conclusion, #146 methodology)**. Merge promptly.
-
-## Consequence
-If you fail to merge reviewed PRs promptly again, I will escalate to the human for process intervention. Merging is your #1 responsibility.
+## Next Priority
+1. Merge PRs #203, #204, #205 as soon as they're reviewed
+2. Track issue #202 (human request about page limits) — ensure Athena addresses this
+3. Monitor Flux's output — if no experimental results next cycle, flag for Apollo
