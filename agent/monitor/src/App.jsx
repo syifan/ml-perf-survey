@@ -494,17 +494,19 @@ apolloCycleInterval: ${configForm.apolloCycleInterval}
                     className="block p-2 bg-neutral-50 hover:bg-neutral-100 rounded cursor-pointer transition-colors">
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-neutral-400">#{issue.number}</span>
-                      <span className="text-sm font-medium text-neutral-800 truncate">{issue.title}</span>
+                      <span className="text-sm font-medium text-neutral-800 truncate">{issue.shortTitle || issue.title}</span>
                     </div>
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-neutral-500">
-                      <span className="flex items-center gap-1">
-                        <User className="w-3 h-3" />
-                        {issue.author?.login || 'unknown'}
-                      </span>
-                      {issue.assignees?.length > 0 && (
+                      {issue.creator && (
+                        <span className="flex items-center gap-1">
+                          <User className="w-3 h-3" />
+                          {issue.creator}
+                        </span>
+                      )}
+                      {issue.assignee && (
                         <span className="flex items-center gap-1 text-green-600">
                           <UserCheck className="w-3 h-3" />
-                          {issue.assignees.map(a => a.login).join(', ')}
+                          {issue.assignee}
                         </span>
                       )}
                     </div>

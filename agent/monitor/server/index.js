@@ -283,11 +283,20 @@ app.get('/api/prs', async (req, res) => {
 app.get('/api/issues', async (req, res) => {
   try {
     const { execSync } = await import('child_process');
-    const output = execSync('gh issue list --state open --json number,title,author,createdAt,labels --limit 50', {
+    const output = execSync('gh issue list --state open --json number,title,createdAt,labels --limit 50', {
       cwd: path.resolve(AGENT_DIR, '..'),
-      encoding: 'utf-8'
+      encoding: 'utf-8',
+      timeout: 30000
     });
-    res.json({ issues: JSON.parse(output) });
+    // Parse creator and assignee from title format: [Creator] -> [Assignee] Description
+    const issues = JSON.parse(output).map(issue => {
+      const match = issue.title.match(/^\[([^\]]+)\]\s*->\s*\[([^\]]+)\]\s*(.*)$/);
+      if (match) {
+        return { ...issue, creator: match[1], assignee: match[2], shortTitle: match[3] };
+      }
+      return { ...issue, creator: null, assignee: null, shortTitle: issue.title };
+    });
+    res.json({ issues });
   } catch (e) {
     console.error('Error fetching issues:', e.message);
     res.json({ issues: [] });
