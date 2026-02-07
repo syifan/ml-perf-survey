@@ -252,6 +252,12 @@ app.post('/api/issues/create', async (req, res) => {
     const { execSync } = await import('child_process');
     const repoDir = path.resolve(AGENT_DIR, '..');
     
+    // Get model from config
+    const configPath = path.join(AGENT_DIR, 'config.yaml');
+    const configContent = fs.readFileSync(configPath, 'utf-8');
+    const config = yaml.load(configContent);
+    const model = config.model || 'claude-sonnet-4-20250514';
+    
     // Use Claude Code to refine and create the issue
     const prompt = `You are helping create a GitHub issue. The user provided this description:
 
@@ -267,7 +273,7 @@ gh issue create --title "..." --body "..."
 The body should be markdown formatted. Add a "human-request" label.
 Do not ask questions, just create the issue based on the description provided.`;
 
-    execSync(`claude --model claude-sonnet-4-20250514 --dangerously-skip-permissions --print "${prompt.replace(/"/g, '\\"')}"`, {
+    execSync(`claude --model ${model} --dangerously-skip-permissions --print "${prompt.replace(/"/g, '\\"')}"`, {
       cwd: repoDir,
       encoding: 'utf-8',
       timeout: 120000
