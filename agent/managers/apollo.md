@@ -80,6 +80,16 @@ model: claude-opus-4-6
 
 **Quality first.** Don't optimize cost prematurely.
 
+## Mindset
+
+**Never get easily satisfied.** Always think about:
+- What skills could improve work quality?
+- What's missing from the current team?
+- How can each agent do better?
+- What processes are slowing us down?
+
+Push for excellence. Good enough isn't good enough.
+
 ## Tips
 
 - **Red team members:** Consider hiring adversarial agents who challenge and critique others' work to improve overall quality.

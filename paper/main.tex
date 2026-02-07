@@ -103,6 +103,73 @@ Section~\ref{sec:challenges} discusses open challenges and future directions.
 Section~\ref{sec:evaluation} presents hands-on reproducibility evaluations of representative tools.
 Section~\ref{sec:conclusion} concludes.
 
+Figure~\ref{fig:timeline} illustrates the evolution of ML-based performance modeling, showing how techniques have progressed from simple regression models to sophisticated hybrid approaches achieving sub-5\% accuracy.
+
+\begin{figure}[t]
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tikzpicture}[
+    node distance=0.3cm,
+    yearnode/.style={font=\footnotesize\bfseries, text=black!70},
+    eventnode/.style={font=\scriptsize, text width=2.8cm, align=center},
+    catnode/.style={font=\tiny, text=white, rounded corners=1pt, inner sep=2pt}
+]
+% Timeline base
+\draw[thick, ->, black!40] (0,0) -- (13.5,0);
+
+% Year markers
+\foreach \x/\year in {0.5/2016, 2.5/2018, 4.5/2020, 6.5/2022, 8.5/2024, 10.5/2025} {
+    \draw[thick, black!40] (\x,-0.15) -- (\x,0.15);
+    \node[yearnode, below] at (\x,-0.2) {\year};
+}
+
+% Events - staggered heights to avoid overlap
+% 2016-2017: Foundation
+\node[eventnode, above] at (0.5,0.4) {Eyeriss\\(analytical)};
+\node[catnode, fill=blue!60] at (0.5,1.2) {ISCA};
+
+% 2018: TVM
+\node[eventnode, below] at (2.0,-0.4) {TVM/AutoTVM\\(XGBoost)};
+\node[catnode, fill=green!50!black] at (2.0,-1.1) {OSDI};
+
+% 2019: Timeloop, MAESTRO
+\node[eventnode, above] at (3.0,0.4) {Timeloop\\MAESTRO};
+\node[catnode, fill=blue!60] at (3.0,1.2) {ISPASS};
+
+% 2020: Ansor
+\node[eventnode, below] at (4.5,-0.4) {Ansor\\(MLP)};
+\node[catnode, fill=green!50!black] at (4.5,-1.1) {OSDI};
+
+% 2021: nn-Meter, HELP
+\node[eventnode, above] at (5.5,0.4) {nn-Meter\\HELP};
+\node[catnode, fill=orange!70] at (5.5,1.2) {MobiSys};
+
+% 2022: Sparseloop, GNN
+\node[eventnode, below] at (6.5,-0.4) {Sparseloop\\TC-GNN};
+\node[catnode, fill=blue!60] at (6.5,-1.1) {MICRO};
+
+% 2023: TLP, ASTRA-sim
+\node[eventnode, above] at (7.5,0.4) {TLP\\ASTRA-sim};
+\node[catnode, fill=purple!60] at (7.5,1.2) {ASPLOS};
+
+% 2024: LitePred, VIDUR
+\node[eventnode, below] at (8.8,-0.4) {LitePred\\VIDUR};
+\node[catnode, fill=red!60] at (8.8,-1.1) {NSDI};
+
+% 2025: NeuSight
+\node[eventnode, above] at (10.5,0.4) {NeuSight\\(hybrid)};
+\node[catnode, fill=purple!60] at (10.5,1.2) {ASPLOS};
+
+% Trend arrow
+\draw[thick, ->, blue!50, dashed] (1,1.6) -- (10,1.6);
+\node[font=\scriptsize, text=blue!60, above] at (5.5,1.6) {Toward hybrid analytical+ML};
+
+\end{tikzpicture}
+}
+\caption{Evolution of ML-based performance modeling (2016--2025). Early work used analytical models (Eyeriss, Timeloop); ML approaches began with simple regressors (TVM) and progressed to deep learning (Ansor, HELP), GNNs (TC-GNN), and transformers (TLP). Current state-of-the-art combines analytical structure with neural networks (NeuSight).}
+\label{fig:timeline}
+\end{figure}
+
 % ==============================================================================
 % BACKGROUND
 % ==============================================================================
