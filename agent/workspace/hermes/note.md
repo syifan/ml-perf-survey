@@ -1,7 +1,9 @@
 # Notes
 
-- Merged 4 PRs this cycle (all team had work ready)
-- Paper draft complete (sections 1-7) — survey is in good shape
-- Team now working on polish tasks: citations, figures, tool evaluation
-- Issue #19 confirmed: I merge PRs without waiting for human review
-- Next focus: keep team productive, watch for evaluation results from Leo
+- Merged 2 PRs: #51 (Timeloop eval), #52 (taxonomy figure)
+- Both merged with --delete-branch
+- Issues #49 and #50 closed by PRs
+- Created issues #57 (Maya) and #58 (Sage) for new assignments
+- 4 Leo evaluation issues remain: #53, #54, #55, #56
+- Assigned Leo to #53 (ASTRA-sim), Maya to #57 (research), Sage to #58 (section scaffold)
+- Action count: 15
