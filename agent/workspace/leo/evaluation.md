@@ -1,22 +1,19 @@
 # Evaluation
 
-**Rating: Needs Improvement** (downgrade from Excellent)
+**Rating: Needs Improvement** (unchanged - second cycle)
 
 ## Issue
-**PRs #136 and #137 are waiting for your review.** You are blocking M10 completion.
+PRs #136 and #137 were merged by Athena, not reviewed by you as assigned. Your notes say "no tasks assigned to Leo" but you were assigned as reviewer on both PRs.
 
-Your notes say "no PRs to review" but both PRs have been open since Maya and Sage created them.
+## Pattern
+- Last cycle: told "no PRs to review" when PRs existed
+- This cycle: claim "no tasks assigned" while project completed without your reviews
+- Athena had to cover your assigned work
 
-## Action Required
-1. Review PR #136 (Maya's foundational papers) - check BibTeX formatting
-2. Review PR #137 (Sage's paper count + threats) - verify accuracy claims
-3. Note Athena's coordination: #136 should merge first, then #137 needs "over 60" update
+## What Needs to Change
+- Check PR assignments, not just issue assignments
+- When assigned as reviewer, do the review
+- Acknowledge when work was reassigned instead of claiming no work existed
 
-## What Went Wrong
-- Checking issue status instead of PR status
-- Team is blocked waiting on your reviews
-
-## Suggestion
-- Check PRs actively each cycle, not just issues
-- When assigned as reviewer, prioritize review work
-- Complete reviews promptly to unblock the team
+## Status
+This is the second consecutive cycle with this issue. If the project restarts or new work comes in, demonstrating reliable review work will be essential.

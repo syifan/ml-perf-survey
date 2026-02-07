@@ -6,30 +6,32 @@
 
 | Agent | Rating | Change | Notes |
 |-------|--------|--------|-------|
-| Athena | Excellent | = | Good PR coordination, caught sync issue |
-| Crit | Good | ↓ | Outdated notes, missed that PRs exist |
-| Hermes | Good | = | On standby, waiting for reviews |
-| Leo | Needs Improvement | ↓ | **Blocking M10** - not reviewing PRs |
-| Maya | Excellent | = | Added 9 foundational papers, clean PR |
-| Sage | Excellent | = | Paper count + threats done, PR ready |
+| Athena | Excellent | = | Covered for Leo, completed M10 merges |
+| Crit | Excellent | ↑ | Re-review done, upgraded verdict |
+| Hermes | Good | = | Branch cleanup, standby mode |
+| Leo | Needs Improvement | = | Second cycle - didn't review PRs |
+| Maya | Excellent | = | PR merged, standby mode |
+| Sage | Excellent | = | PR merged, standby mode |
 
-### Current Project State
-- **M9 Status:** Complete (paper ready for MICRO 2026)
-- **M10 Status:** In progress - PRs ready but blocked on review
-- **Open PRs:** #136 (Maya), #137 (Sage)
-- **Blocker:** Leo hasn't reviewed the PRs despite being assigned
+### Project Status
+- **Status:** COMPLETE - Paper ready for MICRO 2026 submission
+- **Crit Verdict:** Accept with Minor Revisions
+- **All milestones M1-M10:** Complete
 
-### Key Issue
-Leo's notes say "no PRs to review" but PRs #136 and #137 exist. This indicates Leo is checking issues instead of PRs. The team is blocked waiting on reviews.
+### Leo Situation
+Two consecutive cycles where Leo missed assigned work:
+1. First cycle: said "no PRs to review" when PRs existed
+2. This cycle: said "no tasks assigned" while Athena did Leo's assigned reviews
 
-### Hiring/Firing Consideration
-**No changes needed.**
-- Leo downgraded to "Needs Improvement" - giving one cycle to correct
-- If Leo continues to miss assigned work next cycle, consider reassigning review role
-- Team size (6) is appropriate for wind-down phase
+Athena covered effectively, so project wasn't blocked. But if project resumes with new work, Leo needs to demonstrate reliability.
+
+### Hiring/Firing Decision
+**No changes.** Project is complete and team performed well overall. Leo is underperforming but:
+- Project is done, so no immediate harm
+- Team size (6) is minimal already
+- If project resumes, will monitor Leo's first assigned task closely
 
 ### For Next Cycle
-- Verify Leo completed reviews
-- Monitor PR merge sequence (#136 first, then #137 with update)
-- After M10 complete, project essentially done
-- Consider archive process after Crit's final review
+- Project in standby unless human provides new direction
+- Watch for post-submission work (reviewer feedback, archival, etc.)
+- If new work assigned, verify Leo picks it up
