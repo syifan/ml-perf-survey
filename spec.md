@@ -70,7 +70,7 @@ Write a paper for **MICRO 2026** that provides:
 - Design unified architecture combining strengths
 - Document architecture as "future work" content in paper
 - ~~Implement prototype~~ (deferred to post-submission)
-- **Status:** PR #111 approved by Crit, ready to merge; PR #112 merged
+- **Status:** ✅ Complete (PR #111 merged, PR #112 merged)
 
 ### M9: Submission Ready (Target: Week 28) 🔄 IN PROGRESS
 - Complete paper with C1 (taxonomy) + C2 (evaluation) + C3 (future directions)
@@ -81,6 +81,8 @@ Write a paper for **MICRO 2026** that provides:
 ## Current Status
 
 **Active Milestone:** M9 - Submission Ready
+
+**CRITICAL BLOCKER:** Paper is 3.5 pages over MICRO 2026 limit (14.5 pages vs 11 page limit).
 
 ### M7 Final Results
 | Tool | Ease of Use | Status | Key Finding |
@@ -94,29 +96,29 @@ Write a paper for **MICRO 2026** that provides:
 
 **Strategic Insight:** Reproducibility challenges are valuable empirical contributions - Docker-first tools succeed, fragile Python dependencies fail.
 
-### PR Status
-| PR | Description | Reviews | Status |
-|----|-------------|---------|--------|
-| #110 | M7 evaluation results | ✅ Merged | Complete |
-| #111 | Future work section (Section 6.6) | Crit ✅ Approved | Ready to merge |
-| #112 | 2025-2026 papers (6 papers) | ✅ Merged | Complete |
-
 ### Path to M9
-1. ✅ **Address PR #111 concerns** - Leo repositioned as future work
-2. ✅ **Address PR #112 concerns** - Sage added clarifications
-3. ✅ **Crit re-review** - Both PRs approved
-4. 🔄 **Merge PR #111** - Waiting on Hermes
-5. ⏳ **Final Crit review** (#113) - Post-merge quality check
-6. ⏳ **Page limit verification** - Ensure within MICRO limits
-7. ⏳ **M9 submission** - Paper ready for MICRO 2026
+1. ✅ **PRs #110, #111, #112 merged**
+2. ✅ **Crit final review** (#113) - Verdict: Weak Accept
+3. ✅ **Page limit verification** (#120) - Found 3.5 pages over limit
+4. 🚧 **Content reduction** - Need to cut 3.5 pages to meet 11-page limit
+5. ⏳ **Post-reduction review** - Verify cuts maintain quality
+6. ⏳ **M9 submission** - Paper ready for MICRO 2026
+
+### Content Reduction Strategy
+Target: Remove 3.5 pages while preserving core contributions (taxonomy, evaluation, future directions).
+
+Priority areas for cuts (per Sage analysis):
+1. **Section 7 (Evaluation)** - Most verbose, ~1.5 pages potential savings
+2. **General tightening** - Wordy transitions throughout
+3. **Tables/Figures** - Consider consolidation or removal of non-essential elements
 
 ### Open Issues
 | Issue | Description | Status |
 |-------|-------------|--------|
-| #113 | Crit final review before M9 | Blocked on PR #111 merge |
-| #114 | Additional HPCA 2026 papers | Optional - if page budget allows |
-| #117 | arXiv 2025-2026 papers (5 papers) | Optional - if page budget allows |
-| #118 | EuroSys 2026 LLM serving papers | Optional - if page budget allows |
+| #114 | Additional HPCA 2026 papers | ⛔ CANCELLED - No page budget |
+| #117 | arXiv 2025-2026 papers | ⛔ CANCELLED - No page budget |
+| #118 | EuroSys 2026 papers | ⛔ CANCELLED - No page budget |
+| #121 | PPoPP/CGO 2026 papers | ⛔ CANCELLED - No page budget |
 
-### Deferred Content
-Issues #114, #117, and #118 contain additional papers that could strengthen the survey. Decision: defer until M9 final polish phase. If page budget allows after final review, consider adding selected papers.
+### Decision: No Additional Papers
+Issues #114, #117, #118, and #121 are CANCELLED. The paper is already 3.5 pages over limit - adding more content is not possible. Priority is content reduction, not expansion.
