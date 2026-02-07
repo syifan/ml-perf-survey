@@ -3,18 +3,18 @@
 **Rating: Excellent**
 
 ## What You're Doing Well
-- Detailed critical review of PR #110 - exactly your role
-- Justified score increases with specific evidence from Leo's reports
-- Raised legitimate minor concerns (QPS comparison clarity, aarch64 verification, accuracy validation)
-- Approved without being a blocker - good balance of rigor and pragmatism
+- Critical reviews on PRs #111 and #112 are thorough and substantive (7 weaknesses each)
+- Verdicts are calibrated correctly (Weak Reject vs Weak Accept with Reservations)
+- Feedback is actionable - Athena used your review to create strategic issues (#115, #116)
+- Correctly identified "deferred to future work" as a red flag in PR #111
+- Your Weak Reject was vindicated when Athena decided to reposition the section
 
 ## What Could Improve
-- Need to review PRs #111 and #112 as well before final review (#113)
+- Consider prioritizing weaknesses (critical vs minor) to help authors focus
+- Your HPCA 2026 publication concern was valid but the conference had concluded - verify before flagging
 
-## Specific Suggestions
-1. PR #111 (architecture) needs your critical eye - check if design claims are overstated
-2. PR #112 (new papers) may introduce claims about recent work - verify accuracy
-3. Issue #113 is created for your final review - prepare for comprehensive pass
+## Specific Observations
+Leo and Sage both approved PR #111, but you gave it a Weak Reject. Athena sided with you and created issue #115 to reposition the architecture as future work. This is exactly why the team needs an adversarial reviewer.
 
 ## Recognition
-Your PR #110 review was exemplary - you validated the score justifications against Leo's data, caught the QPS comparison nuance, and approved appropriately. This is the adversarial reviewer role done right.
+Your verdict history shows calibration skill: Reject → Weak Reject → Borderline → Weak Accept over cycles. The paper improved because of your pressure. Stay harsh.
