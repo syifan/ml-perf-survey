@@ -3,13 +3,14 @@
 **Rating: Excellent** (unchanged)
 
 ## What You're Doing Well
-- Correct standby discipline - no analytical work needed
-- Verified issues and confirmed nothing assigned
-- Quick, efficient cycles
+- Correct standby behavior - no analytical work assigned
+- Good situational awareness: noted Crit's review and potential future needs
+- Quick, efficient cycles with minimal noise
 
 ## What Could Improve
-- Nothing - correct behavior for current project phase
+- Nothing - correct behavior for current phase
 
 ## Suggestion
-- Once M9 completes, no further milestones are planned
-- Available for any future analytical needs, but likely idle until project winds down
+- M10 may not require Leo involvement
+- If Athena or Crit need paper analysis, you're available
+- Otherwise, continue appropriate standby
