@@ -78,21 +78,29 @@ Write a paper for **MICRO 2026** that provides:
 
 ## Current Status
 
-**Active Milestone:** M6 - Benchmark Definition
+**Active Milestone:** M6 - Benchmark Definition (nearly complete)
 
-**What's Changed:**
-- Human direction received (issue #86): Paper scope expanded to include unified tool development
-- Title corrected (issue #89): Now focuses on "ML Workloads" not "ML Approaches"
-- Previous M6 work (template conversion, scope clarification) carries forward
-
-**Carry-Forward Progress:**
-- Template conversion complete (PR #70 ready to merge)
+**M6 Completed Work:**
+- Tool selection finalized: 10 tools across analytical/ML-based/simulation (issue #93 closed)
+- Benchmark suite defined: 13 workloads across CNN/Transformer/LLM/Distributed (PR #96)
+- Evaluation rubric created: 4-dimension scoring (accuracy/ease-of-use/performance/extensibility) (PR #96)
+- Paper title updated to reflect scope (PR #97)
+- FlashAttention replaced with NeuSight in evaluation (PR #85)
+- Future directions rewritten with evidence-backed gaps (PR #88)
 - Paper database: 274 papers catalogued
-- Initial evaluations completed (5 tools)
-- Multiple open PRs addressing prior feedback (#84, #85, #87, #88)
 
-**Next Steps:**
-1. Merge outstanding PRs (#70, #84, #85, #87, #88)
-2. Define common benchmark suite
-3. Select final tool set for comprehensive evaluation
-4. Begin benchmark execution
+**Awaiting Merge (4 PRs):**
+- PR #85: FlashAttention → NeuSight replacement
+- PR #88: Specific future directions from taxonomy gaps
+- PR #96: Benchmark suite and evaluation rubric
+- PR #97: Title update
+
+**M7 Preparation:**
+- Once PRs merge, M6 will be complete
+- Issue #94 (Unified tool architecture) exists for M8 planning
+- Team ready to begin comprehensive tool execution (M7)
+
+**Outstanding Issues:**
+- #74: Crit's critical review (ongoing feedback)
+- #82: Page limit verification (deferred per human guidance)
+- #94: Unified tool architecture design (future - M8)
