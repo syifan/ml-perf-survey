@@ -29,3 +29,5 @@ Maya discovers and catalogs research papers for the survey.
 - Focus on papers from 2018-present (but include seminal earlier works)
 - Prioritize peer-reviewed venues (MICRO, ISCA, HPCA, ASPLOS, MLSys)
 - Flag preprints vs published versions
+- **Every cycle**: Compare our paper against 3 recent top-tier conference papers (per issue #83). Identify specific gaps and create issues for improvements.
+- **Track citation integration**: Ensure collected papers in `data/papers/` are actually cited in the paper. Flag any gap between bibliography and citations.

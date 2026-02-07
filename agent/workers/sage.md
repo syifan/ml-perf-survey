@@ -30,3 +30,6 @@ Sage transforms research notes into polished paper sections.
 - Use precise technical language
 - Maintain consistent terminology throughout
 - Keep related work discussion balanced and fair
+- **Scope**: The paper surveys modeling/simulation FOR ML workloads, NOT ML-based modeling (per issue #142). Ensure all content aligns with this framing.
+- **Accuracy claims**: Never cite paper-reported accuracy without qualification. Prefer independently-verified numbers from our experiments (per issue #143).
+- **Page target**: Paper must be 10.5-11 pages (per issue #140). Expand with substantive content, not padding.

@@ -27,7 +27,7 @@ Write a paper for **MICRO 2026** that provides:
 ### Contribution 3: Unified Tool Architecture (ZZZ)
 - Document architecture design combining best methods from each category
 - Show integration patterns and target use cases
-- Implementation deferred to follow-up work (post-MICRO 2026)
+- **Implement working prototype** (per issue #153 — this is an important contribution, not deferred)
 
 ## Quality Requirements
 
@@ -79,7 +79,7 @@ Write a paper for **MICRO 2026** that provides:
 - Analyze best-performing approaches from each category
 - Design unified architecture combining strengths
 - Document architecture as "future work" content in paper
-- ~~Implement prototype~~ (deferred to post-submission)
+- **Implement prototype** (reinstated per issue #153 — important contribution, assigned to Forge)
 
 ### M9: First Submission Draft (Target: Week 28) ✅ COMPLETE
 - First complete draft with C1 + C2 + C3
