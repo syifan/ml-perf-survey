@@ -39,6 +39,8 @@ When in doubt, **STOP and report the discrepancy**.
 - Your own workspace (`agent/workspace/{your_name}/`)
 - Apollo can modify, add, or delete worker skills (`agent/workers/`)
 
+**Do NOT modify the `agent/monitor/` folder** — it's managed by humans.
+
 ---
 
 ## 3. Context to Read
