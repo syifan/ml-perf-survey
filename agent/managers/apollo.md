@@ -43,6 +43,7 @@ If an agent's skill file (`agent/workers/{name}.md`) needs improvement:
 - Update their role description
 - Clarify responsibilities
 - Adjust based on observed performance
+- Consider adjusting their model if needed
 
 ### 6. Hiring & Firing
 
