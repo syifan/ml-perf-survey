@@ -241,6 +241,45 @@ app.get('/api/issues', async (req, res) => {
   }
 });
 
+// POST /api/issues/create - Create issue via Claude Code
+app.post('/api/issues/create', async (req, res) => {
+  try {
+    const { text } = req.body;
+    if (!text || !text.trim()) {
+      return res.status(400).json({ error: 'Missing issue description' });
+    }
+    
+    const { execSync } = await import('child_process');
+    const repoDir = path.resolve(AGENT_DIR, '..');
+    
+    // Use Claude Code to refine and create the issue
+    const prompt = `You are helping create a GitHub issue. The user provided this description:
+
+"${text}"
+
+Create a well-formatted GitHub issue with:
+1. A clear, concise title
+2. A detailed description with context
+
+Use the gh CLI to create the issue. Run:
+gh issue create --title "..." --body "..."
+
+The body should be markdown formatted. Add a "human-request" label.
+Do not ask questions, just create the issue based on the description provided.`;
+
+    execSync(`claude --model claude-sonnet-4-20250514 --dangerously-skip-permissions --print "${prompt.replace(/"/g, '\\"')}"`, {
+      cwd: repoDir,
+      encoding: 'utf-8',
+      timeout: 120000
+    });
+    
+    res.json({ success: true });
+  } catch (e) {
+    console.error('Error creating issue:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Monitor API server running on http://localhost:${PORT}`);
 });

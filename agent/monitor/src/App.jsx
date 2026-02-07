@@ -32,6 +32,8 @@ function App() {
   const [selectedAgent, setSelectedAgent] = useState(() => localStorage.getItem('selectedAgent') || null)
   const [prs, setPrs] = useState([])
   const [issues, setIssues] = useState([])
+  const [newIssueText, setNewIssueText] = useState('')
+  const [creatingIssue, setCreatingIssue] = useState(false)
 
   const fetchData = async () => {
     try {
@@ -150,6 +152,29 @@ apolloCycleInterval: ${configForm.apolloCycleInterval}
     localStorage.removeItem('selectedAgent')
     setCommentsPage(1)
     fetchComments(1, null, false)
+  }
+  
+  const createIssue = async () => {
+    if (!newIssueText.trim() || creatingIssue) return
+    setCreatingIssue(true)
+    try {
+      const res = await fetch('/api/issues/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: newIssueText })
+      })
+      const data = await res.json()
+      if (data.success) {
+        setNewIssueText('')
+        await fetchData()
+      } else {
+        alert(data.error || 'Failed to create issue')
+      }
+    } catch (err) {
+      alert('Failed to create issue: ' + err.message)
+    } finally {
+      setCreatingIssue(false)
+    }
   }
 
   useEffect(() => {
@@ -286,8 +311,8 @@ apolloCycleInterval: ${configForm.apolloCycleInterval}
 
         </div>
 
-        {/* Row 2: Agents, PRs, Issues */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mt-4">
+        {/* Row 2: Agents, PRs */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4">
           {/* Workers */}
           <Card>
             <CardHeader><CardTitle className="flex items-center gap-2"><Users className="w-4 h-4" />Workers ({agents.workers.length})</CardTitle></CardHeader>
@@ -329,33 +354,48 @@ apolloCycleInterval: ${configForm.apolloCycleInterval}
               </div>
             </CardContent>
           </Card>
-
-          {/* Issues */}
-          <Card>
-            <CardHeader><CardTitle className="flex items-center gap-2"><CircleDot className="w-4 h-4" />Open Issues ({issues.length})</CardTitle></CardHeader>
-            <CardContent>
-              <div className="space-y-2 max-h-64 overflow-y-auto">
-                {issues.map((issue) => (
-                  <a key={issue.number} href={`https://github.com/syifan/ml-perf-survey/issues/${issue.number}`} target="_blank" rel="noopener noreferrer"
-                    className="block p-2 bg-neutral-50 hover:bg-neutral-100 rounded cursor-pointer transition-colors">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-neutral-400">#{issue.number}</span>
-                      <span className="text-sm font-medium text-neutral-800 truncate">{issue.title}</span>
-                    </div>
-                    {issue.labels?.length > 0 && (
-                      <div className="flex gap-1 mt-1 flex-wrap">
-                        {issue.labels.slice(0, 3).map((label) => (
-                          <span key={label.name} className="text-xs px-1 rounded" style={{backgroundColor: `#${label.color}20`, color: `#${label.color}`}}>{label.name}</span>
-                        ))}
-                      </div>
-                    )}
-                  </a>
-                ))}
-                {issues.length === 0 && <p className="text-sm text-neutral-400">No open issues</p>}
-              </div>
-            </CardContent>
-          </Card>
         </div>
+
+        {/* Row 3: Issues */}
+        <Card className="mt-4">
+          <CardHeader><CardTitle className="flex items-center gap-2"><CircleDot className="w-4 h-4" />Open Issues ({issues.length})</CardTitle></CardHeader>
+          <CardContent>
+            <div className="space-y-2 max-h-64 overflow-y-auto mb-4">
+              {issues.map((issue) => (
+                <a key={issue.number} href={`https://github.com/syifan/ml-perf-survey/issues/${issue.number}`} target="_blank" rel="noopener noreferrer"
+                  className="block p-2 bg-neutral-50 hover:bg-neutral-100 rounded cursor-pointer transition-colors">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-neutral-400">#{issue.number}</span>
+                    <span className="text-sm font-medium text-neutral-800 truncate">{issue.title}</span>
+                  </div>
+                  {issue.labels?.length > 0 && (
+                    <div className="flex gap-1 mt-1 flex-wrap">
+                      {issue.labels.slice(0, 3).map((label) => (
+                        <span key={label.name} className="text-xs px-1 rounded" style={{backgroundColor: `#${label.color}20`, color: `#${label.color}`}}>{label.name}</span>
+                      ))}
+                    </div>
+                  )}
+                </a>
+              ))}
+              {issues.length === 0 && <p className="text-sm text-neutral-400">No open issues</p>}
+            </div>
+            <Separator className="my-4" />
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="Describe a new issue (AI will refine it)..."
+                className="flex-1 px-3 py-2 border rounded text-sm"
+                value={newIssueText}
+                onChange={(e) => setNewIssueText(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && createIssue()}
+                disabled={creatingIssue}
+              />
+              <Button onClick={createIssue} disabled={!newIssueText.trim() || creatingIssue}>
+                {creatingIssue ? 'Creating...' : 'Create Issue'}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Row 3: Agent Reports */}
         <Card className="mt-4">
