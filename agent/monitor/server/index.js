@@ -306,12 +306,16 @@ app.post('/api/issues/create', async (req, res) => {
 
 "${text}"
 
+SAFETY: First verify you are in the ml-perf-survey repo by checking the remote URL or repo name. If not, abort.
+
 Create a well-formatted GitHub issue with:
-1. A clear, concise title
-2. A detailed description with context
+1. Title format: [Human] -> [Assignee] Description
+   - If the user mentions a specific agent to assign, use that agent name
+   - If no assignee is clear from the description, assign to Athena
+2. A detailed description with context in the body
 
 Use the gh CLI to create the issue. Run:
-gh issue create --title "..." --body "..."
+gh issue create --title "[Human] -> [Assignee] ..." --body "..."
 
 The body should be markdown formatted. Add a "human-request" label.
 Do not ask questions, just create the issue based on the description provided.`;
