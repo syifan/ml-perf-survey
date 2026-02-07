@@ -1,36 +1,38 @@
 # Notes
 
-## Cycle 71 (2026-02-07)
+## Cycle 73 (2026-02-07)
 
 ### What I Did
-- Fresh paper review posted on issue #185 — score now 5/10 (Weak Reject), up from 4.5/10
-- Content audit posted on issue #163 — detailed space recovery plan (~1.8 columns)
-- Both were requested by Hermes (post-merge of PRs #175, #186, #187, #188, #189)
+- Fresh independent review posted on issue #201 (per human directive #195 and Athena's task assignment)
+- Score: 5/10 (Weak Reject) — independent assessment, no prior references used
+- No open PRs to review this cycle
+- 0 open PRs at cycle start
 
-### Key Findings (Fresh Review #185)
-1. **71 references, 5 figures** — major improvement from 24 refs and 2 figs
-2. **Section 8 (Evaluation) still a stub** — 30 lines, no experimental detail, no accuracy verification. This is the #1 blocker.
-3. **No related work/survey positioning section** — basic structural gap for a survey paper (#191)
-4. **Tables 1+2 still redundant** — #192 still open
-5. **No practitioner decision flowchart** — #193 still open
-6. **Section 5 reads as catalog, not analysis** — needs synthesis paragraphs
-7. **Section ordering wrong** — eval should come before challenges
+### Key Findings (Fresh Review #201)
+1. **No real experimental contribution** — reproducibility eval tests installation, not accuracy. No GPU hardware means no ground truth validation. This is the #1 blocker.
+2. **§5 still reads as catalog** — tool-by-tool descriptions, not analytical synthesis. Cross-cutting subsection (§5.5) is only 16 lines.
+3. **Abstract overclaims** — "over 50 tools" when ~25 are surveyed in detail. "Hands-on reproducibility evaluations" overpromises vs. what's delivered (installation/basic function testing).
+4. **Section ordering still wrong** — Evaluation (§8) after Challenges (§7), should be reversed.
+5. **Tables 1+2 partially redundant** — can't trace cell counts back to specific tools.
+6. **Figs 3+4 plot self-reported accuracy** that the paper itself argues is unreliable — visual contradicts the textual caveat.
+7. **PIM/memory simulator content tangential** — inflates tool count without deepening analysis.
 
-### Content Audit (#163) — Space Recovery
-- ~1.8 columns recoverable from: merging Tables 1+2, compressing PIM/memory sim paragraphs, trimming non-modeling tools from §5.2, reducing §4.1/§3.2 overlap
-- Priority: merge tables first, then compress tangential content, then tighten prose
+### Top 3 Changes to Raise Score by 1 Point
+1. Add common-benchmark comparison (run 3+ tools on same workload, compare disagreement)
+2. Restructure §5 around cross-cutting themes, not tool-by-tool
+3. Tighten abstract claims to match actual content
 
-### Score Trajectory
-- Cycle 29: 3/10 → Cycle 68: 4.5/10 → Cycle 71: 5/10
-- To reach 7/10: expand eval section, add related work, add decision flowchart, merge tables
-- To reach 8/10: above + accuracy verification + synthesis paragraphs in §5
+### Paper Stats
+- 1334 lines, 86 references, 7 figures, 5 tables
+- 9 sections, estimated ~11 pages
 
 ### Context for Future Self
-- No open PRs right now — all merged. Next PRs should address eval expansion (#190) and related work (#191)
-- Watch for: Flux's ASTRA-sim experiments (#194), Sage's flowchart (#193), Leo's related work (#191) and eval expansion (#190)
-- The "over 50 tools" claim in abstract may be inflated — count includes optimization techniques, not just modeling tools
+- No open PRs — team may be between work batches
+- Watch for: Leo's synthesis paragraphs (#198), Sage's section reordering (#199) and content compression (#200)
+- The "50+ tools" overclaim has persisted across reviews — may need a direct issue filed
+- Independent review directive (#195) fulfilled — future reviews should continue to be fresh reads
 
 ### Lessons Learned
-- Post-merge reviews are more impactful than pre-merge — the integrated paper reveals cross-section issues (redundancy, overlap) invisible in isolated PRs
-- Content audit with specific line numbers and estimated space recovery is more actionable than general complaints
-- Team is executing better — 5 PRs merged this batch vs. prior stalls
+- Reading the paper completely fresh (1334 lines) takes significant cycle time but produces the most honest assessment
+- The score landing at 5/10 again independently validates prior assessment — not a coincidence
+- The biggest gap is *synthesis over cataloging* — this is structural, not content quantity
