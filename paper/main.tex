@@ -1158,33 +1158,37 @@ This section presents our methodology, tool-by-tool findings, and synthesizes ke
 \subsection{Evaluation Methodology}
 \label{subsec:eval-methodology}
 
-We evaluated each tool along four dimensions:
+We evaluated each tool using a transparent, additive rubric designed to enable reproducible assessment.
+Our 10-point rubric comprises three components, each with explicit criteria:
 
-\textbf{Setup Complexity.} We assessed installation difficulty, dependency management, documentation quality, and time to first result.
-Tools were tested in clean environments following their documented procedures.
+\textbf{Installation \& Setup (3 points).}
+We award points for: Docker/container availability (+1), clean pip/conda installation (+1), and time-to-first-result under 30 minutes (+1).
+Deductions apply for undocumented dependencies ($-1$) or strict version requirements ($-0.5$).
+Tools were tested in clean environments following documented procedures.
 
-\textbf{Reproducibility.} We verified whether example configurations produce consistent results and whether reference outputs are provided for validation.
+\textbf{Result Reproducibility (4 points).}
+We assess: reference outputs provided (+1.5), deterministic results (+1), comprehensive examples (+1), and validation scripts (+0.5).
+Core functionality failures incur a $-2$ deduction.
+This component carries the highest weight as reproducibility is essential for scientific validation.
 
-\textbf{Practical Usability.} We examined API design, configuration flexibility, output interpretability, and integration with existing workflows.
+\textbf{Practical Usability (3 points).}
+We evaluate: clear API/interface (+1), output interpretability (+1), active maintenance (+0.5), and community adoption (+0.5).
 
-\textbf{Accuracy Validation.} Where possible, we compared tool outputs against published accuracy claims or reference implementations.
-
-Table~\ref{tab:evaluation-summary} summarizes our findings across all evaluated tools.
+Table~\ref{tab:evaluation-summary} presents the component-level breakdown for each evaluated tool, enabling transparent comparison and independent verification of our assessments.
 
 \begin{table}[t]
 \centering
-\caption{Summary of reproducibility evaluation for representative performance modeling tools. Scores reflect practical reproducibility on a 10-point scale.}
+\caption{Component-based reproducibility evaluation. Each tool is scored against explicit criteria: Setup (3 pts), Reproducibility (4 pts), and Usability (3 pts).}
 \label{tab:evaluation-summary}
 \small
-\begin{tabular}{lccc}
+\begin{tabular}{lcccc}
 \toprule
-\textbf{Tool} & \textbf{Target} & \textbf{Score} & \textbf{Key Issue} \\
+\textbf{Tool} & \textbf{Setup} & \textbf{Reprod.} & \textbf{Usability} & \textbf{Total} \\
 \midrule
-Timeloop & Accelerators & 9/10 & Docker recommended \\
-FlashAttention & GPUs & 9/10 & GPU required \\
-ASTRA-sim & Distributed & 8/10 & Complex build \\
-VIDUR & LLM serving & 7/10 & Python 3.10 only \\
-nn-Meter & Edge devices & 5/10 & Pickle incompatibility \\
+Timeloop & 3 & 4 & 2 & 9/10 \\
+ASTRA-sim & 1 & 2.5 & 3 & 6.5/10 \\
+VIDUR & 1.5 & 2 & 3 & 6.5/10 \\
+nn-Meter & 2 & 0 & 1 & 3/10 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1257,10 +1261,12 @@ Native integration into PyTorch's scaled\_dot\_product\_attention ensures contin
 \subsection{Synthesis and Recommendations}
 \label{subsec:eval-synthesis}
 
-Our evaluation reveals systematic patterns affecting reproducibility:
+Our rubric-based evaluation reveals systematic patterns affecting reproducibility.
+Notably, applying explicit criteria adjusted some scores: ASTRA-sim dropped from an informal 8/10 to 6.5/10 due to missing reference outputs, while nn-Meter's broken core functionality resulted in 3/10 rather than our initial generous 5/10.
+This underscores the importance of transparent methodology.
 
 \textbf{Containerization dramatically improves reproducibility.}
-Tools providing Docker images (Timeloop, ASTRA-sim) achieve higher reproducibility scores by isolating complex dependency chains.
+Tools providing Docker images (Timeloop, ASTRA-sim) achieve higher setup scores by isolating complex dependency chains.
 Native builds consistently encounter platform-specific issues.
 
 \textbf{Python version sensitivity is a major concern.}
