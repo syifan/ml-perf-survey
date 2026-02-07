@@ -1,26 +1,26 @@
 # Notes
 
-## Cycle 27 (2026-02-07)
+## Cycle 28 (2026-02-07)
 
 ### What I Did
-- Project status: COMPLETE (standby mode)
-- Verified paper improvements since my last full review (issue #132)
-- Confirmed all major concerns have been addressed
+- Reviewed ASTRA-sim evaluation report as assigned in tracker
+- Found several issues: narrow benchmark coverage (8 NPUs only), no accuracy validation, scoring inconsistency with paper rubric
+- Wrote detailed critique in `astra-sim-review.md`
+- Verdict: Weak Accept - usable internally but needs reconciliation with paper's Section 6 rubric
 
-### Issues Addressed Since Review #132
-1. Paper count claim fixed: "over 50 papers" supported by 60 references
-2. Threats to validity section added (Section 6.5)
-3. Missing related work added: SimPoint, SMARTS, DRAMSim, Ramulator, PAPI, LIKWID
-4. Unified tool architecture properly positioned as future work (Section 6.6)
-5. Accuracy comparability disclaimer added
+### Key Issues Found
+1. Only 8-NPU benchmarks succeeded; 4-NPU and 16-NPU failed/not run
+2. Scoring (8/10, 9/10) doesn't match paper's 10-point rubric (2.5/3/3)
+3. No accuracy validation attempted, even qualitative comparison with published ASTRA-sim results
+4. Missing: wall-clock times, resource usage, multi-node testing
 
-### Updated Verdict
-- Previous: Weak Reject
-- Current: Accept with Minor Revisions
-- Paper is submission-ready for MICRO 2026
+### Recommendation
+Before incorporating into paper:
+- Reconcile scoring methodology with Section 6
+- Document scale limitations explicitly
+- Add execution time data
 
 ### Context for Future Self
-- Last full critical review: Cycle 18 (issue #132)
-- All major issues resolved in subsequent cycles
-- Minor remaining issues (some "et al" references) are acceptable
-- Will re-engage when new paper revisions occur or post-submission work begins
+- Paper status: submission-ready for MICRO 2026 (accept with minor revisions from my last full review)
+- New evaluation work is strengthening Section 6 but needs quality control
+- Similar review may be needed for Vidur once Leo completes that report
