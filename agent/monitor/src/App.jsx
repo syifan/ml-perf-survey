@@ -12,7 +12,14 @@ function App() {
   const [logs, setLogs] = useState([])
   const [agents, setAgents] = useState({ workers: [], managers: [] })
   const [config, setConfig] = useState({ config: null, raw: '' })
-  const [configDraft, setConfigDraft] = useState('')
+  const [configForm, setConfigForm] = useState({
+    cycleIntervalMs: 1800000,
+    agentTimeoutMs: 900000,
+    model: 'claude-opus-4-5',
+    trackerIssue: 1,
+    athenaCycleInterval: 1,
+    apolloCycleInterval: 1
+  })
   const [configDirty, setConfigDirty] = useState(false)
   const [configError, setConfigError] = useState(null)
   const [configSaving, setConfigSaving] = useState(false)
@@ -39,9 +46,16 @@ function App() {
       setAgents(await agentsRes.json())
       const configData = await configRes.json()
       setConfig(configData)
-      // Only update draft if not being edited
-      if (!configDirty && configData.raw) {
-        setConfigDraft(configData.raw)
+      // Only update form if not being edited
+      if (!configDirty && configData.config) {
+        setConfigForm({
+          cycleIntervalMs: configData.config.cycleIntervalMs || 1800000,
+          agentTimeoutMs: configData.config.agentTimeoutMs || 900000,
+          model: configData.config.model || 'claude-opus-4-5',
+          trackerIssue: configData.config.trackerIssue || 1,
+          athenaCycleInterval: configData.config.athenaCycleInterval || 1,
+          apolloCycleInterval: configData.config.apolloCycleInterval || 1
+        })
       }
       setLastUpdate(new Date())
       setError(null)
@@ -78,10 +92,25 @@ function App() {
     setConfigSaving(true)
     setConfigError(null)
     try {
+      // Generate YAML from form
+      const yaml = `# ML Performance Survey - Orchestrator Configuration
+# Reloaded at the start of each cycle
+
+cycleIntervalMs: ${configForm.cycleIntervalMs}
+agentTimeoutMs: ${configForm.agentTimeoutMs}
+model: ${configForm.model}
+trackerIssue: ${configForm.trackerIssue}
+
+# Manager agents (run periodically, manage the system)
+athenaCycleInterval: ${configForm.athenaCycleInterval}
+apolloCycleInterval: ${configForm.apolloCycleInterval}
+
+# Worker agents are discovered from agent/workers/ folder
+`
       const res = await fetch('/api/config', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: configDraft })
+        body: JSON.stringify({ content: yaml })
       })
       const data = await res.json()
       if (!res.ok) {
@@ -96,14 +125,23 @@ function App() {
     }
   }
   
-  const handleConfigChange = (e) => {
-    setConfigDraft(e.target.value)
+  const updateConfigField = (field, value) => {
+    setConfigForm(prev => ({ ...prev, [field]: value }))
     setConfigDirty(true)
     setConfigError(null)
   }
   
   const resetConfig = () => {
-    setConfigDraft(config.raw || '')
+    if (config.config) {
+      setConfigForm({
+        cycleIntervalMs: config.config.cycleIntervalMs || 1800000,
+        agentTimeoutMs: config.config.agentTimeoutMs || 900000,
+        model: config.config.model || 'claude-opus-4-5',
+        trackerIssue: config.config.trackerIssue || 1,
+        athenaCycleInterval: config.config.athenaCycleInterval || 1,
+        apolloCycleInterval: config.config.apolloCycleInterval || 1
+      })
+    }
     setConfigDirty(false)
     setConfigError(null)
   }
@@ -346,13 +384,95 @@ function App() {
                   {configError}
                 </div>
               )}
-              <textarea
-                className="w-full h-56 bg-neutral-100 rounded-lg p-3 font-mono text-xs text-neutral-700 resize-none focus:outline-none focus:ring-2 focus:ring-blue-200"
-                value={configDraft}
-                onChange={handleConfigChange}
-                placeholder="No config available"
-                spellCheck={false}
-              />
+              <div className="space-y-3 text-sm">
+                {/* Cycle Interval */}
+                <div className="flex items-center justify-between">
+                  <label className="text-neutral-600">Cycle Interval</label>
+                  <select 
+                    className="px-2 py-1 bg-neutral-100 border rounded text-sm"
+                    value={configForm.cycleIntervalMs}
+                    onChange={(e) => updateConfigField('cycleIntervalMs', Number(e.target.value))}
+                  >
+                    <option value={0}>No delay</option>
+                    <option value={300000}>5 minutes</option>
+                    <option value={600000}>10 minutes</option>
+                    <option value={1200000}>20 minutes</option>
+                    <option value={1800000}>30 minutes</option>
+                    <option value={3600000}>1 hour</option>
+                  </select>
+                </div>
+                
+                {/* Agent Timeout */}
+                <div className="flex items-center justify-between">
+                  <label className="text-neutral-600">Agent Timeout</label>
+                  <select 
+                    className="px-2 py-1 bg-neutral-100 border rounded text-sm"
+                    value={configForm.agentTimeoutMs}
+                    onChange={(e) => updateConfigField('agentTimeoutMs', Number(e.target.value))}
+                  >
+                    <option value={300000}>5 minutes</option>
+                    <option value={600000}>10 minutes</option>
+                    <option value={900000}>15 minutes</option>
+                    <option value={1800000}>30 minutes</option>
+                  </select>
+                </div>
+                
+                {/* Model */}
+                <div className="flex items-center justify-between">
+                  <label className="text-neutral-600">Default Model</label>
+                  <select 
+                    className="px-2 py-1 bg-neutral-100 border rounded text-sm"
+                    value={configForm.model}
+                    onChange={(e) => updateConfigField('model', e.target.value)}
+                  >
+                    <option value="claude-sonnet-4-20250514">Sonnet 4</option>
+                    <option value="claude-opus-4-5">Opus 4.5</option>
+                    <option value="claude-opus-4-6">Opus 4.6</option>
+                  </select>
+                </div>
+                
+                {/* Tracker Issue */}
+                <div className="flex items-center justify-between">
+                  <label className="text-neutral-600">Tracker Issue #</label>
+                  <input 
+                    type="number"
+                    className="w-20 px-2 py-1 bg-neutral-100 border rounded text-sm text-right"
+                    value={configForm.trackerIssue}
+                    onChange={(e) => updateConfigField('trackerIssue', Number(e.target.value))}
+                    min={1}
+                  />
+                </div>
+                
+                {/* Athena Cycle Interval */}
+                <div className="flex items-center justify-between">
+                  <label className="text-neutral-600">Athena runs every</label>
+                  <div className="flex items-center gap-1">
+                    <input 
+                      type="number"
+                      className="w-16 px-2 py-1 bg-neutral-100 border rounded text-sm text-right"
+                      value={configForm.athenaCycleInterval}
+                      onChange={(e) => updateConfigField('athenaCycleInterval', Number(e.target.value))}
+                      min={1}
+                    />
+                    <span className="text-neutral-500 text-xs">cycles</span>
+                  </div>
+                </div>
+                
+                {/* Apollo Cycle Interval */}
+                <div className="flex items-center justify-between">
+                  <label className="text-neutral-600">Apollo runs every</label>
+                  <div className="flex items-center gap-1">
+                    <input 
+                      type="number"
+                      className="w-16 px-2 py-1 bg-neutral-100 border rounded text-sm text-right"
+                      value={configForm.apolloCycleInterval}
+                      onChange={(e) => updateConfigField('apolloCycleInterval', Number(e.target.value))}
+                      min={1}
+                    />
+                    <span className="text-neutral-500 text-xs">cycles</span>
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
