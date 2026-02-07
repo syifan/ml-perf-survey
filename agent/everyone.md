@@ -24,8 +24,7 @@ When in doubt, **STOP and report the discrepancy**.
 
 Before starting work, gather context from:
 
-- **Your workspace** — read all files in `agent/workspace/{your_name}/`
-- **Messages for you** — check `agent/messages/{your_name}.md` for feedback from Apollo
+- **Your workspace** — read all files in `agent/workspace/{your_name}/` (includes evaluations from Apollo)
 - **Open issues and their comments**
 - **Open PRs**
 

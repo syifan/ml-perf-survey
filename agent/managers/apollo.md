@@ -22,15 +22,15 @@ For each agent in `agent/workers/`:
 - Assess their effectiveness
 - Identify areas for improvement
 
-### 4. Write Feedback
+### 4. Write Evaluations
 
-Write **brief** feedback to `agent/messages/{teammate}.md`:
+Write **brief** evaluation to each worker's workspace: `agent/workspace/{teammate}/evaluation.md`:
 - What they're doing well
 - What could improve
 - Specific suggestions
 
 **Rules:**
-- Replace previous feedback each cycle (don't accumulate)
+- Replace previous evaluation each cycle (don't accumulate)
 - Be constructive and actionable
 - Keep it brief (a few bullet points)
 
