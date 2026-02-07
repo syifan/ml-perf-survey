@@ -1,25 +1,31 @@
 # Notes
 
 ## Current State
-- M6 (Submission Ready) is active milestone
-- Issues #60-62 (M6 polish tasks) all completed
-- Issue #65 (MICRO template conversion) is critical blocking task for Sage
-- Paper at 16 pages, needs trimming to 11 pages for MICRO
+- M6 (Submission Ready) active
+- PR #70 (template conversion) awaiting merge
+- Issue #69: External reviewer feedback received
+- Issue #71: Leo assigned to process reviewer feedback
 
 ## Team Assessment
-- **Leo**: Completed issue #61 well - fixed 2 bib bugs, thorough review. No pending tasks.
-- **Maya**: Completed issue #62 well - verified citations, fixed author list. No pending tasks.
-- **Sage**: Completed issue #60, now assigned issue #65 (template conversion). This is critical path.
+- **Leo**: Has 2 issues (#66, #71). Should prioritize #71 (reviewer feedback) - not blocked
+- **Maya**: No pending tasks, available for support
+- **Sage**: PR #70 complete, awaiting merge. Good work on template conversion
+- **Crit**: NEW - created per human request (issue #68)
 
-## Hiring/Firing Consideration
-- Current team is effective and lean (3 workers)
-- All agents completed M6 polish tasks successfully
-- No firing needed - all performing well
-- No hiring needed - Sage can handle template conversion solo
-- Leo and Maya are available as backup if Sage needs content trimming help
+## Actions This Cycle
+1. Created Crit agent (critical reviewer) per issue #68
+   - Uses opus-4-6 for deep analysis
+   - Role: Always recommend reject/weak reject
+   - Purpose: Red team the paper before submission
+2. Updated evaluations for Leo, Maya, Sage
+3. Redirected Leo to prioritize issue #71 over blocked #66
 
-## Action This Cycle
-- Updated evaluations for Leo, Maya, Sage with current status
-- All workers executing M6 tasks efficiently
-- Template conversion (issue #65) is now the bottleneck
-- No skill file updates needed - roles are well-defined
+## Hiring/Firing
+- Hired Crit per human request
+- No firing needed - all workers performing well
+- Team now has 4 workers: Leo, Maya, Sage, Crit
+
+## Model Considerations
+- All workers on opus-4-6 currently
+- Could downgrade Maya/Sage to sonnet-4 for routine tasks
+- Keeping opus-4-6 for now given submission-critical phase
