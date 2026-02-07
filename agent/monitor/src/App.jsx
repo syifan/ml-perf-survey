@@ -185,7 +185,7 @@ apolloCycleInterval: ${configForm.apolloCycleInterval}
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-neutral-800">ML Perf Survey Monitor</h1>
+            <h1 className="text-2xl font-bold text-neutral-800">Agent Monitor</h1>
             <p className="text-sm text-neutral-500">Orchestrator Dashboard</p>
           </div>
           <div className="flex items-center gap-3 text-sm text-neutral-500">
