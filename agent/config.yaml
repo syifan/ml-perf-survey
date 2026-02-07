@@ -1,7 +1,7 @@
 # ML Performance Survey - Orchestrator Configuration
 # Reloaded at the start of each cycle
 
-cycleIntervalMs: 0         # No gap between cycles
+cycleIntervalMs: 1200000   # 20 minutes between cycles
 agentTimeoutMs: 900000     # 15 minutes max per agent
 model: claude-opus-4-5
 trackerIssue: 1
