@@ -13,6 +13,8 @@
 \usepackage{booktabs}
 \usepackage{hyperref}
 \usepackage{multirow}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric,arrows.meta,positioning,fit,backgrounds}
 
 % Custom commands
 \newcommand{\todo}[1]{\textcolor{red}{[TODO: #1]}}
@@ -283,29 +285,66 @@ Second, it enables practitioners to select appropriate methods for their use cas
 
 \begin{figure}[t]
 \centering
-\small
-\begin{tabular}{|l|l|}
-\hline
-\textbf{Dimension} & \textbf{Categories} \\
-\hline
-\multirow{5}{*}{Target Hardware} & CPU \\
-& GPU \\
-& DNN Accelerators (TPU, NPU) \\
-& Edge/Mobile Devices \\
-& Distributed Systems \\
-\hline
-\multirow{4}{*}{ML Technique} & Classical ML (RF, XGBoost) \\
-& Deep Learning (MLP, RNN) \\
-& Graph Neural Networks \\
-& Hybrid Analytical+ML \\
-\hline
-\multirow{4}{*}{Input Representation} & Static Features \\
-& Hardware Counters \\
-& Graph Representations \\
-& Learned Embeddings \\
-\hline
-\end{tabular}
-\caption{Overview of our three-dimensional taxonomy for organizing ML-based performance modeling approaches.}
+\resizebox{\columnwidth}{!}{%
+\begin{tikzpicture}[
+    node distance=0.4cm and 0.6cm,
+    dimbox/.style={rectangle, draw=black!70, fill=white, thick, minimum width=2.2cm, minimum height=0.6cm, font=\small},
+    catbox/.style={rectangle, rounded corners=2pt, draw=black!40, fill=gray!8, minimum width=1.9cm, minimum height=0.45cm, font=\footnotesize},
+    dimlabel/.style={font=\small\bfseries, text=black},
+    arrow/.style={-{Stealth[length=2mm]}, thick, draw=black!50}
+]
+
+% === TARGET HARDWARE (Left column) ===
+\node[dimlabel] (hw-label) at (0, 0) {Target Hardware};
+\node[catbox, below=0.25cm of hw-label] (cpu) {CPU};
+\node[catbox, below=0.12cm of cpu] (gpu) {GPU};
+\node[catbox, below=0.12cm of gpu] (accel) {Accelerators};
+\node[catbox, below=0.12cm of accel] (edge) {Edge/Mobile};
+\node[catbox, below=0.12cm of edge] (dist) {Distributed};
+
+% === ML TECHNIQUE (Middle column) ===
+\node[dimlabel, right=2.0cm of hw-label] (ml-label) {ML Technique};
+\node[catbox, below=0.25cm of ml-label] (classical) {Classical ML};
+\node[catbox, below=0.12cm of classical] (deep) {Deep Learning};
+\node[catbox, below=0.12cm of deep] (gnn) {GNNs};
+\node[catbox, below=0.12cm of gnn] (hybrid) {Hybrid};
+
+% === INPUT REPRESENTATION (Right column) ===
+\node[dimlabel, right=2.0cm of ml-label] (inp-label) {Input Repr.};
+\node[catbox, below=0.25cm of inp-label] (static) {Static Features};
+\node[catbox, below=0.12cm of static] (counters) {HW Counters};
+\node[catbox, below=0.12cm of counters] (graph) {Graphs};
+\node[catbox, below=0.12cm of graph] (embed) {Embeddings};
+
+% === Connecting arrows showing cross-dimensional relationships ===
+% GPU -> Deep Learning (NeuSight, Habitat)
+\draw[arrow, black!30] (gpu.east) -- (deep.west);
+% Accelerators -> Hybrid (Timeloop, ArchGym)
+\draw[arrow, black!30] (accel.east) -- (hybrid.west);
+% Edge -> Classical ML (nn-Meter)
+\draw[arrow, black!30] (edge.east) -- (classical.west);
+% CPU -> GNN (GRANITE)
+\draw[arrow, black!30] (cpu.east) -- (gnn.west);
+
+% Deep Learning -> Static Features
+\draw[arrow, black!30] (deep.east) -- (static.west);
+% GNN -> Graph repr
+\draw[arrow, black!30] (gnn.east) -- (graph.west);
+% Classical ML -> Static/Counters
+\draw[arrow, black!30] (classical.east) -- (static.west);
+% Hybrid -> multiple
+\draw[arrow, black!30] (hybrid.east) -- (static.west);
+
+% === Background boxes for each dimension ===
+\begin{scope}[on background layer]
+    \node[fit=(hw-label)(cpu)(gpu)(accel)(edge)(dist), fill=blue!6, draw=blue!40, rounded corners=4pt, inner sep=4pt] {};
+    \node[fit=(ml-label)(classical)(deep)(gnn)(hybrid), fill=green!6, draw=green!40, rounded corners=4pt, inner sep=4pt] {};
+    \node[fit=(inp-label)(static)(counters)(graph)(embed), fill=orange!6, draw=orange!40, rounded corners=4pt, inner sep=4pt] {};
+\end{scope}
+
+\end{tikzpicture}%
+}
+\caption{Three-dimensional taxonomy for ML-based performance modeling. Arrows indicate common pairings observed in the literature (e.g., GPU models often use deep learning with static features).}
 \label{fig:taxonomy-overview}
 \end{figure}
 
