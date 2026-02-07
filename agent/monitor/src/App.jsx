@@ -357,9 +357,9 @@ apolloCycleInterval: ${configForm.apolloCycleInterval}
         </div>
 
         {/* Row 3: Agent Reports + Issues */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4">
-          {/* Agent Reports (2/3 width) */}
-          <Card className="lg:col-span-2">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+          {/* Agent Reports */}
+          <Card>
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center justify-between">
               <span className="flex items-center gap-2">
