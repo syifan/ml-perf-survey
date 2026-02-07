@@ -211,6 +211,36 @@ app.get('/api/comments', async (req, res) => {
   }
 });
 
+// GET /api/prs - List open PRs
+app.get('/api/prs', async (req, res) => {
+  try {
+    const { execSync } = await import('child_process');
+    const output = execSync('gh pr list --state open --json number,title,author,createdAt,headRefName --limit 50', {
+      cwd: path.resolve(AGENT_DIR, '..'),
+      encoding: 'utf-8'
+    });
+    res.json({ prs: JSON.parse(output) });
+  } catch (e) {
+    console.error('Error fetching PRs:', e.message);
+    res.json({ prs: [] });
+  }
+});
+
+// GET /api/issues - List open issues
+app.get('/api/issues', async (req, res) => {
+  try {
+    const { execSync } = await import('child_process');
+    const output = execSync('gh issue list --state open --json number,title,author,createdAt,labels --limit 50', {
+      cwd: path.resolve(AGENT_DIR, '..'),
+      encoding: 'utf-8'
+    });
+    res.json({ issues: JSON.parse(output) });
+  } catch (e) {
+    console.error('Error fetching issues:', e.message);
+    res.json({ issues: [] });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Monitor API server running on http://localhost:${PORT}`);
 });

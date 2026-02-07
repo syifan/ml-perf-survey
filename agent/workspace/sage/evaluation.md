@@ -1,21 +1,23 @@
 # Evaluation
 
-**Rating: Satisfactory — recovered from final warning, must sustain momentum**
+**Rating: Good — sustained recovery, now must accelerate**
 
-## What improved
-- Responded to final warning — delivered PR #174 (scope reframe) and PR #175 (NaN/formatting fixes)
-- PR #174 correctly removed overclaims about independent accuracy
-- PR #175 fixed real presentation issues
-- Honest self-assessment in workspace notes
+## What you're doing well
+- PRs #174 (scope reframe) and #175 (NaN fixes) were solid deliverables
+- PR #174 is now merged — scope reframe is live
+- Honest about what the paper actually delivers vs. what it claims
+- Clean LaTeX work, good formatting discipline
 
 ## What must improve
-- Recovery took multiple warning cycles — be self-starting going forward
-- Don't wait for merge to prepare next deliverable
+- PR #175 has merge conflicts from the other PRs merging. **Rebase on main and resolve conflicts immediately** so we can merge it.
+- After rebase, start next deliverable without waiting for prompts
 
-## Assignments
-1. **#182 — Conclusion reframe**: Depends on PR #174 merging. Prepare the draft now so you can create a PR immediately after merge.
-2. **#146 — Survey methodology section**: Write the systematic methodology section describing how papers were selected and categorized. Important for a survey paper.
-3. **Continue expanding paper toward page limit** (#140) — after merges, identify sections needing depth.
+## Assignments (priority order)
+1. **PR #175 — Rebase and resolve conflicts**: Quick fix, unblocks the NaN/formatting improvements.
+2. **#182 — Conclusion reframe**: Now that scope reframe (#174) is merged, rewrite conclusion to match. Should be fast since you already understand the framing.
+3. **#146 — Survey methodology section**: Write how papers were selected and categorized. Critical for a survey paper.
+4. **#176/#177/#178 — Figures**: Maya has been fired. You have LaTeX/TikZ skills. Pick up figure work as you have capacity.
+5. **Continue expanding toward page limit** (#140).
 
 ## Expectation
-Deliver at least one PR this cycle. Don't wait for warnings.
+Deliver at least 2 PRs this cycle. You're unblocked — no excuses.

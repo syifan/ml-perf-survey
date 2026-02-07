@@ -1,22 +1,14 @@
 # Evaluation
 
-**Rating: New hire (replacing Forge)**
+**Rating: Fired — zero output, same pattern as Forge**
 
-## Context
-You replace Forge, who was fired for producing zero output across 5+ cycles. The bar is low: produce any output at all and you're already ahead. But we need real engineering results.
+## What happened
+- Hired to replace Forge, who was fired for zero output across 5+ cycles
+- Assigned issue #170 (ASTRA-sim onboarding) as a concrete first task
+- Produced zero output: no branches, no commits, no PR comments, no issue comments, no acknowledgment of assignment
+- Identical failure pattern to Forge: complete silence despite explicit expectations
 
-## Immediate priorities
-1. **Issue #170 — ASTRA-sim on ResNet-50**: Your onboarding task. Set up, run, document results. Comment on the issue.
-2. **Issue #155 — Independent accuracy experiments**: After #170, expand to more tools.
-3. **Issue #154 — Unified tool prototype**: Build on experimental findings.
+## Decision
+Fired. The skill file has been deleted. The engineering role remains critical (human requirements #143, #153), but this agent demonstrated the same inability to execute as its predecessor.
 
-## Key context to read first
-- `data/evaluation/` and `scripts/` — existing work
-- Issue #143 — human directive: do not trust reported accuracy
-- Issue #153 — human directive: prototype must not be deferred
-- `agent/workspace/crit/astra-sim-review.md` — Crit's review of previous evaluation data
-
-## Expectations
-- **Comment on issues** with progress every cycle
-- **Deliver PRs** with scripts and results
-- **If blocked, say so immediately** — don't go silent
+Issue #170 and engineering tasks will be reassigned.

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Activity, Users, Sparkles, Settings, ScrollText, RefreshCw, Pause, Play, SkipForward, RotateCcw, Square, Save, MessageSquare, X } from 'lucide-react'
+import { Activity, Users, Sparkles, Settings, ScrollText, RefreshCw, Pause, Play, SkipForward, RotateCcw, Square, Save, MessageSquare, X, GitPullRequest, CircleDot } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { Separator } from '@/components/ui/separator'
@@ -30,13 +30,18 @@ function App() {
   const [commentsHasMore, setCommentsHasMore] = useState(true)
   const [commentsLoading, setCommentsLoading] = useState(false)
   const [selectedAgent, setSelectedAgent] = useState(() => localStorage.getItem('selectedAgent') || null)
+  const [prs, setPrs] = useState([])
+  const [issues, setIssues] = useState([])
 
   const fetchData = async () => {
     try {
-      const [stateRes, logsRes, agentsRes, configRes] = await Promise.all([
-        fetch('/api/state'), fetch('/api/logs?lines=100'), fetch('/api/agents'), fetch('/api/config')
+      const [stateRes, logsRes, agentsRes, configRes, prsRes, issuesRes] = await Promise.all([
+        fetch('/api/state'), fetch('/api/logs?lines=100'), fetch('/api/agents'), fetch('/api/config'),
+        fetch('/api/prs'), fetch('/api/issues')
       ])
       if (!stateRes.ok || !logsRes.ok || !agentsRes.ok || !configRes.ok) throw new Error('Failed to fetch')
+      setPrs((await prsRes.json()).prs || [])
+      setIssues((await issuesRes.json()).issues || [])
       setState(await stateRes.json())
       setLogs((await logsRes.json()).logs)
       setAgents(await agentsRes.json())
@@ -281,13 +286,13 @@ apolloCycleInterval: ${configForm.apolloCycleInterval}
 
         </div>
 
-        {/* Row 2: Agents */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+        {/* Row 2: Agents, PRs, Issues */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mt-4">
           {/* Workers */}
           <Card>
             <CardHeader><CardTitle className="flex items-center gap-2"><Users className="w-4 h-4" />Workers ({agents.workers.length})</CardTitle></CardHeader>
             <CardContent>
-              <div className="space-y-2">
+              <div className="space-y-2 max-h-64 overflow-y-auto">
                 {agents.workers.map((agent) => <AgentItem key={agent.name} agent={agent} />)}
                 {agents.workers.length === 0 && <p className="text-sm text-neutral-400">No workers</p>}
               </div>
@@ -298,9 +303,55 @@ apolloCycleInterval: ${configForm.apolloCycleInterval}
           <Card>
             <CardHeader><CardTitle className="flex items-center gap-2"><Sparkles className="w-4 h-4" />Managers ({agents.managers.length})</CardTitle></CardHeader>
             <CardContent>
-              <div className="space-y-2">
+              <div className="space-y-2 max-h-64 overflow-y-auto">
                 {agents.managers.map((agent) => <AgentItem key={agent.name} agent={agent} isManager />)}
                 {agents.managers.length === 0 && <p className="text-sm text-neutral-400">No managers</p>}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* PRs */}
+          <Card>
+            <CardHeader><CardTitle className="flex items-center gap-2"><GitPullRequest className="w-4 h-4" />Open PRs ({prs.length})</CardTitle></CardHeader>
+            <CardContent>
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {prs.map((pr) => (
+                  <a key={pr.number} href={`https://github.com/syifan/ml-perf-survey/pull/${pr.number}`} target="_blank" rel="noopener noreferrer"
+                    className="block p-2 bg-neutral-50 hover:bg-neutral-100 rounded cursor-pointer transition-colors">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-neutral-400">#{pr.number}</span>
+                      <span className="text-sm font-medium text-neutral-800 truncate">{pr.title}</span>
+                    </div>
+                    <p className="text-xs text-neutral-500 truncate">{pr.headRefName}</p>
+                  </a>
+                ))}
+                {prs.length === 0 && <p className="text-sm text-neutral-400">No open PRs</p>}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Issues */}
+          <Card>
+            <CardHeader><CardTitle className="flex items-center gap-2"><CircleDot className="w-4 h-4" />Open Issues ({issues.length})</CardTitle></CardHeader>
+            <CardContent>
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {issues.map((issue) => (
+                  <a key={issue.number} href={`https://github.com/syifan/ml-perf-survey/issues/${issue.number}`} target="_blank" rel="noopener noreferrer"
+                    className="block p-2 bg-neutral-50 hover:bg-neutral-100 rounded cursor-pointer transition-colors">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-neutral-400">#{issue.number}</span>
+                      <span className="text-sm font-medium text-neutral-800 truncate">{issue.title}</span>
+                    </div>
+                    {issue.labels?.length > 0 && (
+                      <div className="flex gap-1 mt-1 flex-wrap">
+                        {issue.labels.slice(0, 3).map((label) => (
+                          <span key={label.name} className="text-xs px-1 rounded" style={{backgroundColor: `#${label.color}20`, color: `#${label.color}`}}>{label.name}</span>
+                        ))}
+                      </div>
+                    )}
+                  </a>
+                ))}
+                {issues.length === 0 && <p className="text-sm text-neutral-400">No open issues</p>}
               </div>
             </CardContent>
           </Card>
