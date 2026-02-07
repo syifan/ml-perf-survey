@@ -26,7 +26,7 @@ let currentAgentProcess = null;
 let currentAgentName = null;
 let cycleCount = 0;
 let currentAgentIndex = 0;
-let managersCompleted = false;
+let managersRun = []; // Track which managers have run this cycle
 let pendingReload = false;
 let isPaused = false;
 let wakeNow = false;
@@ -38,18 +38,18 @@ function loadState() {
     const state = JSON.parse(raw);
     cycleCount = state.cycleCount || 0;
     currentAgentIndex = state.currentAgentIndex || 0;
-    managersCompleted = state.managersCompleted || false;
+    managersRun = state.managersRun || [];
     isPaused = state.isPaused || false;
-    log(`State loaded: cycle=${cycleCount}, agentIndex=${currentAgentIndex}, managersCompleted=${managersCompleted}, paused=${isPaused}`);
+    log(`State loaded: cycle=${cycleCount}, agentIndex=${currentAgentIndex}, managersRun=[${managersRun.join(',')}], paused=${isPaused}`);
     return state;
   } catch (e) {
     log('No saved state, starting fresh');
-    return { cycleCount: 0, currentAgentIndex: 0, managersCompleted: false, isPaused: false };
+    return { cycleCount: 0, currentAgentIndex: 0, managersRun: [], isPaused: false };
   }
 }
 
 function saveState() {
-  writeFileSync(STATE_PATH, JSON.stringify({ cycleCount, currentAgentIndex, managersCompleted, isPaused }, null, 2));
+  writeFileSync(STATE_PATH, JSON.stringify({ cycleCount, currentAgentIndex, managersRun, isPaused }, null, 2));
 }
 
 function log(message) {
@@ -232,32 +232,39 @@ async function runCycle() {
   const config = loadConfig();
   const workers = discoverWorkers();
   
-  // New cycle: run managers first
-  if (!managersCompleted) {
+  // Check if starting fresh cycle (no managers run yet and no workers done)
+  const isNewCycle = managersRun.length === 0 && currentAgentIndex === 0;
+  if (isNewCycle) {
     cycleCount++;
     log(`===== CYCLE ${cycleCount} (${workers.length} workers) =====`);
-    
-    // Athena (strategist) - runs on cycle 1, 1+interval, 1+2*interval, etc.
-    if ((cycleCount - 1) % (config.athenaCycleInterval || 10) === 0) {
-      await runAgent('athena', config, true);
-      saveState();
-      if (pendingReload) return config;
-    }
-    
-    // Apollo (HR) - runs on cycle 1, 1+interval, 1+2*interval, etc.
-    if ((cycleCount - 1) % (config.apolloCycleInterval || 10) === 0) {
-      await runAgent('apollo', config, true);
-      saveState();
-      if (pendingReload) return config;
-    }
-    
-    // Hermes (PM) every cycle
-    await runAgent('hermes', config, true);
-    managersCompleted = true;
+  } else {
+    log(`===== CYCLE ${cycleCount} (resuming: managers=[${managersRun.join(',')}], workers=${currentAgentIndex}/${workers.length}) =====`);
+  }
+  
+  // Athena (strategist) - runs on cycle 1, 1+interval, 1+2*interval, etc.
+  const athenaShould = (cycleCount - 1) % (config.athenaCycleInterval || 10) === 0;
+  if (athenaShould && !managersRun.includes('athena')) {
+    await runAgent('athena', config, true);
+    managersRun.push('athena');
     saveState();
     if (pendingReload) return config;
-  } else {
-    log(`===== CYCLE ${cycleCount} (resuming workers ${currentAgentIndex}/${workers.length}) =====`);
+  }
+  
+  // Apollo (HR) - runs on cycle 1, 1+interval, 1+2*interval, etc.
+  const apolloShould = (cycleCount - 1) % (config.apolloCycleInterval || 10) === 0;
+  if (apolloShould && !managersRun.includes('apollo')) {
+    await runAgent('apollo', config, true);
+    managersRun.push('apollo');
+    saveState();
+    if (pendingReload) return config;
+  }
+  
+  // Hermes (PM) every cycle
+  if (!managersRun.includes('hermes')) {
+    await runAgent('hermes', config, true);
+    managersRun.push('hermes');
+    saveState();
+    if (pendingReload) return config;
   }
   
   // Run worker agents
@@ -271,7 +278,7 @@ async function runCycle() {
   
   // Cycle complete - reset for next cycle
   currentAgentIndex = 0;
-  managersCompleted = false;
+  managersRun = [];
   saveState();
   
   return config;
@@ -306,7 +313,7 @@ function startControlServer() {
         currentAgent: currentAgentName,
         currentAgentIndex,
         cycleCount,
-        managersCompleted,
+        managersRun,
         totalWorkers: workers.length,
         pid: process.pid,
         uptime: Math.floor((Date.now() - startTime) / 1000),
