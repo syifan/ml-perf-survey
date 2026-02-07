@@ -1,22 +1,23 @@
-# Leo — Cycle 3 Notes (2026-02-07)
+# Leo — Cycle 4 Notes (2026-02-07)
 
 ## What I did
-- **Taxonomy redesign (#161)**: Implemented the Athena-approved three-dimensional taxonomy (methodology × platform × abstraction level). Added methodology trade-off table with failure modes, workload coverage table, abstraction level subsection, and discussion of composition problem.
-- **Coverage matrix (#176)**: Added quantitative taxonomy coverage matrix table with 3-paragraph analysis of research gaps revealed by empty cells.
-- **Per-tool deepening (#179)**: Expanded 20 thin tool descriptions to 3-4 sentences each covering methodology, accuracy, limitations, and failure modes. Tools: Echo, TrioSim, PRISM, LIFE, HERMES, ESM, PyTorchSim, uPIMulator, AttAcc, NeuPIMs, PAISE, ThrottLL'eM, TLP, MAD Max, Sailor, LitePred, HELP, SimAI, Sparseloop, Habitat.
-- Created PR #187 closing #161, #176, #179.
+- **#190 (Expand Section 8)**: Grew experimental evaluation from 35 to 119 lines with 3 subsections: Evaluation Methodology, Per-Tool Results, Lessons from Evaluation. Added per-tool deep dives (VIDUR, Timeloop, ASTRA-sim, NeuSight, nn-Meter) with specific error messages, setup times, and quantitative results from our data/results/ reports. Five grounded lessons replace generic best practices.
+- **#191 (Related Surveys)**: Added 14-line Related Surveys subsection in Section 2 positioning against Rakhshanfar (ML-for-DSE), Sze (DNN accelerator taxonomy), MLPerf benchmarks, and Hennessy/Patterson. Clear 3-point differentiation statement.
+- **#173 (Foundational references)**: Added 15 new bib entries (14 from issue + 1 survey for related work). All substantively cited: TPUv1/v4 in intro/taxonomy, PyTorch/TensorFlow in background, Megatron-LM/GPipe/ZeRO in distributed section, scaling laws in challenges, MLPerf suites in reproducibility discussion. Total refs now 86, all cited.
 
 ## Key decisions
-- Used a table (not a heatmap figure) for coverage matrix — tables are more precise for a survey and easier to maintain
-- Added the NeuSight vs Habitat comparison caveat in the hybrid section to address unfair comparison claims
-- Framed AMALI's 23.6% error as revealing when analytical models hit their ceiling, not as a quality issue
+- Put Related Surveys in Section 2 (Survey Methodology) rather than a separate section — saves space and fits the paper flow
+- Ranked tools by score in Table 5 (VIDUR first) rather than alphabetically — more informative
+- Used specific numbers from evaluation reports (e.g., "57,426 cycles", "0.301% comm overhead") rather than vague statements
+- Cited `hennessy2019golden` twice (intro + related work) — it serves both motivational and positioning purposes
 
 ## Remaining work
-- #162: More figures still needed (accuracy comparison bar chart #177, methodology breakdown #178)
-- Paper still ~2 pages short of target — the ~1.5 pages added here helps but more content needed
-- Need to check if LaTeX compiles (no compiler on this machine)
+- Paper is now ~1220 lines (~10.5 pages), approaching target
+- Still need figures from Sage (#192, #193)
+- Crit needs fresh review after these changes (#185)
+- Reference count at 86, closer to 80-100 target
 
 ## Lessons learned
-- The Edit tool has a string length limit — very large edits must be broken into smaller chunks
-- Updating section labels (By Methodology -> Primary Axis) requires checking all cross-references
-- Always update the abstract and introduction when restructuring taxonomy sections
+- Reading the actual data/results/ reports before writing evaluation makes the content much more specific and credible
+- The Related Surveys subsection is compact but addresses a real gap — reviewers specifically flagged the missing survey positioning (W7)
+- All bib entries should be cited; 86/86 match means no orphaned references
