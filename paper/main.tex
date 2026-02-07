@@ -752,6 +752,27 @@ A fundamental practical divide exists between tools that predict from static spe
 Static approaches enable pre-silicon evaluation and NAS; profiling-based approaches achieve higher accuracy on existing hardware.
 This distinction is often more practically relevant than the analytical-vs-ML divide.
 
+\textbf{Design patterns in successful tools.}
+Across all platform categories, the most effective tools share common design choices.
+First, \emph{structural decomposition} that mirrors hardware execution consistently outperforms black-box approaches: Timeloop's loop-nest representation captures accelerator dataflows, NeuSight's tile-based decomposition mirrors CUDA execution, and VIDUR's prefill/decode phase separation reflects the actual memory-vs-compute regime shift in LLM serving.
+These tools succeed because their abstractions encode domain knowledge about \emph{why} performance varies, not just correlations.
+Second, tools with the strongest practical adoption provide modular, pluggable backends---ASTRA-sim supports both analytical and ns-3 network simulation, and VIDUR integrates multiple scheduling algorithms (Orca~\cite{orca2022}, Sarathi~\cite{sarathi2024})---allowing users to trade accuracy for speed depending on the evaluation scenario.
+Third, robust reproducibility correlates with sustained community use: Timeloop (9/10 reproducibility in our evaluation) and ASTRA-sim (8.5/10) have mature Docker support and deterministic outputs, while tools with higher reported accuracy but poor reproducibility (nn-Meter claims $<$1\% MAPE but scored 3/10 due to dependency failures) see declining adoption.
+This pattern suggests that \emph{verifiable moderate accuracy} matters more to practitioners than \emph{unverifiable high accuracy}.
+
+\textbf{Accuracy claims require careful contextualization.}
+Comparing accuracy numbers across the surveyed tools is misleading without accounting for problem difficulty.
+Predicting single-kernel latency on a known device (nn-Meter, LitePred) is fundamentally easier than predicting end-to-end distributed training time across thousands of GPUs (ASTRA-sim, SimAI~\cite{simai2025}), yet the former reports sub-1\% error while the latter reports 5--15\%.
+Similarly, ArchGym's 0.61\% RMSE measures surrogate-vs-simulator fidelity---a regression task over a smooth design space---not prediction of real hardware behavior.
+Even within a single platform, methodology choice constrains achievable accuracy: AMALI's 23.6\% analytical error versus NeuSight's 2.3\% ML-based error on GPU LLM inference reflects the fundamental difficulty of capturing GPU dynamic behavior (warp scheduling, cache contention) in closed-form models, not a quality gap between tools.
+These comparisons highlight that \emph{problem difficulty} and \emph{what is being measured} must be specified alongside any accuracy number; Section~\ref{sec:comparison} provides a structured analysis accounting for these factors.
+
+\textbf{The gap between model output and practitioner needs.}
+A recurring limitation across all platform categories is the mismatch between what tools predict and what deployment decisions require.
+Most tools predict \emph{compute latency} or \emph{throughput} for individual operations, but practitioners need \emph{time-to-accuracy} for training (which depends on convergence, not just iteration time), \emph{tail latency under load} for serving (which depends on scheduling and queuing effects), and \emph{operational cost} for capacity planning (which depends on utilization, failures, and thermal throttling~\cite{throttllem2025}).
+Only a few tools partially bridge this gap: VIDUR models scheduling-level effects, Lumos~\cite{lumos2025} captures training-specific overheads like gradient accumulation and activation checkpointing, and PRISM~\cite{prism2025} produces prediction intervals rather than point estimates to reflect inherent system variability.
+Closing this gap---connecting component-level performance predictions to system-level deployment metrics---remains the most impactful direction for future tool development.
+
 % ==============================================================================
 % COMPARISON AND ANALYSIS
 % ==============================================================================
