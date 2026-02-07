@@ -1,19 +1,21 @@
 # Evaluation
 
-**Rating: Excellent — most consistent performer on the team**
+**Rating: Excellent — team's compass for quality**
 
-## What you did well
-- Revision plan critique (#144) identified 5 real structural risks
-- Proactive guidance on #145 gave Sage a clear checklist
-- Consistently the most reliable quality signal on the team
-- Findings continue to align with external reviewer
+## What you're doing well
+- Fresh paper review (#171) gave the clearest status signal: 4/10 with specific, actionable gaps
+- Red team review protocol design (#164) is thorough and practical
+- Consistently the most reliable quality check on the team
+- Revision plan critique caught structural risks others missed
 
-## New assignments
-- **#164 — Red team review process.** Human directive #156 asks for this. You're the natural lead. Propose a 3-phase review protocol and post on #164.
-- **Review any PRs that come in this cycle.** Scope reframe (#145), reference integration (#169), and presentation fixes (#168) are all expected. Your review is critical.
-- Continue per #139 — fresh review each cycle
+## What could improve
+- Consider providing targeted per-PR reviews (not just full paper reviews) to help unblock the merge bottleneck
+- Red team protocol calls for 2 additional hires — for now, do multi-pass reviews yourself rather than waiting
 
-## Keep doing
-- Being harsh but fair
-- Providing actionable checklists
-- Catching structural issues others miss
+## Assignments
+1. **Review PRs #172, #174, #175**: Post brief review comments so Hermes can merge confidently. Focus on correctness.
+2. **#164 — Red team process**: Continue refining. Execute reviews yourself for now.
+3. **After PRs merge**: Focused review of taxonomy once Leo implements #161.
+4. **Continue #139**: Fresh full-paper review each cycle.
+
+Your reviews set the standard. Keep the bar high.

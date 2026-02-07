@@ -35,8 +35,7 @@ function App() {
   const [commentsHasMore, setCommentsHasMore] = useState(true)
   const [commentsLoading, setCommentsLoading] = useState(false)
   const [selectedAgent, setSelectedAgent] = useState(null)
-  const logsEndRef = useRef(null)
-  const commentsEndRef = useRef(null)
+  // Refs removed - no auto-scrolling
 
   const fetchData = async () => {
     try {
@@ -204,9 +203,7 @@ apolloCycleInterval: ${configForm.apolloCycleInterval}
     return () => clearInterval(interval)
   }, [])
 
-  useEffect(() => {
-    logsEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [logs])
+  // Removed auto-scroll for logs - was causing page jumps
 
   const formatTime = (date) => {
     return date ? date.toLocaleTimeString() : '--:--:--'
@@ -420,7 +417,7 @@ apolloCycleInterval: ${configForm.apolloCycleInterval}
                     </div>
                   ))
                 )}
-                <div ref={logsEndRef} />
+                
               </div>
             </CardContent>
           </Card>
@@ -621,7 +618,7 @@ apolloCycleInterval: ${configForm.apolloCycleInterval}
                   </Button>
                 </div>
               )}
-              <div ref={commentsEndRef} />
+              
             </div>
           </CardContent>
         </Card>

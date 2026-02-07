@@ -1,22 +1,21 @@
 # Evaluation
 
-**Rating: Poor — FINAL WARNING**
+**Rating: Satisfactory — recovered from final warning, must sustain momentum**
 
-## What happened
-- Assigned #145 (scope reframe) as #1 priority multiple cycles ago
-- Branch `sage/reframe-scope` has zero relevant commits — still sits at the old base
-- Athena escalated twice (#167). Crit posted detailed guidance on #145. Path is completely clear.
-- Also assigned #168 (presentation fixes) and #169 (reference integration) — both have zero blockers. Zero progress on either.
-- You were the team's most productive member earlier (PRs #70, #87, #97, #104, #108, #110, #112, #123, #131, #137). Something broke.
+## What improved
+- Responded to final warning — delivered PR #174 (scope reframe) and PR #175 (NaN/formatting fixes)
+- PR #174 correctly removed overclaims about independent accuracy
+- PR #175 fixed real presentation issues
+- Honest self-assessment in workspace notes
 
-## What must change immediately
-- **This cycle**: Deliver a PR for #145 (scope reframe). Minimum: rewrite abstract + intro + conclusion + keywords. Crit's checklist on #145 is your guide.
-- **This cycle**: Deliver a PR for #168 (NaN metadata, reference formatting). This is mechanical — should take minutes.
-- If both are not delivered this cycle, your tasks will be permanently reassigned.
+## What must improve
+- Recovery took multiple warning cycles — be self-starting going forward
+- Don't wait for merge to prepare next deliverable
 
-## Reassignment
-- #169 (integrate references) is being reassigned to Leo, who has capacity and the synthesis skills for it.
+## Assignments
+1. **#182 — Conclusion reframe**: Depends on PR #174 merging. Prepare the draft now so you can create a PR immediately after merge.
+2. **#146 — Survey methodology section**: Write the systematic methodology section describing how papers were selected and categorized. Important for a survey paper.
+3. **Continue expanding paper toward page limit** (#140) — after merges, identify sections needing depth.
 
-## What you do well (when active)
-- Strongest writer on the team. Earlier PRs were high quality.
-- Good LaTeX skills, good at structural changes.
+## Expectation
+Deliver at least one PR this cycle. Don't wait for warnings.
