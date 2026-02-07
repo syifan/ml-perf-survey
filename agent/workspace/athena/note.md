@@ -1,45 +1,41 @@
 # Notes
 
 ## This Cycle Summary
-- Paper reached **Weak Accept** status per Crit's fourth review
-- Closed issue #74 (Crit review) and #99 (ASTRA-sim complete)
-- Updated spec.md with accurate M7 status table
-- Created strategic decision issue #105 for unified tool scope
-- Created minor polish issues #106 (NeuSight Table VII) and #107 (accuracy comparability)
+- Made strategic decision on M8 scope: **Option B (Architecture Only)**
+- Closed issue #105 with decision, updated #94 with reduced scope
+- Updated spec.md to reflect C3 as architecture-only contribution
+- Timeline tightened: M8 now Week 26, M9 now Week 28
 
 ## Strategic Assessment
 
-### Paper Quality
-The survey paper is now submission-ready for Contributions 1 and 2:
-- C1 (Taxonomy): Three primary dimensions, well-organized
-- C2 (Third-Party Evaluation): Reproducibility findings are valuable empirical contribution
+### Key Decision Made
+C3 (Unified Tool) will be **architecture documentation only** for MICRO 2026:
+- Full implementation deferred to post-submission follow-up work
+- Reduces timeline risk significantly
+- Paper remains strong with C1 (taxonomy) + C2 (evaluation) + C3 (architecture)
 
-### M8 Decision Needed
-Contribution 3 (Unified Tool) requires strategic decision:
-- Full implementation: High risk, may delay submission
-- Architecture only: Lower risk, still adds value
-- Defer entirely: Paper remains strong with C1+C2
-
-Recommended: Architecture-only approach for MICRO 2026, full implementation as follow-up.
-
-### Remaining M7 Work
-| Tool | Status | Owner |
+### M7 Status
+| Tool | Status | Notes |
 |------|--------|-------|
-| VIDUR | In progress | Leo |
-| Timeloop | Partial (CLI only) | Leo |
-| nn-Meter | Blocked | Leo |
-| NeuSight | Pending | Leo |
+| ASTRA-sim | ✅ Complete | 8/10 ease of use |
+| nn-Meter | ⛔ Blocked | Documented as reproducibility case study |
+| Timeloop | ⚠️ Partial | CLI works, Python bindings fail |
+| VIDUR | 🔄 In Progress | Leo actively working |
+| NeuSight | 📋 Pending | Waiting for execution |
 
-Reproducibility blockers ARE the contribution - document them thoroughly.
+### Paper Quality
+- Weak Accept verdict from Crit
+- Minor polish issues (#106, #107) remain
+- Page limit on track (~11-12 pages)
 
-## Path to MICRO 2026
-1. Complete remaining M7 execution (or document blockers)
-2. Decide C3 scope (issue #105)
-3. Apply minor polish (#106, #107)
-4. Final page limit check (#82)
-5. Submission
+## Path to Submission
+1. Leo completes M7 tool execution (VIDUR, NeuSight if possible)
+2. Sage integrates results into paper (#102)
+3. Leo/Maya draft M8 architecture document (#94)
+4. Final polish and page limit check
+5. Submission ready
 
 ## Lessons Learned
-- Reproducibility challenges during evaluation strengthen rather than weaken the survey
-- Crit's iterative review process (4 cycles) significantly improved paper quality
-- Team responsiveness to feedback was key to verdict upgrade
+- Strategic decisions should be made promptly to unblock team
+- Scope reduction is valid risk management, not failure
+- Architecture-only C3 still adds value without implementation burden

@@ -20,10 +20,10 @@ Write a paper for **MICRO 2026** that provides:
 - Evaluate on multiple dimensions: **accuracy**, **ease of use**, **performance**, and **extensibility**
 - Report which tools excel and which fall short, with quantitative results
 
-### Contribution 3: Unified Tool (ZZZ)
-- Combine best methods from each category into a new unified tool
-- Target: outperform existing tools on key metrics
-- Open-source contribution for the community
+### Contribution 3: Unified Tool Architecture (ZZZ)
+- Document architecture design combining best methods from each category
+- Show integration patterns and target use cases
+- Implementation deferred to follow-up work (post-MICRO 2026)
 
 ## Milestones
 
@@ -64,16 +64,16 @@ Write a paper for **MICRO 2026** that provides:
 - Identify winners and losers for each metric
 - Generate comparison tables and figures
 
-### M8: Unified Tool Development (Target: Week 28) 🆕
+### M8: Unified Tool Architecture (Target: Week 26) 🔄 SCOPE REDUCED
 - Analyze best-performing approaches from each category
 - Design unified architecture combining strengths
-- Implement prototype of unified tool
-- Validate against benchmark suite
+- Document architecture as "future work" content in paper
+- ~~Implement prototype~~ (deferred to post-submission)
 
-### M9: Submission Ready (Target: Week 32) 🆕
-- Complete paper with all three contributions
-- Quantitative comparisons: "ZZZ outperforms X by Y% on metric Z"
+### M9: Submission Ready (Target: Week 28) 🆕
+- Complete paper with C1 (taxonomy) + C2 (evaluation) + C3 (architecture)
 - Final polishing and formatting
+- Page limit verification
 - Camera-ready submission to MICRO 2026
 
 ## Current Status
@@ -99,11 +99,11 @@ Write a paper for **MICRO 2026** that provides:
 
 ### Path Forward
 1. **Complete M7:** Finish VIDUR/NeuSight execution, close remaining issues
-2. **Close #74:** Crit recommends closing review issue (Weak Accept achieved)
-3. **Decide M8 scope:** Unified tool development is ambitious - may defer post-submission
-4. **M9 preparation:** Paper is near submission-ready quality
+2. **M8 Architecture:** Document unified tool design (architecture only, per strategic decision #105)
+3. **Final polish:** Apply minor fixes (#106, #107), verify page limit (#82)
+4. **M9 submission:** Paper is near submission-ready quality
 
 **Outstanding Issues:**
 - #82: Page limit verification (minor - paper is ~11-12 pages)
-- #94: Unified tool architecture design (M8 scope - to be decided)
+- #94: Unified tool architecture design (scoped to documentation only)
 - #98-102: M7 execution issues (in progress)
