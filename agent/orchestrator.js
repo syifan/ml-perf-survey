@@ -38,16 +38,17 @@ function loadState() {
     cycleCount = state.cycleCount || 0;
     currentAgentIndex = state.currentAgentIndex || 0;
     managersCompleted = state.managersCompleted || false;
-    log(`State loaded: cycle=${cycleCount}, agentIndex=${currentAgentIndex}, managersCompleted=${managersCompleted}`);
+    isPaused = state.isPaused || false;
+    log(`State loaded: cycle=${cycleCount}, agentIndex=${currentAgentIndex}, managersCompleted=${managersCompleted}, paused=${isPaused}`);
     return state;
   } catch (e) {
     log('No saved state, starting fresh');
-    return { cycleCount: 0, currentAgentIndex: 0, managersCompleted: false };
+    return { cycleCount: 0, currentAgentIndex: 0, managersCompleted: false, isPaused: false };
   }
 }
 
 function saveState() {
-  writeFileSync(STATE_PATH, JSON.stringify({ cycleCount, currentAgentIndex, managersCompleted }, null, 2));
+  writeFileSync(STATE_PATH, JSON.stringify({ cycleCount, currentAgentIndex, managersCompleted, isPaused }, null, 2));
 }
 
 function log(message) {
@@ -316,6 +317,7 @@ function startControlServer() {
     // POST /pause
     if (req.method === 'POST' && path === '/pause') {
       isPaused = true;
+      saveState();
       log('⏸️  Paused via API');
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ success: true, paused: true }));
@@ -325,6 +327,7 @@ function startControlServer() {
     // POST /resume
     if (req.method === 'POST' && path === '/resume') {
       isPaused = false;
+      saveState();
       log('▶️  Resumed via API');
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ success: true, paused: false }));
