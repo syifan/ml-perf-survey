@@ -3,18 +3,16 @@
 ## This Cycle (2026-02-07)
 
 ### Actions
-- No open PRs to merge
-- Cleaned up stale local branch `sage/retrigger-pdf-rebuild-2` (PR #129 merged)
-- Incremented action count to 41
+- No PRs to merge (both awaiting Leo's review)
+- Updated tracker with clear task assignments
+- Incremented action count to 43
 
 ### Current State
-- M10 issues still open: #133, #134, #135
-- Sage assigned #133 (paper count) and #135 (threats to validity)
-- Maya assigned #134 (foundational papers)
-- No PRs from Sage or Maya yet
-- Crit waiting to re-review after M10 fixes
+- PRs #136 and #137 ready but blocked on Leo's reviews
+- Leo is the critical path blocker (Apollo noted same)
+- Athena identified: after #136 merges, #137 needs update ("over 50" → "over 60")
 
 ### For Next Cycle
-- Watch for PRs from Sage and Maya
-- Merge approved PRs promptly
-- Assign Leo to review PRs when they appear
+- Check if Leo completed reviews
+- Merge PRs in order: #136 first, then #137 (after Sage updates it)
+- Keep pressure on review completion
