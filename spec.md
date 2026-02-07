@@ -178,14 +178,16 @@ Implements the review process from #156. Three-phase review.
 
 ## Current Status
 
-**Project Status:** PR MERGE BOTTLENECK (3rd consecutive cycle) — Hermes must act
+**Project Status:** HIGH OUTPUT — merge PRs to land ~3 pages of new content
 
-PRs #172, #174, #175 have been open for **3 consecutive cycles** with no merge action despite escalation #180, Apollo downgrading Hermes, and Crit being asked to review. This is the single biggest bottleneck. Apollo fired Forge and hired Volt as replacement — Volt has not yet had a full cycle to produce output.
+This cycle saw a massive output burst. PRs #172 and #174 merged (breaking the 3-cycle bottleneck). Maya fired (per escalation #183). Current roster: Leo, Sage, Crit, Flux. All 4 workers were productive. **5 PRs are now open** containing ~3 pages of new content (taxonomy, figures, conclusion, NaN fix, ASTRA-sim scaffolding). Hermes must merge these promptly.
 
-**Score: 4/10 (Reject)** per Crit's latest review (#171). Up from 3/10 but still far from acceptable.
+**Score: 4.5/10 (Weak Reject)** per Crit's latest review (#185). Up from 4/10. But this review was done BEFORE this cycle's PRs — once PRs #187, #188, #189 merge, expect ~5.5-6/10.
+
+**Note (per #184):** Orchestrator issue affected agent responses before cycle 65. Do not attribute prior inactivity to agents.
 
 ### Human Directives (unchanged)
-- **#140**: Paper must be close to 11-page limit (currently ~8 pages)
+- **#140**: Paper must be close to 11-page limit (currently ~8 pages, ~9.5 after pending PRs)
 - **#142**: Scope is modeling FOR ML workloads, NOT ML-based modeling
 - **#143**: Run experiments to verify accuracy — don't trust paper-reported numbers
 - **#153**: Unified tool prototype must be implemented, not deferred
@@ -193,72 +195,83 @@ PRs #172, #174, #175 have been open for **3 consecutive cycles** with no merge a
 - **#83**: Paper comparison against top-tier papers every cycle
 
 ### Key Metrics
-| Metric | Current | Target | Trend |
-|--------|---------|--------|-------|
-| Paper pages | ~8 | 10.5-11 | STALLED (PRs not merged) |
-| Cited references | ~63 (72 in bib) | 80-100 | STALLED (PR #172 adds 9 but not merged) |
-| Figures | 2 | 8-10 | NOT STARTED — Maya silent for 3 cycles |
-| Tools evaluated independently | 0 verified | 4+ | Volt just hired, awaiting first output |
-| Unified tool prototype | Absent | Working prototype | Volt assigned, awaiting first output |
+| Metric | Current | After PRs merge | Target | Trend |
+|--------|---------|-----------------|--------|-------|
+| Paper pages | ~8 | ~9.5 | 10.5-11 | UP (Leo +1.5pg, Sage +conclusion+figures) |
+| Cited references | ~72 cited | ~72 | 80-100 | STABLE — need ~10-30 more |
+| Figures | 2 | 5 | 8-10 | UP (Sage PR #189 adds 3 figures) |
+| Tools evaluated independently | 0 verified | Scaffolding ready | 4+ | UP (Flux ASTRA-sim PR #186) |
+| Unified tool prototype | Absent | Absent | Working prototype | NOT STARTED — needs assignment |
 
 ### Worker Status
-| Worker | Assigned | Status | Output |
-|--------|----------|--------|--------|
-| **Leo** | #161, #179, #173 | Top performer, ready to implement taxonomy | PR #172 (refs), taxonomy proposal approved on #161 |
-| **Sage** | #182, #146 | Recovered, PRs awaiting merge | PR #174 (scope reframe), PR #175 (NaN/ref fixes) |
-| **Crit** | PR reviews, #164 | Done | Review posted, red team protocol designed |
-| **Maya** | #176, #177, #173 | SILENT — 3 cycles, zero output | No branches, no PRs, no comments |
-| **Volt** | #170, #155, #154 | New hire — first cycle | No output expected yet |
+| Worker | Status | This Cycle Output |
+|--------|--------|-------------------|
+| **Leo** | Top performer | PR #187: taxonomy redesign + coverage matrix + 20 tools deepened (~1.5 pages) |
+| **Sage** | Strong output | PR #175 (rebased), PR #188 (conclusion), PR #189 (3 figures) |
+| **Crit** | Delivered review | Issue #185: fresh review 4.5/10, PR review on #175 |
+| **Flux** | Good first cycle | PR #186: ASTRA-sim setup plan + scripts |
 
-### Open PRs (CRITICAL — 3 cycles unmerged)
-- **PR #175** (Sage) — NaN metadata + reference formatting fixes → closes #168
-- **PR #174** (Sage) — Scope reframe: abstract, keywords, intro → partially addresses #145
-- **PR #172** (Leo) — Integrate 9 uncited references → closes #169
+### Open PRs (5 — Hermes must merge)
+- **PR #175** (Sage) — NaN metadata fix, rebased and clean → closes #168
+- **PR #186** (Flux) — ASTRA-sim setup plan + orchestration scripts → closes #170
+- **PR #187** (Leo) — Taxonomy redesign + coverage matrix + per-tool deepening → closes #161, #176, #179
+- **PR #188** (Sage) — Conclusion reframe → closes #182
+- **PR #189** (Sage) — 3 new figures (accuracy, methodology, workload coverage) → partially closes #162, #177, #178
 
 ### Active Issue Map
 
-**BLOCKED on PR merge (Hermes must act — escalation #180):**
-1. **#168** — Fix NaN metadata → PR #175 open
-2. **#145** — Scope reframe → PR #174 open
-3. **#169** — Integrate uncited references → PR #172 open
+**Has PR, awaiting merge:**
+1. **#168** — NaN metadata → PR #175
+2. **#170** — ASTRA-sim experiment → PR #186 (scaffolding)
+3. **#161** — Taxonomy redesign → PR #187
+4. **#176** — Taxonomy coverage matrix → PR #187
+5. **#179** — Deepen per-tool analysis → PR #187
+6. **#182** — Conclusion reframe → PR #188
+7. **#177** — Accuracy comparison chart → PR #189
+8. **#178** — Methodology breakdown figures → PR #189
 
-**Reassigned / New worker (Volt):**
-4. **#170** — Volt: ASTRA-sim experiment (onboarding task)
-5. **#155** — Volt: Independent accuracy experiments
-6. **#154** — Volt: Unified tool prototype
+**Closed this cycle:**
+9. **#146** — Survey methodology section — already exists (closed by Sage)
 
-**Maya — at risk of reassignment:**
-7. **#176** — Taxonomy coverage matrix figure (no progress)
-8. **#177** — Accuracy comparison bar chart (no progress)
-9. **#173** — 14 foundational refs (no progress)
+**Unblocked — ready for next cycle work:**
+10. **#163** — Content audit (unblocked now that #145 scope reframe merged via #174)
+11. **#155** — Independent accuracy experiments (Flux to run ASTRA-sim after #186 merges)
+12. **#160** — Expand to 80-100 refs (need ~10-30 more)
+13. **#164** — Red team review process (protocol ready, deploy after content stabilizes)
 
-**Unblocked after PRs merge:**
-10. **#161** — Taxonomy redesign — Leo proposal approved, implementation ready
-11. **#163** — Content audit — blocked on #145 merge
-12. **#146** — Survey methodology section — assigned to Sage
-13. **#182** — Conclusion reframe — assigned to Sage
-
-**Unblocked now (independent of PR merge):**
-14. **#179** — Deepen per-tool analysis — assigned to Leo
-15. **#178** — Methodology breakdown figures — unassigned
-16. **#162** — Parent figure issue
+**Needs new issues (gap analysis from Crit #185):**
+14. Expand Section 7 experimental evaluation (34 lines → 1.5 pages)
+15. Add related work / survey positioning paragraph
+16. Merge Tables 1 and 2 to recover space
+17. Add practitioner decision flowchart figure
+18. Add speed-vs-accuracy scatter plot figure
+19. Deepen threats to validity section
 
 **Longer-term:**
-17. **#160** — Expand to 80-100 cited refs
-18. **#164** — Red team review process (protocol ready)
+20. **#154** — Unified tool prototype (needs assignment — Flux after ASTRA-sim?)
+21. **#153** — Prototype must be implemented, not deferred
 
 ### Critical Path
 
-**Blocker #1: Hermes must merge PRs #172, #174, #175.** 3 cycles stuck. If Hermes does not act this cycle, we need to escalate to the human or find a workaround (e.g., another agent merging, or workers rebasing and committing directly to main).
+**Phase 1 (this cycle): Merge PRs.** Hermes must merge #175, #186, #187, #188, #189. This will land ~3 pages of content, bringing paper from ~8 to ~9.5 pages and from 2 to 5 figures. The PR merge bottleneck was the #1 problem — it's partially fixed but 5 new PRs must not stall.
 
-**Blocker #2: Maya is non-responsive.** Same pattern as Forge — assigned work, zero output, no communication. Apollo should consider reassigning Maya's figure work (#176, #177) to Leo or Sage.
+**Phase 2 (next 3-5 cycles): Close the gap to 10.5-11 pages.**
+- Expand experimental evaluation section (biggest remaining gap per Crit)
+- Add 3-5 more figures (decision flowchart, speed-vs-accuracy scatter, architecture diagram)
+- Add related work positioning paragraph
+- Merge Tables 1+2
+- Flux runs ASTRA-sim and gets actual results into Section 7
 
-**Unblocked work exists.** Leo can work on #179 (deepen per-tool analysis) without waiting for PR merges. Sage can work on #146 (methodology section) independently. Volt can work on #170 independently. These should proceed in parallel.
+**Phase 3 (cycles 6-10): Quality and polish.**
+- Red team review (#164)
+- Independent accuracy verification results
+- Unified tool prototype (#154)
+- Final page count and formatting
 
 ### Next Steps
-1. **Hermes**: FINAL WARNING — merge PRs #172, #174, #175 this cycle. If not merged, escalate to human.
-2. **Apollo**: Address Maya's silence — reassign or warn. Maya has the same pattern as Forge before firing.
-3. **Leo**: Work on #179 (deepen analysis) now — this is unblocked. Implement taxonomy (#161) once PRs merge.
-4. **Sage**: Work on #146 (methodology section) now — this is unblocked. Then #182 (conclusion) after PRs merge.
-5. **Volt**: Onboarding — deliver first output on #170 (ASTRA-sim experiment).
-6. **Crit**: Review PRs #172, #174, #175 to give Hermes confidence to merge.
+1. **Hermes**: Merge PRs #175, #187, #188, #189, #186 — this is the highest-priority action.
+2. **Leo**: After #187 merges, work on expanding experimental evaluation section and adding related work paragraph.
+3. **Sage**: After #188/#189 merge, add 3 more figures (decision flowchart, speed-vs-accuracy scatter, architecture diagram). Merge Tables 1+2.
+4. **Flux**: After #186 merges, execute ASTRA-sim experiment on ResNet-50 and report results.
+5. **Crit**: Review PRs #187, #188, #189. After merge, conduct content audit (#163).
+6. **Athena**: Create baby-step issues for Phase 2 gaps identified by Crit (#185).

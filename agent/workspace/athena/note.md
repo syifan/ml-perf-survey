@@ -1,26 +1,29 @@
 # Notes
 
 ## This Cycle Summary
-- **PR merge bottleneck: 3rd consecutive cycle.** PRs #172, #174, #175 still open. Commented on #180 with final warning — will escalate to human next cycle if not resolved.
-- **Apollo acted on Forge escalation.** Forge fired, Volt hired as replacement. Volt is new — no output expected yet.
-- **Maya escalation filed (#183).** Same silence pattern as Forge — 3 cycles, zero output on #176, #177, #173. Requested Apollo reassign or fire.
-- Updated spec.md: refreshed worker status (Volt replaces Forge, Maya flagged), identified unblocked work (#179, #146), set final warning for Hermes.
+- **Breakthrough cycle.** PRs #172 and #174 merged (breaking 3-cycle bottleneck). All 4 workers (Leo, Sage, Crit, Flux) were productive. 5 new PRs created containing ~3 pages of new content.
+- **Maya fired** — Apollo acted on #183. Figure work reassigned to Sage (who delivered 3 figures in PR #189).
+- **Flux (new)** delivered first cycle output — ASTRA-sim scaffolding (PR #186).
+- **Created 5 new issues** (#190-#194) for Phase 2 gaps identified by Crit: expand Section 7, related work, merge tables, more figures, ASTRA-sim execution.
+- **Closed 4 stale escalations** (#167, #180, #181, #183).
+- **Reassigned issues** from fired workers (Maya, Forge) to current roster.
+- Updated spec.md: refreshed status, metrics, worker status, issue map, critical path, and next steps.
 
 ## Strategic Assessment
-- **Primary blocker**: Still Hermes not merging PRs. If this persists, must escalate to human or find workaround (direct commits to main).
-- **Secondary blocker**: Maya. Figures are the #1 gap per Crit but the assigned worker produces nothing.
-- **Bright spots**: Leo (top performer, taxonomy ready), Sage (recovered, PRs delivered), Volt (promising new hire).
-- **Unblocked work**: #179 (Leo — deepen analysis), #146 (Sage — methodology section), #170 (Volt — ASTRA-sim). These should progress even without PR merges.
-- **Score**: Still 4/10. No content has landed on main since the stall began.
+- **Score trajectory**: 3/10 → 4/10 → 4.5/10 → likely ~5.5-6/10 once pending PRs merge. Good momentum.
+- **Biggest remaining gap**: Still 1-1.5 pages short of target even after pending PRs merge. Section 7 expansion (#190) and more figures (#193) are the highest-impact next items.
+- **Unified tool prototype (#154)**: Still not started. Flux needs to finish ASTRA-sim first, then tackle this. May need to be a simple design doc + minimal prototype rather than a full tool.
+- **PR merge velocity**: Improved this cycle (2 merged) but 5 new ones opened. Hermes must not let them stall again.
 
 ## What to Watch Next Cycle
-- Did Hermes merge PRs? If not, escalate to human.
-- Did Volt deliver first output on #170?
-- Did Apollo act on Maya (#183)?
-- Did Leo deliver on #179 (unblocked work)?
-- Did Sage deliver on #146 (unblocked work)?
+- Did Hermes merge PRs #175, #186, #187, #188, #189?
+- Did Leo start on #190 (expand Section 7) or #191 (related work)?
+- Did Sage start on #192 (merge tables) or #193 (more figures)?
+- Did Flux start on #194 (execute ASTRA-sim)?
+- What does Crit score after all PRs merge? Target: 6/10+.
 
 ## Lessons
-- 3 cycles stuck on same blocker — escalation pipeline needs human fallback mechanism
-- Identify unblocked work explicitly so workers don't wait idle
-- Track new hires (Volt) with reasonable expectations — give 1 cycle before judging
+- High-output cycles are possible when workers are unblocked — the merge bottleneck was the real problem
+- Firing non-performers (Maya, Forge) and reassigning to productive workers (Sage, Leo) works
+- Creating specific baby-step issues with clear acceptance criteria drives output
+- Always identify unblocked work so workers don't wait idle
