@@ -1315,17 +1315,18 @@ nn-Meter~\cite{nnmeter2021} predicts DNN latency on edge devices through kernel-
 \textbf{Key Finding.} This case highlights a critical reproducibility anti-pattern: ML models serialized with pickle are fragile across library versions.
 Researchers should prefer version-agnostic serialization formats (ONNX, SavedModel) or pin exact dependency versions.
 
-\subsubsection{FlashAttention: GPU Attention Optimization}
+\subsubsection{NeuSight: ML-Based GPU Performance Prediction}
 
-FlashAttention provides IO-aware attention kernels achieving 2--4$\times$ speedup over standard implementations.
+NeuSight~\cite{neusight2025} provides tile-based GPU performance prediction achieving 97.7\% accuracy across GPU generations.
 
-\textbf{Setup.} PyPI package available; compilation from source requires 3--5 minutes with ninja.
-GPU (Ampere or newer) required for both building and running.
+\textbf{Setup.} Python installation with PyTorch and CUDA dependencies.
+GPU required for model calibration and validation; prediction can run on CPU after calibration.
 
-\textbf{Reproducibility.} Excellent---widely adopted in major frameworks (HuggingFace, vLLM), comprehensive test suite, and benchmark scripts for validation.
+\textbf{Reproducibility.} Good---methodology clearly described in paper with hybrid analytical+neural approach.
+Per-GPU calibration requires profiling runs, but pre-trained models expected for common architectures.
 
-\textbf{Key Finding.} FlashAttention demonstrates successful reproducibility through framework integration rather than standalone distribution.
-Native integration into PyTorch's scaled\_dot\_product\_attention ensures continued maintenance and compatibility.
+\textbf{Key Finding.} NeuSight's tile-based decomposition mirrors actual GPU execution (CUDA thread blocks), enabling accurate predictions that generalize across workloads.
+The hybrid approach combining roofline analysis with learned components achieves 2.3\% mean error on LLM workloads (GPT-3 on H100), dramatically improving over pure analytical methods (121.4\% error).
 
 \subsection{Synthesis and Recommendations}
 \label{subsec:eval-synthesis}
@@ -1344,7 +1345,7 @@ Projects should document version constraints prominently and consider providing 
 
 \textbf{Pre-trained models age poorly.}
 nn-Meter's reliance on pickled scikit-learn models created a time bomb.
-FlashAttention avoids this by focusing on kernel optimization rather than learned models.
+NeuSight mitigates this through its hybrid approach---the analytical roofline component provides robustness while the learned components can be retrained.
 For projects distributing trained models, ONNX or similar portable formats are preferable.
 
 \textbf{Reference outputs enable validation.}
