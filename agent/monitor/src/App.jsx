@@ -2,8 +2,10 @@ import { useState, useEffect, useRef } from 'react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Activity, Users, Sparkles, Settings, ScrollText, RefreshCw, Pause, Play, SkipForward, RotateCcw, Square, Save, MessageSquare, X } from 'lucide-react'
+import { Activity, Users, Sparkles, Settings, ScrollText, RefreshCw, Pause, Play, SkipForward, RotateCcw, Square, Save, MessageSquare, X, User } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
+import { Separator } from '@/components/ui/separator'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 
 // Proxied through monitor backend to work with Cloudflare tunnel
 const ORCHESTRATOR_API = '/api/orchestrator'
@@ -539,13 +541,13 @@ apolloCycleInterval: ${configForm.apolloCycleInterval}
 
         {/* Comments Section */}
         <Card className="mt-4">
-          <CardHeader>
+          <CardHeader className="pb-3">
             <CardTitle className="flex items-center justify-between">
               <span className="flex items-center gap-2">
                 <MessageSquare className="w-4 h-4" />
                 Agent Comments
                 {selectedAgent && (
-                  <Badge variant="secondary" className="ml-2">
+                  <Badge variant="secondary" className="ml-2 capitalize">
                     {selectedAgent}
                     <button onClick={clearAgentFilter} className="ml-1 hover:text-red-500">
                       <X className="w-3 h-3" />
@@ -554,47 +556,68 @@ apolloCycleInterval: ${configForm.apolloCycleInterval}
                 )}
               </span>
               <span className="text-sm font-normal text-neutral-500">
-                {comments.length} comments
+                {comments.length} loaded
               </span>
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-3 max-h-96 overflow-y-auto" onScroll={(e) => {
+          <CardContent className="pt-0">
+            <div className="max-h-[600px] overflow-y-auto pr-2" onScroll={(e) => {
               const { scrollTop, scrollHeight, clientHeight } = e.target
               if (scrollHeight - scrollTop - clientHeight < 100) {
                 loadMoreComments()
               }
             }}>
               {comments.length === 0 && !commentsLoading && (
-                <p className="text-sm text-neutral-400 text-center py-4">No comments found</p>
+                <p className="text-sm text-neutral-400 text-center py-8">No comments found</p>
               )}
-              {comments.map((comment) => (
-                <div key={comment.id} className="p-3 bg-neutral-50 rounded-lg">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-medium text-neutral-600">
-                      {comment.author}
-                    </span>
-                    <span className="text-xs text-neutral-400">
-                      {new Date(comment.created_at).toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="text-sm text-neutral-700 prose prose-sm prose-neutral max-w-none max-h-48 overflow-y-auto">
-                    <ReactMarkdown>
-                      {comment.body.length > 1000 ? comment.body.slice(0, 1000) + '...' : comment.body}
-                    </ReactMarkdown>
+              {comments.map((comment, idx) => (
+                <div key={comment.id}>
+                  {idx > 0 && <Separator className="my-4" />}
+                  <div className="flex gap-3">
+                    <Avatar className="mt-1">
+                      <AvatarFallback className="bg-gradient-to-br from-blue-400 to-purple-500 text-white">
+                        {comment.author.slice(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-sm font-semibold text-neutral-800">
+                          {comment.author}
+                        </span>
+                        <span className="text-xs text-neutral-400">
+                          {new Date(comment.created_at).toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="text-sm text-neutral-700 prose prose-sm prose-neutral max-w-none 
+                        prose-headings:text-neutral-800 prose-headings:font-semibold prose-headings:mt-3 prose-headings:mb-2
+                        prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0
+                        prose-code:bg-neutral-100 prose-code:px-1 prose-code:rounded prose-code:text-neutral-700
+                        prose-pre:bg-neutral-900 prose-pre:text-neutral-100">
+                        <ReactMarkdown>
+                          {comment.body}
+                        </ReactMarkdown>
+                      </div>
+                    </div>
                   </div>
                 </div>
               ))}
               {commentsLoading && (
-                <p className="text-sm text-neutral-400 text-center py-2">Loading...</p>
+                <div className="flex items-center justify-center py-4 gap-2 text-neutral-400">
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  <span className="text-sm">Loading...</span>
+                </div>
               )}
               {!commentsLoading && commentsHasMore && (
-                <button 
-                  onClick={loadMoreComments}
-                  className="w-full py-2 text-sm text-blue-600 hover:text-blue-700"
-                >
-                  Load more
-                </button>
+                <div className="pt-4">
+                  <Separator className="mb-4" />
+                  <Button 
+                    variant="outline" 
+                    onClick={loadMoreComments}
+                    className="w-full"
+                  >
+                    Load more comments
+                  </Button>
+                </div>
               )}
               <div ref={commentsEndRef} />
             </div>
