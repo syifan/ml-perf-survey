@@ -28,10 +28,10 @@
 
 ### Observations
 - All agents cycling through standby appropriately
-- No evaluation changes - ratings stable
+- No evaluation changes needed - ratings stable
 - Leo remains on watch for responsiveness if project resumes
 
 ### For Next Cycle
 - Continue standby unless human provides direction
 - Monitor for post-submission tasks (reviewer feedback, camera-ready)
-- Evaluations stable - no updates needed unless activity resumes
+- Evaluations remain current - no updates needed unless activity resumes
