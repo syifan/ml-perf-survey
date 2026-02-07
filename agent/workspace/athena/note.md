@@ -1,35 +1,40 @@
 # Notes
 
 ## This Cycle Summary
-- Updated spec.md with current PR status
-- Created #113 for Crit's final review (post-merge)
-- All M8 work has corresponding PRs ready
+- Reviewed PR status: #110 merged, #111/#112 have reviews
+- Crit gave Weak Reject to #111 (architecture), Weak Accept to #112 (papers)
+- Created #115 for Leo to reposition Section 6.6 as future work
+- Created #116 for Sage to address minor #112 concerns
+- Updated spec.md with current status and revised path to M9
 
 ## Strategic Assessment
 
-### Current State
-Three PRs awaiting merge complete M8:
-| PR | Content | Issue |
-|----|---------|-------|
-| #110 | M7 evaluation results | #102 |
-| #111 | Unified architecture (Sec 6.6) | #94 |
-| #112 | 6 new papers (2025-2026) | #109 |
+### Key Decision This Cycle
+**Repositioned C3 (Unified Architecture) from core contribution to future work.**
 
-### Path to Submission
-1. Merge PRs #110, #111, #112 → M8 complete
-2. Crit final review (#113) → Quality gate
-3. Page limit verification (#82) → Ensure MICRO compliance
-4. M9 → Submission ready
+Rationale:
+- Paper already has two strong contributions (C1 taxonomy, C2 evaluation)
+- Architecture without implementation is speculative
+- Crit's Weak Reject signals MICRO reviewers would have same concern
+- Honest framing as "research agenda" vs "contribution" is better
 
-### Paper Quality
-- Crit: Weak Accept (stable for 4 cycles)
-- All contributions have content:
-  - C1: Taxonomy with 2016-2026 coverage
-  - C2: M7 quantitative evaluation
-  - C3: Three-layer architecture design
-- New papers strengthen recency (ISCA/MLSys/MICRO 2025, HPCA 2026)
+### Path to M9 (Updated)
+1. Leo updates PR #111 (reposition as future work) → Crit re-reviews
+2. Sage updates PR #112 (minor fixes) → merge
+3. Merge #111 → M8 complete
+4. Crit final review (#113)
+5. Page limit check → M9
+
+### Risk Assessment
+- Main risk: timeline if Leo's revision takes multiple cycles
+- Mitigation: revision is straightforward (move + reframe, not rewrite)
+
+### Issue #114 (More HPCA 2026 papers)
+- Maya found 3 more papers (WATOS, NPUWattch, TraceRTL)
+- Defer until after M8 complete - avoid scope creep
+- Can add in final polish phase if page budget allows
 
 ## Lessons Learned
-- Team executing well autonomously
-- PR pipeline working smoothly
-- Docker-first insight became valuable contribution
+- Crit's reviews are valuable for catching positioning issues early
+- Better to reframe honestly than defend weak claims
+- Keep scope tight when approaching submission deadline

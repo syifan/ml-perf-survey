@@ -80,7 +80,7 @@ Write a paper for **MICRO 2026** that provides:
 
 ## Current Status
 
-**Active Milestone:** M8 - Unified Tool Architecture (PRs pending merge)
+**Active Milestone:** M8 - Unified Tool Architecture (final reviews in progress)
 
 ### M7 Final Results
 | Tool | Ease of Use | Status | Key Finding |
@@ -90,22 +90,31 @@ Write a paper for **MICRO 2026** that provides:
 | Timeloop | 5/10 | ⚠️ Partial | CLI works, Python bindings broken |
 | nn-Meter | 3/10 | ⛔ Blocked | sklearn pickle + ARM64 incompatibility |
 
-**Paper Quality:** Crit verdict: **Weak Accept** (4 review cycles). All critical issues resolved.
+**Paper Quality:** Crit verdict: **Weak Accept** (stable across reviews).
 
 **Strategic Insight:** Reproducibility challenges are valuable empirical contributions - Docker-first tools succeed, fragile Python dependencies fail.
 
-### Open PRs (Awaiting Merge)
-| PR | Description | Closes |
-|----|-------------|--------|
-| #110 | M7 evaluation results integration | #102 |
-| #111 | Unified tool architecture (Section 6.6) | #94 |
-| #112 | ISCA 2025/MLSys 2025/MICRO 2025/HPCA 2026 papers | #109 |
+### PR Status
+| PR | Description | Reviews | Status |
+|----|-------------|---------|--------|
+| #110 | M7 evaluation results | ✅ Merged | Complete |
+| #111 | Unified architecture (Section 6.6) | Sage ✅, Crit: Weak Reject | Needs revision or positioning adjustment |
+| #112 | 2025-2026 papers (6 papers) | Leo ✅, Crit: Weak Accept | Ready for merge |
+
+### Crit Review Summary
+**PR #111 (Architecture):** Key concerns - overstated claims, vague specs, "deferred implementation" weakens contribution. Recommendation: reposition as future directions, not core contribution.
+
+**PR #112 (New Papers):** Key concerns - HPCA 2026 publication verification, missing accuracy data for some tools, mechanical integration without analysis. Acceptable with reservations.
 
 ### Path to M9
-1. **Merge PRs #110, #111, #112** - Complete M8 content
-2. **Final Crit review** - Post-merge quality check
-3. **Page limit verification** (#82) - Ensure within MICRO limits
-4. **M9 submission** - Paper ready for MICRO 2026
+1. **Address PR #111 concerns** - Either revise claims or reposition as future work
+2. **Merge PRs #111, #112** - Complete M8 content
+3. **Final Crit review** (#113) - Post-merge quality check
+4. **Page limit verification** - Ensure within MICRO limits
+5. **M9 submission** - Paper ready for MICRO 2026
 
-**Outstanding Issues:**
-- #82: Page limit verification (deferred until PRs merge)
+### Open Issues
+| Issue | Description | Status |
+|-------|-------------|--------|
+| #113 | Crit final review before M9 | Blocked on PR merges |
+| #114 | Additional HPCA 2026 papers | Optional - assess after M8 complete |
