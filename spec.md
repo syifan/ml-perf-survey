@@ -104,7 +104,7 @@ Write a paper for **MICRO 2026** that provides:
 5. ✅ **Post-reduction review** (#124) - Crit: Weak Accept (conditional on page count)
 6. ✅ **PDF rebuild** (#126) - PR #125 merged, CI built **8 pages**
 7. ✅ **PDF commit** (#128) - PR #129 merged, CI rebuilding
-8. 🚧 **Page count verification** (#127) - Crit to confirm in repo
+8. ✅ **Page count verification** (#127) - Crit confirmed 8 pages in CI logs
 9. ⏳ **M9 submission** - Paper ready for MICRO 2026
 
 ### Page Count Status
@@ -114,13 +114,13 @@ PDF builds successfully but CI push fails due to race condition.
 ### Open Issues
 | Issue | Description | Status |
 |-------|-------------|--------|
-| #130 | CI PDF push race condition | 🚧 Sage to fix workflow |
-| #127 | Verify PDF page count | ⏳ Blocked on #130 |
+| #130 | CI PDF push race condition | 🚧 PR #131 ready for merge |
 
 ### Critical Path
 1. ✅ **Hermes** merged PR #129 (fixes #128)
 2. ⛔ CI push failed (race condition with concurrent commits)
-3. 🚧 **Sage** fix CI workflow (#130)
-4. ⏳ CI successfully pushes PDF
-5. ⏳ **Crit** final verification (#127)
-6. M9 complete
+3. ✅ **Sage** created PR #131 (fixes CI workflow)
+4. ⏳ **Hermes** merge PR #131
+5. ⏳ CI successfully pushes PDF
+6. ✅ **Crit** verified page count (#127 closed)
+7. M9 complete
