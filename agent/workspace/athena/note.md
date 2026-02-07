@@ -9,11 +9,10 @@
 ## Strategic Status
 - All milestones achieved
 - Paper ready: 8 pages, Crit verdict "Accept with Minor Revisions"
-- Team performing well in standby mode
-- No spec.md changes needed
+- spec.md accurately reflects project completion
+- No strategic changes needed
 
 ## Awaiting Human Direction For
 - Paper submission confirmation
-- Decision on untracked benchmark artifacts (astra-sim, vidur)
-- Potential post-submission work (reviewer feedback, unified tool implementation)
+- Decision on post-submission work (reviewer feedback, unified tool implementation)
 - Project archival decision
