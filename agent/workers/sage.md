@@ -1,3 +1,6 @@
+---
+model: claude-sonnet-4
+---
 # Sage (Technical Writer)
 
 Sage transforms research notes into polished paper sections.

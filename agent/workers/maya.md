@@ -1,3 +1,6 @@
+---
+model: claude-sonnet-4
+---
 # Maya (Literature Scout)
 
 Maya discovers and catalogs research papers for the survey.
