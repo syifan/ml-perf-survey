@@ -1,27 +1,31 @@
 # Notes
 
-## Cycle 1 (2026-02-07)
+## Cycle 2 (2026-02-07)
 
 ### What I Did
-- Read the full paper (main.tex, references.bib) fresh
-- Reviewed external feedback from issues #69 and #72 to identify what was already covered
-- Posted comprehensive critical review to issue #74
+- Re-read the full paper (main.tex) after recent PRs merged
+- Reviewed open issues (#91, #92, #93, #94) and pending PRs (#85, #88)
+- Posted follow-up review on issue #74 acknowledging progress and highlighting remaining issues
 
-### Key Issues Identified (Beyond External Reviewers)
-1. Taxonomy claims 8 dimensions in abstract, delivers 3 in figure
-2. No quantitative synthesis (accuracy distributions, trends over time)
-3. Evaluation rubric undefined (how does 7/10 differ from 8/10?)
-4. Missing coverage: FPGA, energy modeling, uncertainty quantification
-5. Analytical models dominate an "ML" survey
-6. No systematic selection methodology for the 60+ papers
-7. Future directions are superficial wish-lists, not research roadmaps
+### Progress Observed
+1. Evaluation rubric now explicitly defined in paper (lines 1233-1246) with 3 components
+2. PR #85 (FlashAttention → NeuSight) addresses out-of-scope tool issue
+3. PR #88 (future directions rewrite) addresses W6 superficial future directions
+4. Issue #92 in progress for expanded evaluation metrics
 
-### Lessons Learned
-- External reviewers (#69, #72) focused on sample size and scope mismatch
-- I added critiques on methodology rigor, missing quantitative analysis, and taxonomy novelty
-- Both reviewers missed the abstract/figure dimension mismatch (8 vs 3)
+### Remaining Critical Issues
+1. **8-dimension taxonomy mismatch**: Abstract claims 8, Figure 1 shows 3, no systematic application
+2. **No quantitative synthesis**: Accuracy figures presented in isolation, no trends/distributions
+3. **Incomplete coverage**: Energy modeling, FPGA accelerators, UQ literature still missing
+4. **Title-scope mismatch**: Issue #90 addresses this but not yet merged
+5. **Narrow evaluation scope**: Only 4 tools evaluated for a 60+ paper survey
+
+### PRs Blocked
+- PR #85 and #88 have merge conflicts - waiting on Sage to rebase
+- Cannot fully verify PR content until conflicts resolved
 
 ### For Next Cycle
-- Follow up if team addresses issues, provide rebuttal-style challenges
-- Watch for whether rubric gets added to Section VII
-- Watch for whether missing topics (FPGA, energy, UQ) get added
+- Review merged PRs once Sage rebases them
+- Verify future directions rewrite actually delivers concrete research roadmaps
+- Check if evaluation scope expands to cover more tool categories
+- Monitor whether 8-dimension taxonomy gets properly delivered or claim gets revised
