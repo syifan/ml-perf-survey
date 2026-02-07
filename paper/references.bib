@@ -735,6 +735,152 @@
 }
 
 % ============================================================================
+% Foundational References — Added by Leo (issue #173)
+% ============================================================================
+
+@inproceedings{tpuv1_2017,
+  author    = {Jouppi, Norman P. and Young, Cliff and Patil, Nishant and Patterson, David and Agrawal, Gaurav and Bajwa, Raminder and Bates, Sarah and Bhatia, Suresh and Boden, Nan and Borber, Al and others},
+  title     = {In-Datacenter Performance Analysis of a Tensor Processing Unit},
+  booktitle = {Proceedings of the 44th Annual International Symposium on Computer Architecture (ISCA)},
+  year      = {2017},
+  pages     = {1--12},
+  doi       = {10.1145/3079856.3080246},
+  note      = {First dedicated ML inference accelerator; 15--30x over CPUs/GPUs on CNN inference}
+}
+
+@article{tpuv4_2023,
+  author    = {Jouppi, Norman P. and Yoon, Doe Hyun and Kurian, George and Li, Sheng and Patil, Nishant and Laudon, James and Young, Cliff and Patterson, David},
+  title     = {{TPU} v4: An Optically Reconfigurable Supercomputer for Machine Learning with Hardware Support for Embeddings},
+  journal   = {Proceedings of the 50th Annual International Symposium on Computer Architecture (ISCA)},
+  year      = {2023},
+  pages     = {1--14},
+  doi       = {10.1145/3579371.3589350},
+  note      = {4096-chip pods with 3D optical interconnect; up to 1.7x/2.1x faster than TPU v3}
+}
+
+@inproceedings{sze2017efficient,
+  author    = {Sze, Vivienne and Chen, Yu-Hsin and Yang, Tien-Ju and Emer, Joel S.},
+  title     = {Efficient Processing of Deep Neural Networks: A Tutorial and Survey},
+  booktitle = {Proceedings of the IEEE},
+  volume    = {105},
+  number    = {12},
+  pages     = {2295--2329},
+  year      = {2017},
+  doi       = {10.1109/JPROC.2017.2761740},
+  note      = {Canonical DNN accelerator taxonomy covering dataflows, data reuse, and energy efficiency}
+}
+
+@inproceedings{pytorch2019,
+  author    = {Paszke, Adam and Gross, Sam and Massa, Francisco and Lerer, Adam and Bradbury, James and Chanan, Gregory and Killeen, Trevor and Lin, Zeming and Gimelshein, Natalia and Antiga, Luca and others},
+  title     = {{PyTorch}: An Imperative Style, High-Performance Deep Learning Library},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  volume    = {32},
+  year      = {2019},
+  pages     = {8024--8035}
+}
+
+@inproceedings{tensorflow2016,
+  author    = {Abadi, Mart\'{\i}n and Barham, Paul and Chen, Jianmin and Chen, Zhifeng and Davis, Andy and Dean, Jeffrey and Devin, Matthieu and Ghemawat, Sanjay and Irving, Geoffrey and Isard, Michael and others},
+  title     = {{TensorFlow}: A System for Large-Scale Machine Learning},
+  booktitle = {Proceedings of the 12th USENIX Symposium on Operating Systems Design and Implementation (OSDI)},
+  year      = {2016},
+  pages     = {265--283}
+}
+
+@inproceedings{zero2020,
+  author    = {Rajbhandari, Samyam and Rasley, Jeff and Rber, Olatunji and He, Yuxiong},
+  title     = {{ZeRO}: Memory Optimizations Toward Training Trillion Parameter Models},
+  booktitle = {Proceedings of the International Conference on High Performance Computing, Networking, Storage and Analysis (SC)},
+  year      = {2020},
+  pages     = {1--16},
+  doi       = {10.1109/SC41405.2020.00024},
+  note      = {DeepSpeed ZeRO optimizer partitioning for memory-efficient distributed training}
+}
+
+@inproceedings{megatronlm2020,
+  author    = {Shoeybi, Mohammad and Patwary, Mostofa and Puri, Raul and LeGresley, Patrick and Casper, Jared and Catanzaro, Bryan},
+  title     = {{Megatron-LM}: Training Multi-Billion Parameter Language Models Using Model Parallelism},
+  booktitle = {arXiv preprint arXiv:1909.08053},
+  year      = {2020},
+  note      = {Intra-layer tensor parallelism for large language model training}
+}
+
+@inproceedings{gpipe2019,
+  author    = {Huang, Yanping and Cheng, Youlong and Bapna, Ankur and Firat, Orhan and Chen, Dehao and Chen, Mia Xu and Lee, HyoukJoong and Ngiam, Jiquan and Le, Quoc V. and Wu, Yonghui and Chen, Zhifeng},
+  title     = {{GPipe}: Efficient Training of Giant Neural Networks using Pipeline Parallelism},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  volume    = {32},
+  year      = {2019},
+  pages     = {103--112}
+}
+
+@article{kaplan2020scaling,
+  author    = {Kaplan, Jared and McCandlish, Sam and Henighan, Tom and Brown, Tom B. and Chess, Benjamin and Child, Rewon and Gray, Scott and Radford, Alec and Wu, Jeffrey and Amodei, Dario},
+  title     = {Scaling Laws for Neural Language Models},
+  journal   = {arXiv preprint arXiv:2001.08361},
+  year      = {2020},
+  note      = {Original neural scaling laws: power-law relationships between model size, dataset size, compute, and loss}
+}
+
+@article{hoffmann2022chinchilla,
+  author    = {Hoffmann, Jordan and Borgeaud, Sebastian and Mensch, Arthur and Buchatskaya, Elena and Cai, Trevor and Rutherford, Eliza and Casas, Diego de Las and Hendricks, Lisa Anne and Welbl, Johannes and Clark, Aidan and others},
+  title     = {Training Compute-Optimal Large Language Models},
+  journal   = {arXiv preprint arXiv:2203.15556},
+  year      = {2022},
+  note      = {Chinchilla scaling laws: compute-optimal training requires scaling data proportionally to model size}
+}
+
+@inproceedings{mlperf_training2020,
+  author    = {Mattson, Peter and Cheng, Christine and Coleman, Cody and Diamos, Greg and Micikevicius, Paulius and Patterson, David and Tang, Hanlin and Wei, Gu-Yeon and Bailis, Peter and Bittorf, Victor and others},
+  title     = {{MLPerf} Training Benchmark},
+  booktitle = {Proceedings of Machine Learning and Systems (MLSys)},
+  year      = {2020},
+  pages     = {336--349},
+  note      = {Standard ML training benchmark suite covering image classification, object detection, NLP, recommendation, reinforcement learning}
+}
+
+@inproceedings{mlperf_inference2020,
+  author    = {Reddi, Vijay Janapa and Cheng, Christine and Kanter, David and Mattson, Peter and Schmuelling, Guenther and Wu, Carole-Jean and Anderson, Brian and Breeshekov, Maxim and Duber, Mark and others},
+  title     = {{MLPerf} Inference Benchmark},
+  booktitle = {Proceedings of the 47th International Symposium on Computer Architecture (ISCA)},
+  year      = {2020},
+  pages     = {446--459},
+  doi       = {10.1109/ISCA45697.2020.00045},
+  note      = {Standard ML inference benchmark suite with server and offline scenarios}
+}
+
+@inproceedings{mlperfpower2025,
+  author    = {Reddi, Vijay Janapa and others},
+  title     = {{MLPerf} Power: Benchmarking the Energy Efficiency of Machine Learning Inference},
+  booktitle = {Proceedings of the IEEE International Symposium on High Performance Computer Architecture (HPCA)},
+  year      = {2025},
+  pages     = {1--14},
+  note      = {Energy efficiency benchmarking for ML inference workloads}
+}
+
+@article{hennessy2019golden,
+  author    = {Hennessy, John L. and Patterson, David A.},
+  title     = {A New Golden Age for Computer Architecture},
+  journal   = {Communications of the ACM},
+  volume    = {62},
+  number    = {2},
+  pages     = {48--60},
+  year      = {2019},
+  doi       = {10.1145/3282307},
+  note      = {Turing Award Lecture: domain-specific architectures and the end of Dennard scaling}
+}
+
+@article{rakhshanfar2021survey,
+  author    = {Rakhshanfar, Mehdi and Zarandi, Aliakbar},
+  title     = {A Survey on Machine Learning-based Design Space Exploration for Processor Architectures},
+  journal   = {Journal of Systems Architecture},
+  volume    = {121},
+  pages     = {102339},
+  year      = {2021},
+  doi       = {10.1016/j.sysarc.2021.102339}
+}
+
+% ============================================================================
 % NEW: GPU Simulation Advances — Added by Maya (issue #148)
 % ============================================================================
 
