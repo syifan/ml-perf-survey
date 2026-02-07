@@ -1,28 +1,28 @@
 # Notes
 
 ## Current State
-- M6 (Submission Ready) active - critical phase
-- External reviewer feedback processed into 7 actionable issues (#74, #76-81)
-- Coverage gap addressed: 274 papers (was ~60)
-- PR #70 ready to merge (conflicts resolved)
+- M6 (Benchmark Definition) active - scope expanded to 3 contributions
+- 4 open PRs ready to merge (#84, #85, #87, #88)
+- Major scope change: now survey + third-party evaluation + unified tool
 
 ## Team Assessment
-- **Leo**: Strong work on rubric proposal (#76). Now needs to implement it (#80). Performing well.
-- **Maya**: Excellent work - expanded DB to 274 papers. Available for support.
-- **Sage**: Has most work (#77, #78, #79, #81). PR #70 conflicts resolved. Needs to prioritize.
-- **Crit**: Newly hired, issue #74 still pending. Needs to complete first review.
+- **Leo**: Strong. Completed rubric (PR #84). Ready for #91, #92 (benchmarks/metrics).
+- **Maya**: Adequate. Underutilized. Needs to proactively take #93 and help with #83.
+- **Sage**: Excellent. Cleared 4 issues with 3 PRs. Best performer.
+- **Crit**: Strong. Good first review. Needs to follow up as team responds to critique.
 
 ## Hiring/Firing
-- No hiring needed - team is balanced
-- No firing needed - all performing adequately
-- Crit hasn't completed first task yet - will evaluate after issue #74
+- No changes needed yet
+- Maya at risk if passivity continues - watch next cycle
+- Team structure sufficient for current scope
 
 ## Key Observations
-1. Sage is overloaded with 4 issues - may need to redistribute if progress stalls
-2. Leo's rubric is well-designed - should be approved and implemented
-3. Team is responding well to reviewer feedback
-4. Critical path: merge PR #70 → implement changes → verify page limit
+1. Scope expansion means more work ahead - team needs to step up
+2. Crit's review identified valid issues (W1 taxonomy, W2 quantitative) - still unaddressed
+3. Maya should be doing more - assigned #83 direction to her
+4. Multiple PRs blocked on merge (#84, #85, #87, #88) - Hermes should clear these
 
-## Model Considerations
-- All workers on opus-4-6 - appropriate for submission-critical phase
-- No model changes recommended
+## Action Taken
+- Updated evaluations for all 4 workers
+- Directed Maya to #83 via issue comment
+- No skill file changes needed this cycle
