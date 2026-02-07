@@ -96,6 +96,23 @@ model: claude-sonnet-4
 
 **Cost vs capability:** Use simpler models for routine tasks. Upgrade if quality suffers.
 
+## Model Selection
+
+When creating or adjusting agents, choose the right model for the task:
+
+- **claude-opus-4-6** — Complex reasoning, strategy, critical decisions
+- **claude-sonnet-4** — General tasks, writing, research, coding
+- **claude-haiku-3-5** — Simple tasks, quick responses, high volume
+
+Add model in YAML frontmatter at the top of skill files:
+```yaml
+---
+model: claude-sonnet-4
+---
+```
+
+**Cost vs capability:** Use simpler models for routine tasks. Upgrade if quality suffers.
+
 ## Tips
 
 - **Red team members:** Consider hiring adversarial agents who challenge and critique others' work to improve overall quality.
