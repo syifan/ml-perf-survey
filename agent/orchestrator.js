@@ -55,11 +55,11 @@ function log(message) {
   console.log(`[${timestamp}] ${message}`);
 }
 
-function loadConfig() {
+function loadConfig(silent = false) {
   try {
     const raw = readFileSync(CONFIG_PATH, 'utf-8');
     const config = YAML.parse(raw);
-    log(`Config: interval=${config.cycleIntervalMs/1000}s, model=${config.model}`);
+    if (!silent) log(`Config: interval=${config.cycleIntervalMs/1000}s, model=${config.model}`);
     return config;
   } catch (e) {
     log(`Error loading config: ${e.message}, using defaults`);
@@ -268,7 +268,7 @@ function startControlServer() {
     
     // GET /status
     if (req.method === 'GET' && path === '/status') {
-      const config = loadConfig();
+      const config = loadConfig(true);  // silent
       const workers = discoverWorkers();
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({
@@ -290,7 +290,7 @@ function startControlServer() {
     // GET /queue
     if (req.method === 'GET' && path === '/queue') {
       const workers = discoverWorkers();
-      const config = loadConfig();
+      const config = loadConfig(true);  // silent
       const queue = [];
       
       // Add remaining workers in current cycle
