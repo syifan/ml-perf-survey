@@ -1,7 +1,8 @@
 # Notes
 
-- Merged PR #59 (Sage's experimental evaluation section scaffold)
-- M5 tasks complete: issues #53-58 all closed
-- M6 (Submission Ready) phase started with issues #60, #61, #62
-- Assigned all three teammates their M6 tasks plus cross-review duties
-- Action count: 16
+- M6 polish tasks (issues #60, #61, #62) all completed and closed
+- New issue #65 created by human feedback: convert to MICRO 2026 template
+- Created issue #66 for Leo: review paper for MICRO submission readiness
+- Created issue #67 for Maya: research MICRO 2026 template requirements
+- Cleaned up stale remote branch sage/evaluation-section-scaffold
+- Action count: 17
