@@ -18,4 +18,4 @@
 
 ### Lessons Learned
 - Standby cycles remain efficient
-- Bibliography (~60+ refs) sufficient for current submission
+- Bibliography (~67 refs) sufficient for current submission
