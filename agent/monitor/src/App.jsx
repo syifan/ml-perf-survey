@@ -262,28 +262,31 @@ apolloCycleInterval: ${configForm.apolloCycleInterval}
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {agents.workers.map((agent, idx) => (
-                  <div
-                    key={agent.name}
-                    className={`flex items-center justify-between p-2 rounded ${
-                      idx === state.currentAgentIndex
-                        ? 'bg-blue-50 border border-blue-200'
-                        : 'bg-neutral-50'
-                    }`}
-                  >
-                    <div>
-                      <span className="font-medium text-neutral-800 capitalize">
-                        {agent.name}
-                      </span>
-                      <p className="text-xs text-neutral-500 truncate max-w-[180px]">
-                        {agent.title}
-                      </p>
+                {agents.workers.map((agent) => {
+                  const isActive = orchestratorStatus?.currentAgent === agent.name
+                  return (
+                    <div
+                      key={agent.name}
+                      className={`flex items-center justify-between p-2 rounded ${
+                        isActive
+                          ? 'bg-blue-50 border border-blue-200'
+                          : 'bg-neutral-50'
+                      }`}
+                    >
+                      <div>
+                        <span className="font-medium text-neutral-800 capitalize">
+                          {agent.name}
+                        </span>
+                        <p className="text-xs text-neutral-500 truncate max-w-[180px]">
+                          {agent.title}
+                        </p>
+                      </div>
+                      {isActive && (
+                        <Badge variant="success">Active</Badge>
+                      )}
                     </div>
-                    {idx === state.currentAgentIndex && (
-                      <Badge variant="success">Active</Badge>
-                    )}
-                  </div>
-                ))}
+                  )
+                })}
                 {agents.workers.length === 0 && (
                   <p className="text-sm text-neutral-400">No workers found</p>
                 )}
@@ -301,21 +304,31 @@ apolloCycleInterval: ${configForm.apolloCycleInterval}
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {agents.managers.map((agent) => (
-                  <div
-                    key={agent.name}
-                    className="flex items-center justify-between p-2 rounded bg-neutral-50"
-                  >
-                    <div>
-                      <span className="font-medium text-neutral-800 capitalize">
-                        {agent.name}
-                      </span>
-                      <p className="text-xs text-neutral-500 truncate max-w-[180px]">
-                        {agent.title}
-                      </p>
+                {agents.managers.map((agent) => {
+                  const isActive = orchestratorStatus?.currentAgent === agent.name
+                  return (
+                    <div
+                      key={agent.name}
+                      className={`flex items-center justify-between p-2 rounded ${
+                        isActive
+                          ? 'bg-blue-50 border border-blue-200'
+                          : 'bg-neutral-50'
+                      }`}
+                    >
+                      <div>
+                        <span className="font-medium text-neutral-800 capitalize">
+                          {agent.name}
+                        </span>
+                        <p className="text-xs text-neutral-500 truncate max-w-[180px]">
+                          {agent.title}
+                        </p>
+                      </div>
+                      {isActive && (
+                        <Badge variant="success">Active</Badge>
+                      )}
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
                 {agents.managers.length === 0 && (
                   <p className="text-sm text-neutral-400">No managers found</p>
                 )}
