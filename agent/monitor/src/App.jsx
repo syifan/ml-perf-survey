@@ -576,13 +576,13 @@ apolloCycleInterval: ${configForm.apolloCycleInterval}
                   <div className="flex gap-3">
                     <Avatar className="mt-1">
                       <AvatarFallback className="bg-gradient-to-br from-blue-400 to-purple-500 text-white">
-                        {comment.author.slice(0, 2).toUpperCase()}
+                        {(comment.agent || comment.author).slice(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-sm font-semibold text-neutral-800">
-                          {comment.author}
+                        <span className="text-sm font-semibold text-neutral-800 capitalize">
+                          {comment.agent || comment.author}
                         </span>
                         <span className="text-xs text-neutral-400">
                           {new Date(comment.created_at).toLocaleString()}

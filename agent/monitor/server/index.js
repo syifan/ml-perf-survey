@@ -170,17 +170,27 @@ app.get('/api/comments', async (req, res) => {
       maxBuffer: 10 * 1024 * 1024 
     });
     
-    // Parse JSONL output
+    // Parse JSONL output and extract agent name from first line
     let comments = output.trim().split('\n')
       .filter(line => line.trim())
-      .map(line => JSON.parse(line))
+      .map(line => {
+        const comment = JSON.parse(line);
+        // Extract agent name from first line like "# [AgentName]" or "## [AgentName]"
+        const agentMatch = comment.body.match(/^#{1,2}\s*\[([^\]]+)\]\s*\n*/);
+        if (agentMatch) {
+          comment.agent = agentMatch[1];
+          comment.body = comment.body.slice(agentMatch[0].length).trim();
+        } else {
+          comment.agent = comment.author; // fallback to GitHub author
+        }
+        return comment;
+      })
       .reverse(); // Most recent first
     
-    // Filter by author if specified
+    // Filter by agent if specified
     if (author) {
       comments = comments.filter(c => 
-        c.body.toLowerCase().includes(`[${author.toLowerCase()}]`) ||
-        c.body.toLowerCase().startsWith(`**${author.toLowerCase()}`)
+        c.agent.toLowerCase() === author.toLowerCase()
       );
     }
     
