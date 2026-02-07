@@ -20,6 +20,12 @@ Read this file before executing any task.
 
 When in doubt, **STOP and report the discrepancy**.
 
+### Protected Files
+
+**Do NOT modify anything in the `agent/` folder**, except:
+- Your own workspace (`agent/workspace/{your_name}/`)
+- Apollo can modify, add, or delete worker skills (`agent/workers/`)
+
 ---
 
 ## 2. Context to Read
