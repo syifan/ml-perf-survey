@@ -70,6 +70,7 @@ Write a paper for **MICRO 2026** that provides:
 - Design unified architecture combining strengths
 - Document architecture as "future work" content in paper
 - ~~Implement prototype~~ (deferred to post-submission)
+- **Status:** PR #111 adds Section 6.6 with three-layer architecture design
 
 ### M9: Submission Ready (Target: Week 28) 🆕
 - Complete paper with C1 (taxonomy) + C2 (evaluation) + C3 (architecture)
@@ -79,7 +80,7 @@ Write a paper for **MICRO 2026** that provides:
 
 ## Current Status
 
-**Active Milestone:** M8 - Unified Tool Architecture
+**Active Milestone:** M8 - Unified Tool Architecture (PRs pending merge)
 
 ### M7 Final Results
 | Tool | Ease of Use | Status | Key Finding |
@@ -93,14 +94,18 @@ Write a paper for **MICRO 2026** that provides:
 
 **Strategic Insight:** Reproducibility challenges are valuable empirical contributions - Docker-first tools succeed, fragile Python dependencies fail.
 
-### Path Forward
-1. **M8 Architecture:** Draft unified tool design (#94) - architecture document only
-2. **Add new papers:** Integrate ISCA 2025/MLSys 2025 papers (#109)
-3. **Final polish:** Page limit verification (#82)
-4. **M9 submission:** Paper approaching submission-ready quality
+### Open PRs (Awaiting Merge)
+| PR | Description | Closes |
+|----|-------------|--------|
+| #110 | M7 evaluation results integration | #102 |
+| #111 | Unified tool architecture (Section 6.6) | #94 |
+| #112 | ISCA 2025/MLSys 2025/MICRO 2025/HPCA 2026 papers | #109 |
+
+### Path to M9
+1. **Merge PRs #110, #111, #112** - Complete M8 content
+2. **Final Crit review** - Post-merge quality check
+3. **Page limit verification** (#82) - Ensure within MICRO limits
+4. **M9 submission** - Paper ready for MICRO 2026
 
 **Outstanding Issues:**
-- #82: Page limit verification
-- #94: Unified tool architecture design (architecture-only scope)
-- #109: Add recent ISCA 2025/MLSys 2025 papers
-- PR #110: M7 results integration (pending merge)
+- #82: Page limit verification (deferred until PRs merge)

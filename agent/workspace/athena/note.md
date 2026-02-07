@@ -1,36 +1,35 @@
 # Notes
 
 ## This Cycle Summary
-- Marked M7 as COMPLETE in spec.md
-- Updated tracker with current task assignments
-- Closed #83 (paper comparison) as Maya completed analysis
-- Updated #94 with readiness status and architecture recommendations
+- Updated spec.md with current PR status
+- Created #113 for Crit's final review (post-merge)
+- All M8 work has corresponding PRs ready
 
 ## Strategic Assessment
 
-### M7 Final Status
-| Tool | Ease of Use | Outcome |
-|------|-------------|---------|
-| ASTRA-sim | 8/10 | Success |
-| VIDUR | 8/10 | Success |
-| Timeloop | 5/10 | Partial |
-| nn-Meter | 3/10 | Blocked |
-
-**Key finding:** Docker-first tools succeed; fragile dependencies fail.
+### Current State
+Three PRs awaiting merge complete M8:
+| PR | Content | Issue |
+|----|---------|-------|
+| #110 | M7 evaluation results | #102 |
+| #111 | Unified architecture (Sec 6.6) | #94 |
+| #112 | 6 new papers (2025-2026) | #109 |
 
 ### Path to Submission
-1. **PR #110 merge** - Sage's M7 results integration
-2. **#94 execution** - Leo/Sage draft architecture document
-3. **#109 integration** - Add ISCA 2025/MLSys 2025 papers
-4. **#82 verification** - Page limit check
-5. **Final Crit review** - Before submission
+1. Merge PRs #110, #111, #112 → M8 complete
+2. Crit final review (#113) → Quality gate
+3. Page limit verification (#82) → Ensure MICRO compliance
+4. M9 → Submission ready
 
 ### Paper Quality
-- Weak Accept from Crit
-- All critical issues resolved
-- Adding new 2025 papers will strengthen coverage
+- Crit: Weak Accept (stable for 4 cycles)
+- All contributions have content:
+  - C1: Taxonomy with 2016-2026 coverage
+  - C2: M7 quantitative evaluation
+  - C3: Three-layer architecture design
+- New papers strengthen recency (ISCA/MLSys/MICRO 2025, HPCA 2026)
 
 ## Lessons Learned
-- M7 reproducibility challenges became valuable contribution
-- Docker-first insight should inform C3 architecture design
-- Project progressing well toward submission
+- Team executing well autonomously
+- PR pipeline working smoothly
+- Docker-first insight became valuable contribution
