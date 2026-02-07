@@ -82,7 +82,7 @@ Write a paper for **MICRO 2026** that provides:
 
 **Active Milestone:** M9 - Submission Ready
 
-**Status:** PR #123 merged - content reduction complete. Awaiting Crit's post-reduction quality review (#124).
+**Status:** Content reduction complete (PR #123). PDF rebuild pending (PR #125). Awaiting page count verification.
 
 ### M7 Final Results
 | Tool | Ease of Use | Status | Key Finding |
@@ -101,9 +101,10 @@ Write a paper for **MICRO 2026** that provides:
 2. ✅ **Crit final review** (#113) - Verdict: Weak Accept
 3. ✅ **Page limit verification** (#120) - Found 3.5 pages over limit
 4. ✅ **Content reduction** (#122) - PR #123 merged (-894 lines)
-5. 🚧 **Post-reduction review** (#124) - Crit to verify quality preserved
-6. ⏳ **Address any findings** - Sage to fix if needed
-7. ⏳ **M9 submission** - Paper ready for MICRO 2026
+5. ✅ **Post-reduction review** (#124) - Crit: Weak Accept (conditional on page count)
+6. 🚧 **PDF rebuild** (#126) - Merge PR #125 to trigger rebuild
+7. ⏳ **Page count verification** (#127) - Crit to confirm ≤11 pages
+8. ⏳ **M9 submission** - Paper ready for MICRO 2026
 
 ### Content Reduction Strategy
 Target: Remove 3.5 pages while preserving core contributions (taxonomy, evaluation, future directions).
@@ -116,10 +117,12 @@ Priority areas for cuts (per Sage analysis):
 ### Open Issues
 | Issue | Description | Status |
 |-------|-------------|--------|
-| #114 | Additional HPCA 2026 papers | ⛔ CANCELLED - No page budget |
-| #117 | arXiv 2025-2026 papers | ⛔ CANCELLED - No page budget |
-| #118 | EuroSys 2026 papers | ⛔ CANCELLED - No page budget |
-| #121 | PPoPP/CGO 2026 papers | ⛔ CANCELLED - No page budget |
+| #126 | Merge PR #125 for PDF rebuild | 🚧 IN PROGRESS |
+| #127 | Verify PDF page count | ⏳ BLOCKED on #126 |
 
-### Decision: No Additional Papers
-Issues #114, #117, #118, and #121 are CANCELLED. The paper is already 3.5 pages over limit - adding more content is not possible. Priority is content reduction, not expansion.
+### Critical Path
+1. **Hermes** merges PR #125 (#126)
+2. CI rebuilds PDF with reduced content
+3. **Crit** verifies page count ≤11 pages (#127)
+4. If compliant: M9 complete
+5. If over limit: Additional cuts needed (Sage)

@@ -1,29 +1,31 @@
 # Notes
 
 ## This Cycle Summary
-- PR #123 merged - content reduction complete
-- Issue #124 (Crit review) is now unblocked and on critical path
-- Updated spec.md to reflect current state
-- Path to M9 is clear: Crit review -> fix if needed -> submit
+- Created #126 (Hermes: merge PR #125 for PDF rebuild)
+- Created #127 (Crit: verify page count after rebuild)
+- Updated spec.md with current path to M9
+- PDF rebuild is blocking - stale PDF shows 15 pages
 
 ## Strategic Assessment
 
 ### Current State
-- Content reduced by 894 lines (PR #123 merged)
-- Crit's post-reduction review (#124) is the next gate
-- Team is aligned on priorities
+- Content reduction done (PR #123 merged, -894 lines)
+- Post-reduction review done (#124 closed, Weak Accept)
+- PDF rebuild needed (PR #125 open, ready to merge)
+- Human confirmed autonomous merging (#19)
 
 ### Critical Path
-1. Crit reviews reduced paper (#124) - IN PROGRESS
-2. Address any quality concerns (Sage)
-3. M9 submission complete
+1. Hermes merges PR #125 (#126)
+2. CI rebuilds PDF
+3. Crit verifies ≤11 pages (#127)
+4. M9 complete (or additional cuts if needed)
 
 ### Risk Assessment
-- Low risk: Content reduction complete, just need quality verification
-- Crit will determine if cuts preserved core contributions
-- No new blockers identified
+- Low risk: PR #125 is trivial (1 line change to trigger rebuild)
+- Unknown: Actual page count after rebuild (estimated ~11 pages)
+- Contingency: If still over limit, Sage makes additional cuts
 
 ## Lessons Learned
-- Linear critical path works well for final push
-- Keeping spec.md current helps team stay aligned
-- Creating follow-up issues early ensures smooth handoffs
+- CI race conditions can leave stale artifacts
+- Always verify compiled output matches source changes
+- Creating explicit issues for each step keeps handoffs clear
