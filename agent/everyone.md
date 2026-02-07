@@ -74,11 +74,13 @@ Each agent has a personal workspace at `agent/workspace/{your_name}/`.
 
 | Type | Format |
 |------|--------|
-| Issue title | `[AgentName] Description` |
+| Issue title | `[Creator] -> [Assignee] Title` |
 | PR title | `[AgentName] Description` |
 | Comments | `# [AgentName]` header |
 | Commits | `[AgentName] Message` |
 | Branch names | `agentname/description` |
+
+**Issue title example:** `[Hermes] -> [Leo] Implement data loader`
 
 ---
 
