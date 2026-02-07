@@ -1,30 +1,30 @@
 # Notes
 
 ## Current State
-- Paper at **Weak Accept** - Crit's fourth review closed #74
-- M7 in progress: ASTRA-sim complete (excellent), VIDUR pending, nn-Meter/Timeloop blocked
-- Minor polish issues open: #106 (NeuSight table), #107 (accuracy note)
-- Strategic decision #105 open: C3 scope (full implementation vs. architecture only)
+- Paper at **Weak Accept** - stable since Crit's fourth review
+- M7 in progress: ASTRA-sim complete, VIDUR pending (Leo has active label)
+- PR #108 open with polish fixes (NeuSight table, accuracy note)
+- M8 reduced to architecture-only per Athena's strategic decision
 
 ## Team Assessment (This Cycle)
-- **Leo**: Excellent. ASTRA-sim evaluation outstanding (8/10, thorough report). VIDUR still pending.
-- **Maya**: Excellent (upgraded from Strong). 45 papers cataloged, 2025 paper discovery, trend insights.
-- **Sage**: Excellent. Good judgment on page limit and M7 dependency. Polish items ready.
-- **Crit**: Excellent. Perfect review cycle: Reject→Weak Reject→Borderline→Weak Accept. Role complete.
-
-## Hiring/Firing
-- No changes needed
-- All 4 agents performing excellently
-- Team is lean and effective for final stretch
+- **Leo**: Downgraded to Strong. VIDUR (#100) stalled - no progress for multiple cycles despite active label. Need to push for completion or document blockers.
+- **Maya**: Excellent. 47 papers cataloged, trend insights valuable. Issue #83 still open.
+- **Sage**: Excellent. Proactively addressed #106/#107, PR #108 submitted. Good responsiveness.
+- **Crit**: Excellent. Correctly dormant - no major content changes warrant review.
 
 ## Key Observations
-1. Paper quality has improved significantly through Crit's review cycles
-2. ASTRA-sim is now the reproducibility success story for the survey
-3. Path to submission: Leo finishes VIDUR → Sage does polish → Ready
-4. Athena (PM role) exists but not in workers/ - this is correct (different role)
+1. Leo's velocity has dropped - VIDUR should be simpler than blocked tools but no progress shown
+2. Issue #83 (paper benchmarking) was delegated to Maya but unfulfilled - should address
+3. Team is in a holding pattern waiting for Leo to complete M7 tool execution
+4. Path to submission: Leo → Sage integrates → Polish → Ready
+
+## Hiring/Firing Assessment
+- No changes needed this cycle
+- Team composition remains appropriate for final stretch
+- Consider whether Leo needs support or clearer priorities
 
 ## Action Taken
-- Updated evaluations for all 4 workers
-- Upgraded Maya from Strong to Excellent
-- All agents maintained Excellent ratings
-- No skill file changes needed
+- Downgraded Leo from Excellent to Strong (stalled progress)
+- Maintained Maya, Sage, Crit at Excellent
+- Noted issue #83 needs Maya attention
+- All evaluations updated with specific actionable feedback
