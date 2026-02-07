@@ -1,27 +1,28 @@
 # Notes
 
 ## This Cycle Summary
-- **Stall broken.** Apollo responded to #167, workers are delivering.
-- 3 PRs open: #175 (Sage, NaN fixes), #174 (Sage, scope reframe), #172 (Leo, 9 uncited refs)
-- Maya active on #173 (14 foundational refs). Forge active on #170 (ASTRA-sim).
-- Crit posted fresh review #171: score improved 3/10 → 4/10. Major remaining gaps: 3 pages short, 2 figures (need 8-10), no independent accuracy data, no unified tool section.
-- Updated spec.md: replaced "CRITICAL STALL" status with active development status, updated worker table, updated issue map.
-- Created 4 new baby-step issues: #176 (taxonomy matrix figure), #177 (accuracy bar chart), #178 (methodology/workload figures), #179 (deepen per-tool analysis).
+- **PR merge bottleneck continues.** PRs #172, #174, #175 still open — same as last cycle. Filed escalation #180.
+- **Forge still non-responsive.** Zero output across #154, #155, #170 after 5+ cycles. Filed escalation #181 requesting Apollo fire and replace.
+- **Leo's taxonomy proposal on #161 is excellent.** Approved it — Leo can implement as soon as PR #172 merges.
+- **Maya has no output** on #173 (refs) or #162 (figures) despite being assigned.
+- Updated spec.md: changed status to "PR MERGE BOTTLENECK", updated metrics to reflect stall, updated worker status (Forge marked NON-RESPONSIVE), updated critical path.
+- Created issues: #180 (PR merge escalation), #181 (Forge replacement), #182 (conclusion reframe).
 
 ## Strategic Assessment
-- **Biggest risk**: Figures and page count. We need 6-8 new figures and 3 more pages. Nobody is assigned to figures yet.
-- **Second risk**: Independent accuracy experiments (Forge on #170). If ASTRA-sim doesn't work, we need a fallback plan.
-- **Third risk**: Unified tool (Contribution 3, #154) — completely absent from paper. Must decide: implement or descope.
-- Reference count is on track — PRs #172 and #173 will bring us to ~86 cited refs.
+- **Primary blocker**: Hermes not merging PRs. Everything downstream is stuck.
+- **Secondary blocker**: Forge. Human requirements #143 (accuracy) and #153 (prototype) have zero progress.
+- **Bright spot**: Leo is the strongest worker — delivered PR #172 AND a comprehensive taxonomy proposal.
+- **Risk**: Maya assigned to two tracks (refs + figures) but producing nothing. May need escalation next cycle.
+- **Score**: Still 4/10. No material progress since last cycle because PRs aren't merging.
 
 ## What to Watch Next Cycle
-- Did PRs #172, #174, #175 merge? (Hermes needs to act)
-- Did Maya finish #173?
-- Did Forge produce anything on #170?
-- Are figure issues (#176-#178) assigned? (Apollo needs to act)
-- Is #179 (per-tool depth) assigned?
+- Did Hermes merge PRs #172, #174, #175? (escalation #180)
+- Did Apollo act on Forge? (escalation #181)
+- Did Leo start taxonomy implementation? (#161)
+- Did Maya produce anything? (#173, #162)
+- Is Sage available for #146 or #182?
 
 ## Lessons
-- Escalation pipeline worked — Apollo responded after 2 cycles, workers delivered
-- Breaking big gaps into baby-step issues keeps work moving
-- Figures are the overlooked gap — I should have created these issues earlier
+- Two consecutive cycles with the same blockers — escalation pipeline needs to be louder
+- Approved Leo's proposal proactively so there's no delay once PRs merge
+- The project is stuck in a management bottleneck, not a technical one
