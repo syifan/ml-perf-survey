@@ -32,7 +32,7 @@
 \author{Anonymous Author(s)}
 \affiliation{%
   \institution{Under Review}
-  \country{}
+  \country{Anonymous}
 }
 
 %% Additional packages (acmart already loads amsmath, amsfonts, amssymb, booktabs)
@@ -86,7 +86,7 @@ The shift toward domain-specific architectures~\cite{hennessy2019golden}, from G
 Yet ML workloads pose unique modeling challenges: they exhibit diverse computational patterns (dense matrix operations in attention layers, sparse accesses in GNNs, communication-bound collective operations in distributed training) across this increasingly heterogeneous landscape of GPUs, TPUs, custom accelerators, and multi-device clusters.
 
 A rich ecosystem of modeling and simulation tools has emerged to address these challenges, spanning a methodological spectrum from analytical models to cycle-accurate simulators to ML-augmented hybrid approaches.
-Analytical frameworks like Timeloop~\cite{timeloop2019} and MAESTRO~\cite{maestro2019} model DNN accelerator performance through closed-form data movement analysis, achieving 5--10\% accuracy at microsecond evaluation speed.
+Analytical frameworks like Timeloop~\cite{timeloop2019} and MAESTRO~\cite{maestro2019} model DNN accelerator performance through closed-form data movement analysis, achieving 5--10\% error versus RTL at microsecond evaluation speed.
 Cycle-accurate simulators like GPGPU-Sim~\cite{gpgpusim2009} and Accel-Sim~\cite{accelsim2020} provide detailed GPU modeling but require hours per workload.
 Trace-driven simulators like ASTRA-sim~\cite{astrasim2023} and VIDUR~\cite{vidur2024} target distributed training and LLM serving at system scale.
 ML-augmented approaches like NeuSight~\cite{neusight2025} learn performance functions from profiling data, achieving 2.3\% error on GPU kernel prediction.
@@ -287,8 +287,6 @@ This approach trades some fidelity for orders-of-magnitude speedup over cycle-ac
 
 \textbf{ML-augmented approaches} learn performance functions from profiling data.
 These range from simple models (random forests in nn-Meter~\cite{nnmeter2021}, XGBoost in TVM~\cite{tvm2018}) to deep learning (NeuSight~\cite{neusight2025}) and meta-learning (HELP~\cite{help2021}).
-The quality of profiling data depends on hardware performance counter infrastructure---PAPI~\cite{papi2000} provides a portable API for accessing hardware counters across architectures, while LIKWID~\cite{likwid2010} offers lightweight topology-aware measurement for x86 multicore environments.
-These tools underpin the data collection pipeline for ML-augmented approaches, though their coverage of GPU-specific counters (e.g., tensor core utilization, warp scheduling events) remains limited.
 ML-augmented approaches can capture complex non-linear relationships that elude analytical treatment, but require training data and may not generalize beyond their training distribution.
 
 \subsection{Problem Formulation}
@@ -412,7 +410,7 @@ The choice of methodology determines fundamental trade-offs between accuracy, ev
 \subsubsection{Analytical Models}
 
 Analytical models express performance as closed-form functions of workload and hardware parameters.
-For DNN accelerators, Timeloop~\cite{timeloop2019} models data movement across memory hierarchies for any valid loop-nest mapping, achieving 5--10\% accuracy versus RTL at 2000$\times$ speedup.
+For DNN accelerators, Timeloop~\cite{timeloop2019} models data movement across memory hierarchies for any valid loop-nest mapping, achieving 5--10\% error versus RTL at 2000$\times$ speedup.
 MAESTRO~\cite{maestro2019} provides data-centric dataflow analysis using intuitive directives.
 Sparseloop~\cite{sparseloop2022} extends to sparse tensor operations.
 Paleo~\cite{paleo2017} pioneered layer-wise analytical modeling for DNNs, decomposing networks into compute and communication components for distributed training prediction.
@@ -420,8 +418,7 @@ AMALI~\cite{amali2025} targets LLM inference on GPUs through improved memory hie
 
 Analytical models provide microsecond evaluation, full interpretability, and ``what-if'' design analysis.
 Their limitation is that they require manual derivation per architecture and may miss complex dynamic effects (e.g., memory contention, scheduling variability).
-AMALI's 23.6\% MAPE illustrates the fundamental boundary of analytical approaches for complex workloads: reducing GPU LLM inference modeling error from 127\% to 24\% through improved memory hierarchy treatment represents significant progress, but the residual error stems from dynamic microarchitectural effects (warp scheduling, L2 cache contention, bank conflicts) that resist closed-form treatment~\cite{amali2025}.
-This is not a quality limitation but rather reveals \emph{when} analytical models reach their accuracy ceiling and ML-augmented or hybrid approaches become necessary.
+AMALI's 23.6\% MAPE illustrates the accuracy ceiling of analytical approaches for complex GPU workloads---the residual error stems from dynamic microarchitectural effects that resist closed-form treatment (see \S\ref{subsec:gpu-modeling} for detailed analysis).
 
 \subsubsection{Cycle-Accurate Simulation}
 
@@ -437,7 +434,7 @@ Note that the 0.90--0.97 IPC \emph{correlation} metric can coexist with 20\%+ ab
 \subsubsection{Trace-Driven Simulation}
 
 Trace-driven approaches use recorded execution traces rather than full binary execution, enabling system-level modeling at practical speeds.
-ASTRA-sim~\cite{astrasim2023} models distributed training end-to-end using Chakra execution traces~\cite{chakra2023}, with pluggable compute, memory, and network backends, achieving 5--15\% accuracy versus real clusters.
+ASTRA-sim~\cite{astrasim2023} models distributed training end-to-end using Chakra execution traces~\cite{chakra2023}, with pluggable compute, memory, and network backends, achieving 5--15\% error versus real clusters.
 Echo~\cite{echo2024} simulates distributed training at scale using analytical compute models with network simulation.
 Lumos~\cite{lumos2025} targets LLM training performance through trace-driven modeling, achieving 3.3\% error on H100 GPUs.
 
@@ -465,14 +462,13 @@ nn-Meter's paper-reported $<$1\% MAPE cannot be independently verified, as the t
 Hybrid approaches combine analytical structure with learned components, achieving both interpretability and high accuracy.
 The analytical component provides a physics-based prior; the ML component learns residual corrections.
 
-NeuSight~\cite{neusight2025} uses tile-based prediction mirroring CUDA's execution model with MLP prediction heads, achieving 2.3\% error on GPT-3 inference across H100, A100, and V100 GPUs.
-Concorde~\cite{concorde2025} fuses compositional analytical models with learned corrections for CPU performance, achieving 2\% CPI error at five orders of magnitude faster than gem5.
-Habitat~\cite{habitat2021} decomposes execution into analytically-modeled compute and memory components that scale with hardware parameters.
-ArchGym~\cite{archgym2023} connects ML optimization algorithms to analytical simulators for design space exploration.
+NeuSight~\cite{neusight2025} uses tile-based prediction mirroring CUDA's execution model, achieving 2.3\% error on GPT-3 inference.
+Concorde~\cite{concorde2025} fuses analytical models with learned corrections for CPU performance at 2\% CPI error.
+Habitat~\cite{habitat2021} decomposes execution into analytically-modeled compute and memory components.
+ArchGym~\cite{archgym2023} connects ML optimization to analytical simulators for design space exploration.
 
 The latency predictor study~\cite{latencypredictorsnas2024} demonstrates that hybrid approaches with transfer learning achieve 22.5\% average improvement over baselines.
-Note that accuracy comparisons between hybrid and pure approaches require care: ArchGym's reported 0.61\% RMSE measures surrogate-vs-simulator fidelity, not real hardware accuracy, and should not be directly compared with NeuSight's 2.3\% MAPE against measured hardware~\cite{archgym2023}.
-Similarly, NeuSight's claimed ``50$\times$ improvement over Habitat'' compares against Habitat running on H100 hardware that did not exist when Habitat was published---the two tools solve different problems (static prediction vs.\ profiling-based transfer) and should be understood as complementary rather than competing.
+Note that cross-tool accuracy comparisons require careful contextualization---we discuss methodological caveats (surrogate fidelity vs.\ real hardware error, evaluation-era fairness) in \S\ref{subsec:gpu-modeling} and \S\ref{subsec:cross-cutting}.
 
 \subsection{Secondary Axis: Target Platform}
 \label{subsec:by-platform}
@@ -505,7 +501,7 @@ They must account for graph-level effects (operator fusion, memory planning, sch
 They capture communication, scheduling, and resource contention effects but depend on the accuracy of their compute sub-models---creating a composition chain where kernel-level errors propagate through model-level to system-level predictions.
 
 This three-level hierarchy makes explicit the \emph{composition problem}: most tools operate at one level, but practitioners need predictions that span levels.
-The gap between kernel-level accuracy (2--3\% for NeuSight) and system-level accuracy (5--15\% for ASTRA-sim) reflects both the inherent difficulty of system modeling and the error accumulated through composition.
+The gap between kernel-level error (2--3\% for NeuSight) and system-level error (5--15\% for ASTRA-sim) reflects both the inherent difficulty of system modeling and the error accumulated through composition.
 Figure~\ref{fig:abstraction-levels} illustrates this hierarchy and the error ranges at each level.
 
 \begin{figure}[t]
@@ -652,7 +648,7 @@ DNN accelerators employ specialized dataflows and memory hierarchies optimized f
 The regularity of DNN computations makes this domain particularly amenable to analytical modeling.
 
 \textbf{Analytical frameworks} dominate accelerator modeling.
-Timeloop~\cite{timeloop2019} analytically computes data reuse, latency, and energy from loop-nest representations, achieving 5--10\% accuracy versus RTL simulation at 2000$\times$ speedup.
+Timeloop~\cite{timeloop2019} analytically computes data reuse, latency, and energy from loop-nest representations, achieving 5--10\% error versus RTL simulation at 2000$\times$ speedup.
 It provides reference outputs for standard accelerator designs (Eyeriss~\cite{eyeriss2016}, Simba) with deterministic results---a key reproducibility strength.
 MAESTRO~\cite{maestro2019} offers data-centric dataflow directives that simplify specification but is less precise than Timeloop for detailed energy modeling.
 Sparseloop~\cite{sparseloop2022} extends Timeloop to sparse tensor operations by modeling the interaction between sparsity patterns (structured vs.\ unstructured), compression formats (CSR, bitmap), and hardware decompression/intersection units.
@@ -661,7 +657,7 @@ This is critical for efficient transformer inference where attention matrices ex
 \textbf{Simulation approaches.}
 PyTorchSim~\cite{pytorchsim2025} integrates PyTorch 2 with cycle-accurate NPU simulation, supporting custom RISC-V ISA and systolic arrays with configurable memory hierarchies.
 Unlike standalone accelerator simulators, PyTorchSim directly consumes PyTorch computation graphs, eliminating the manual workload translation step that introduces errors and limits adoption.
-However, it does not report accuracy against fabricated hardware, and its cycle-accurate approach inherits the speed limitations of simulation-based methods, making it impractical for large-model evaluation.
+However, it does not report accuracy against real hardware, and its cycle-accurate approach inherits the speed limitations of simulation-based methods, making it impractical for large-model evaluation.
 
 \textbf{ML-augmented design.}
 ArchGym~\cite{archgym2023} connects ML optimization algorithms to analytical simulators for design space exploration.
@@ -670,7 +666,12 @@ This distinction matters: surrogate fidelity enables fast DSE but does not valid
 
 \textbf{Emerging accelerators.}
 Processing-in-memory (PIM) architectures present fundamentally different modeling challenges, as they blur the compute-memory boundary that conventional frameworks assume.
-Early PIM modeling tools~\cite{upimulator2024,attacc2024,neupims2024,paise2025} target attention acceleration and heterogeneous PIM-GPU co-simulation, but none report accuracy against fabricated PIM hardware---we discuss PIM modeling gaps further in Section~\ref{subsec:emerging-hardware}.
+Early PIM modeling tools~\cite{upimulator2024,attacc2024,neupims2024,paise2025} target attention acceleration and heterogeneous PIM-GPU co-simulation, but none report accuracy against real PIM hardware---we discuss PIM modeling gaps further in Section~\ref{subsec:emerging-hardware}.
+
+\textbf{Synthesis.}
+Accelerator modeling is the most mature subdomain surveyed, with Timeloop's analytical framework achieving a favorable balance of accuracy (5--10\% error), speed, and interpretability that has made it the de facto standard for accelerator design space exploration.
+The progression from Timeloop through Sparseloop to PIM-aware tools illustrates a recurring pattern: each extension addresses a new workload characteristic (sparsity, near-memory compute) but adds modeling complexity that erodes the simplicity advantage of analytical approaches.
+The key gap is cycle-accurate validation---ArchGym and PyTorchSim provide simulation-based alternatives, but neither validates against manufactured silicon, leaving the accuracy of all accelerator modeling tools ultimately anchored to RTL comparisons rather than measured hardware.
 
 \subsection{GPU Performance Modeling}
 \label{subsec:gpu-modeling}
@@ -702,14 +703,20 @@ VIDUR~\cite{vidur2024} provides discrete-event simulation for LLM serving system
 LIFE~\cite{life2025} offers hardware-agnostic analytical LLM inference modeling by decomposing inference into compute and memory-access components that can be parameterized for arbitrary hardware specifications, enabling performance prediction without hardware-specific profiling.
 Its hardware-agnostic design enables pre-silicon evaluation of new accelerators for LLM workloads, but the analytical approach shares the same accuracy limitations as AMALI when applied to GPUs with complex dynamic behavior.
 HERMES~\cite{hermes2025} targets heterogeneous multi-stage LLM inference pipelines where different model components (embedding, attention, FFN) execute on different hardware, modeling the inter-stage data transfer and load balancing that arise in disaggregated serving architectures.
-Emerging work uses LLMs themselves for GPU kernel performance prediction and optimization: Omniwise~\cite{omniwise2025} achieves 90\% of predictions within 10\% error on AMD MI250/MI300X, while SwizzlePerf~\cite{swizzleperf2025} uses hardware-aware LLMs for spatial optimization of GPU kernels, achieving up to 2.06$\times$ speedup through swizzling---demonstrating that LLMs can both predict \emph{and} optimize kernel performance.
+Emerging work uses LLMs for GPU kernel performance prediction: Omniwise~\cite{omniwise2025} achieves 90\% of predictions within 10\% error on AMD MI250/MI300X, and SwizzlePerf~\cite{swizzleperf2025} achieves 2.06$\times$ speedup through hardware-aware spatial optimization.
 
 \textbf{Compiler cost models.}
 TVM~\cite{tvm2018} and Ansor~\cite{ansor2020} use ML cost models (XGBoost, MLP) to guide autotuning, achieving $\sim$15\% MAPE.
 The TenSet dataset~\cite{tenset2021} (52M records) enables pre-trained models that accelerate autotuning 10$\times$.
 TLP~\cite{tlp2023} uses deep learning (transformer-based architecture) for tensor program cost modeling, specifically designed for the irregular computation patterns in transformer workloads that challenge traditional XGBoost cost models; it achieves $<$10\% MAPE on transformer operators where TVM's default cost model shows higher error, demonstrating that workload-specific cost models can significantly improve autotuning for non-CNN workloads.
-SynPerf~\cite{synperf2025} takes a complementary approach, synthesizing high-performance GPU kernels via pipeline decomposition---using performance models to guide kernel generation rather than merely evaluating existing kernels, demonstrating that accurate performance prediction enables not just evaluation but also automated optimization.
+SynPerf~\cite{synperf2025} takes a complementary approach, using performance models to guide GPU kernel synthesis rather than merely evaluating existing kernels.
 These tools prioritize ranking accuracy for schedule selection over absolute error.
+
+\textbf{Synthesis.}
+GPU modeling exhibits the widest methodological spread of any platform category: cycle-accurate simulation (Accel-Sim), analytical models (AMALI, roofline), hybrid learned approaches (NeuSight, Habitat), and LLM-based predictors (Omniwise) all target the same hardware with error rates spanning 2\%--24\%.
+This diversity reflects the fundamental tension in GPU modeling: the microarchitectural complexity that makes GPUs powerful also makes them hard to model analytically, while the rapid hardware evolution that motivates prediction also invalidates training data for learned approaches.
+NeuSight's tile-based decomposition currently offers the best accuracy--speed trade-off for LLM workloads, but its reliance on per-GPU profiling limits pre-silicon use---a gap that analytical approaches like AMALI and LIFE fill despite higher error.
+The compiler cost model ecosystem (TVM, TLP, SynPerf) represents a distinct use case where relative ranking matters more than absolute prediction, suggesting that evaluation criteria should be workload-aware.
 
 \subsection{Distributed Training and LLM Serving}
 \label{subsec:distributed-modeling}
@@ -720,19 +727,18 @@ Performance depends on the interplay between compute, memory, and network---requ
 
 \textbf{Training simulation.}
 ASTRA-sim~\cite{astrasim2023} provides end-to-end distributed training simulation using Chakra execution traces~\cite{chakra2023}, with validated HGX-H100 configurations and pluggable network backends.
-It achieves 5--15\% accuracy versus real clusters and enables exploration of parallelization strategies at scale.
-SimAI~\cite{simai2025} provides full-stack LLM training simulation at Alibaba Cloud scale, modeling compute, memory, network, and collective communication in an integrated framework that achieves 98.1\% alignment with production results.
+It achieves 5--15\% error versus real clusters and enables exploration of parallelization strategies at scale.
+SimAI~\cite{simai2025} provides full-stack LLM training simulation at Alibaba Cloud scale, modeling compute, memory, network, and collective communication in an integrated framework that achieves 1.9\% MAPE versus production training runs.
 Its key differentiator is validation against production training runs at datacenter scale---most simulators validate at 4--64 GPU configurations, whereas SimAI validates against thousands of GPUs where network congestion and load imbalance effects dominate.
 Lumos~\cite{lumos2025} targets LLM training through trace-driven modeling, achieving 3.3\% error on H100 GPUs by capturing gradient accumulation, optimizer states, and activation checkpointing.
-Echo~\cite{echo2024} simulates distributed training at scale by combining analytical compute models with packet-level network simulation, enabling evaluation of collective communication algorithms and network topology effects without requiring cluster access; however, it focuses on communication modeling rather than end-to-end training fidelity, and does not report absolute accuracy against real hardware measurements.
-TrioSim~\cite{triosim2025} provides lightweight multi-GPU DNN training simulation through selective fidelity---modeling compute, memory, and inter-GPU communication at different abstraction levels to balance speed and accuracy.
-While TrioSim enables rapid what-if analysis for multi-GPU configurations, it does not report accuracy baselines against real hardware, making it suitable for relative comparison between configurations but not for absolute performance prediction.
-PRISM~\cite{prism2025} uses probabilistic models for training performance prediction at 10K+ GPU scale, addressing the challenge that deterministic simulators cannot capture the stochastic performance variation (network congestion, stragglers, thermal throttling) observed in large-scale training; its probabilistic approach produces prediction intervals rather than point estimates, which better reflects the inherent uncertainty in large-scale distributed systems.
+Echo~\cite{echo2024} combines analytical compute models with packet-level network simulation for collective communication evaluation, though it does not report end-to-end accuracy against real hardware.
+TrioSim~\cite{triosim2025} offers lightweight multi-GPU simulation through selective fidelity, enabling rapid what-if analysis for multi-GPU configurations but without real-hardware accuracy baselines.
+PRISM~\cite{prism2025} produces prediction intervals rather than point estimates at 10K+ GPU scale, capturing the stochastic performance variation (network congestion, stragglers) that deterministic simulators miss.
 
 \textbf{Scaling and parallelism.}
 The choice of parallelism strategy (data, tensor, pipeline, expert) critically impacts performance.
 Paleo~\cite{paleo2017} pioneered analytical estimation of training time by decomposing workloads into compute and communication components.
-MAD Max~\cite{madmax2024} extends analytical modeling to distributed systems by decomposing training time into compute, communication, and memory components per parallelism dimension, enabling rapid evaluation of parallelism configurations without simulation; its analytical approach achieves fast evaluation but shares the accuracy limitations of single-device analytical models, compounded by approximations of network contention and load imbalance.
+MAD Max~\cite{madmax2024} decomposes training time into compute, communication, and memory components per parallelism dimension, enabling rapid analytical evaluation of parallelism configurations without simulation.
 The Llama 3 scaling study~\cite{llama3scaling2025} documents 4D parallelism at 16K H100 GPUs, providing ground truth for simulator validation.
 Sailor~\cite{sailor2025} addresses automated parallelism selection over heterogeneous clusters, where GPUs of different generations or types must be jointly scheduled---a problem that most simulators cannot model because they assume homogeneous hardware.
 
@@ -746,10 +752,15 @@ Such optimizations illustrate a moving-target challenge: performance models must
 These tools collectively enable infrastructure planning and scheduling algorithm comparison at scale.
 
 \textbf{Memory system interactions.}
-Memory increasingly dominates ML performance.
-KV cache management is the dominant LLM serving challenge; vLLM's PagedAttention~\cite{vllm2023} achieves 2--4$\times$ throughput improvement.
-VIDUR models cache allocation and eviction at the system level.
-Underlying memory subsystem fidelity is provided by simulators such as DRAMSim3~\cite{dramsim3_2020} and Ramulator 2~\cite{ramulator2_2023}, which are integrated with tools like Accel-Sim rather than used standalone for ML workloads.
+Memory increasingly dominates ML performance: KV cache management is the key LLM serving bottleneck (vLLM's PagedAttention~\cite{vllm2023} achieves 2--4$\times$ throughput improvement), and VIDUR models cache allocation and eviction at the system level.
+Low-level memory simulators (DRAMSim3~\cite{dramsim3_2020}, Ramulator 2~\cite{ramulator2_2023}) integrate with tools like Accel-Sim rather than being used standalone for ML workloads.
+
+\textbf{Synthesis.}
+Distributed system modeling is the fastest-growing subdomain, with six new tools published since 2024 (SimAI, Lumos, Echo, TrioSim, PRISM, Sailor).
+This surge reflects the practical urgency: training runs on thousands of GPUs cost millions of dollars, making pre-deployment performance prediction economically critical.
+The tools bifurcate into two design philosophies: \emph{trace-driven fidelity} (ASTRA-sim, SimAI) replays recorded execution traces through pluggable backends for maximum realism, while \emph{analytical decomposition} (Paleo, MAD Max) trades fidelity for speed and interpretability.
+PRISM's probabilistic approach represents an emerging third path, acknowledging that large-scale systems are inherently stochastic.
+The inference serving tools (VIDUR, Frontier, ThrottLL'eM) face a distinct challenge: algorithmic innovations like speculative decoding~\cite{medusa2024} continuously alter the performance characteristics that models must capture, creating a moving-target problem absent in training simulation.
 
 \subsection{Edge Device Modeling}
 \label{subsec:edge-modeling}
@@ -769,6 +780,11 @@ Its key finding is that model architecture choice matters less than training dat
 This result has practical implications for the ML-augmented tools surveyed here: the accuracy gains from sophisticated model architectures may be marginal compared to improvements in profiling data collection.
 
 The latency predictor study~\cite{latencypredictorsnas2024} provides the most systematic evaluation across approaches, showing transfer learning provides 22.5\% average improvement, up to 87.6\% on challenging cross-platform transfers.
+
+\textbf{Synthesis.}
+Edge modeling stands apart from the other platform categories in being dominated by ML-augmented approaches---the hardware diversity makes analytical modeling impractical, so the field has converged on learning latency functions from profiling data.
+The central challenge is \emph{generalization}: each tool (nn-Meter, LitePred, HELP) proposes a different strategy for adapting to new devices with minimal profiling, yet ESM's finding that simple random forests match deep learning surrogates suggests the field may be over-investing in model complexity relative to data quality.
+The reproducibility crisis exemplified by nn-Meter (pre-trained models that become unusable across library versions) serves as a warning for the entire ML-augmented approach: accuracy claims are only valuable if the tools remain functional over time.
 
 \subsection{Cross-Cutting Challenges}
 \label{subsec:cross-cutting}
@@ -795,7 +811,7 @@ First, \emph{structural decomposition} that mirrors hardware execution consisten
 These tools succeed because their abstractions encode domain knowledge about \emph{why} performance varies, not just correlations.
 Second, tools with the strongest practical adoption provide modular, pluggable backends---ASTRA-sim supports both analytical and ns-3 network simulation, and VIDUR integrates multiple scheduling algorithms (Orca~\cite{orca2022}, Sarathi~\cite{sarathi2024})---allowing users to trade accuracy for speed depending on the evaluation scenario.
 Third, robust reproducibility correlates with sustained community use: Timeloop (9/10 reproducibility in our evaluation) and ASTRA-sim (8.5/10) have mature Docker support and deterministic outputs, while tools with higher reported accuracy but poor reproducibility (nn-Meter claims $<$1\% MAPE but scored 3/10 due to dependency failures) see declining adoption.
-This pattern suggests that \emph{verifiable moderate accuracy} matters more to practitioners than \emph{unverifiable high accuracy}.
+Our reproducibility findings suggest that \emph{verifiable moderate accuracy} matters more to practitioners than \emph{unverifiable high accuracy}.
 
 \textbf{Accuracy claims require careful contextualization.}
 Comparing accuracy numbers across the surveyed tools is misleading without accounting for problem difficulty.
@@ -1233,7 +1249,7 @@ VIDUR avoids this by pinning all dependencies inside its Docker image and includ
 Tools should use version-stable formats (ONNX, SavedModel) or provide retraining scripts.
 
 \textbf{Lesson 3: Reference outputs enable trust without hardware.}
-Timeloop includes reference outputs for every example configuration, enabling verification without fabricated accelerator hardware.
+Timeloop includes reference outputs for every example configuration, enabling verification without physical accelerator hardware.
 ASTRA-sim provides validated HGX-H100 results.
 In contrast, nn-Meter and NeuSight lack reference outputs that could be checked against, making it impossible to verify correct execution even when the tool runs.
 
@@ -1366,16 +1382,16 @@ Five high-priority research opportunities:
 \section{Conclusion}
 \label{sec:conclusion}
 
-This survey analyzed over 30 tools and methods for modeling and predicting the performance of ML workloads, organized along two primary dimensions: methodology type (analytical, simulation, trace-driven, ML-augmented, hybrid) and target platform (DNN accelerators, GPUs, distributed systems, edge devices).
+This survey analyzed over 30 tools and methods for modeling and predicting the performance of ML workloads, organized along three dimensions: methodology type (analytical, simulation, trace-driven, ML-augmented, hybrid), target platform (DNN accelerators, GPUs, distributed systems, edge devices), and abstraction level (kernel, model, system).
 
 \textbf{Key findings.}
-(1) \emph{Methodology determines trade-offs, not quality.} Analytical frameworks (Timeloop, MAESTRO) offer microsecond evaluation with full interpretability for accelerator design space exploration; trace-driven simulators (ASTRA-sim, VIDUR, SimAI, Lumos) provide 2--15\% accuracy for system-level distributed training and LLM serving; hybrid approaches (NeuSight, Concorde) achieve the best accuracy on GPU kernel prediction (2--3\% error) by combining analytical structure with learned components.
+(1) \emph{Methodology determines trade-offs, not quality.} Analytical frameworks (Timeloop, MAESTRO) offer microsecond evaluation with full interpretability for accelerator design space exploration; trace-driven simulators (ASTRA-sim, VIDUR, SimAI, Lumos) provide 2--15\% error for system-level distributed training and LLM serving; hybrid approaches achieve the best accuracy--speed trade-offs by combining analytical structure with learned components (NeuSight: 2.3\% MAPE on GPU kernels; Concorde: 2\% CPI error on CPUs).
 (2) \emph{LLM workloads demand specialized modeling.} Prefill/decode phase distinctions, KV cache management, multi-stage inference pipelines, and dynamic batching require purpose-built tools (VIDUR, Frontier, LIFE, HERMES) rather than extensions of CNN-era frameworks.
-(3) \emph{Reproducibility is a practical bottleneck.} Docker-first tools (Timeloop, ASTRA-sim, VIDUR) score 8.5+/10 on our rubric, while tools relying on serialized ML models (nn-Meter) risk becoming unusable due to dependency drift---a challenge the community must address through portable model formats and pinned environments.
+(3) \emph{Reproducibility is a practical bottleneck.} Docker-first tools (Timeloop, ASTRA-sim, VIDUR) score 8.5+/10 on our rubric, while tools relying on serialized ML models (nn-Meter) have already become unusable due to dependency drift---a challenge the community must address through portable model formats and pinned environments.
 (4) \emph{Accuracy claims require scrutiny.} Paper-reported accuracy numbers are measured under varying benchmarks, metrics, and hardware targets; direct cross-tool comparison remains unreliable without standardized evaluation protocols.
 
 \textbf{Gaps and future directions.}
-The most pressing gaps align with the challenges identified in Section~\ref{sec:challenges}: (1) nearly all tools are validated on CNN workloads, leaving transformer, MoE, and diffusion model performance largely uncharacterized; (2) composing kernel-level predictions into accurate end-to-end estimates remains unsolved; (3) emerging hardware (PIM, chiplets, disaggregated architectures) lacks mature modeling support; and (4) cross-platform generalization (GPU$\rightarrow$TPU$\rightarrow$accelerator) requires new transfer learning or meta-learning approaches.
+The most pressing gaps align with the challenges identified in Section~\ref{sec:challenges}: (1) nearly all tools are validated on CNN workloads, leaving transformer, MoE, and diffusion model performance largely uncharacterized; (2) composing kernel-level predictions into accurate end-to-end estimates remains unsolved; (3) emerging hardware (PIM, chiplets, disaggregated architectures) lacks mature modeling support; (4) cross-platform generalization (GPU$\rightarrow$TPU$\rightarrow$accelerator) remains limited; and (5) reproducibility failures (dependency drift, unverifiable accuracy claims) undermine trust in the tools that practitioners depend on.
 The community would benefit most from standardized benchmarks for cross-tool accuracy comparison and from unified tooling with composable modeling engines and standard workload representations.
 
 As ML workloads grow in scale and diversity, accurate performance prediction becomes critical for hardware design, system provisioning, and serving infrastructure planning.
