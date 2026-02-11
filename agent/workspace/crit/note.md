@@ -1,38 +1,22 @@
 # Notes
 
-## Cycle 73 (2026-02-07)
+## Long-term memory
+- Review each paper version independently per human directive #195 — no references to prior reviews
+- Be harsh but fair — always find something to improve
+- The biggest recurring gap: synthesis over cataloging in §5
+- The #1 blocker: no experimental contribution comparing tool predictions against ground truth
+- Abstract overclaims have been a persistent issue across versions
+- Reading the paper fresh takes significant cycle time but produces the most honest assessment
 
-### What I Did
-- Fresh independent review posted on issue #201 (per human directive #195 and Athena's task assignment)
-- Score: 5/10 (Weak Reject) — independent assessment, no prior references used
-- No open PRs to review this cycle
-- 0 open PRs at cycle start
+## Current task
+- issue: #201 (fresh independent paper review) + PR #205 review
+- status: planning
+- summary: Plan approach for PR #205 review and next fresh paper review post-merge
 
-### Key Findings (Fresh Review #201)
-1. **No real experimental contribution** — reproducibility eval tests installation, not accuracy. No GPU hardware means no ground truth validation. This is the #1 blocker.
-2. **§5 still reads as catalog** — tool-by-tool descriptions, not analytical synthesis. Cross-cutting subsection (§5.5) is only 16 lines.
-3. **Abstract overclaims** — "over 50 tools" when ~25 are surveyed in detail. "Hands-on reproducibility evaluations" overpromises vs. what's delivered (installation/basic function testing).
-4. **Section ordering still wrong** — Evaluation (§8) after Challenges (§7), should be reversed.
-5. **Tables 1+2 partially redundant** — can't trace cell counts back to specific tools.
-6. **Figs 3+4 plot self-reported accuracy** that the paper itself argues is unreliable — visual contradicts the textual caveat.
-7. **PIM/memory simulator content tangential** — inflates tool count without deepening analysis.
-
-### Top 3 Changes to Raise Score by 1 Point
-1. Add common-benchmark comparison (run 3+ tools on same workload, compare disagreement)
-2. Restructure §5 around cross-cutting themes, not tool-by-tool
-3. Tighten abstract claims to match actual content
-
-### Paper Stats
-- 1334 lines, 86 references, 7 figures, 5 tables
-- 9 sections, estimated ~11 pages
-
-### Context for Future Self
-- No open PRs — team may be between work batches
-- Watch for: Leo's synthesis paragraphs (#198), Sage's section reordering (#199) and content compression (#200)
-- The "50+ tools" overclaim has persisted across reviews — may need a direct issue filed
-- Independent review directive (#195) fulfilled — future reviews should continue to be fresh reads
-
-### Lessons Learned
-- Reading the paper completely fresh (1334 lines) takes significant cycle time but produces the most honest assessment
-- The score landing at 5/10 again independently validates prior assessment — not a coincidence
-- The biggest gap is *synthesis over cataloging* — this is structural, not content quantity
+## Short-term memory
+- **PR #205 review plan** (ready for execute mode):
+  - PR addresses 3 concerns: section reordering (eval before challenges), abstract overclaim fix ("50+" → "30+ from 53 papers"), PIM/memory compression
+  - Key items to verify: (1) \ref{} labels resolve after reorder, (2) Threats to Validity placement in Eval section is good, (3) commercial tool scope sentence appropriate, (4) "over 30 tools from 53 papers" count accuracy against Table 2, (5) check if Reproducibility subsection self-references after being moved into Eval section
+  - Net -7 lines — modest but appropriate space recovery
+- **Next fresh paper review**: Wait for PRs #203, #204, #205 to merge, then full fresh read and independent scoring
+- **3 open PRs**: #203 (Flux cross-tool analysis), #204 (Leo synthesis), #205 (Sage reorder) — all unmerged
