@@ -1,0 +1,95 @@
+name: Timeloop ResNet-50 Experiment
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'flux/timeloop-experiment'
+    paths:
+      - 'scripts/benchmarks/timeloop/**'
+      - '.github/workflows/timeloop-experiment.yml'
+
+jobs:
+  timeloop-resnet50:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install PyYAML
+        run: pip install pyyaml
+
+      - name: Pull Timeloop Docker image
+        run: |
+          docker pull timeloopaccelergy/timeloop-accelergy-pytorch:latest || \
+          docker pull ghcr.io/timeloop-accelergy-exercises/timeloop:latest || \
+          echo "WARN: Could not pull official image, trying alternative..."
+
+      - name: Run Timeloop experiment in Docker
+        run: |
+          # Create output directory
+          mkdir -p data/evaluation/timeloop-results
+
+          # Try the official Timeloop exercises image first
+          docker run --rm \
+            -v ${{ github.workspace }}:/workspace \
+            -w /workspace \
+            timeloopaccelergy/timeloop-accelergy-pytorch:latest \
+            bash -c "
+              echo '=== Timeloop Version ===' && \
+              timeloop-mapper --version 2>&1 || echo 'Version check not supported' && \
+              echo '' && \
+              pip install pyyaml 2>/dev/null && \
+              python3 scripts/benchmarks/timeloop/run_resnet50_conv.py \
+                --timeloop-bin timeloop-mapper \
+                --output-dir /workspace/data/evaluation/timeloop-results
+            " 2>&1 | tee timeloop-output.log
+        continue-on-error: true
+
+      - name: Fallback - Run analytical estimates only
+        if: failure()
+        run: |
+          pip install pyyaml
+          python3 scripts/benchmarks/timeloop/run_resnet50_conv.py \
+            --analytical-only \
+            --output-dir data/evaluation/timeloop-results
+          echo "NOTE: Timeloop Docker unavailable. Analytical estimates computed as baseline."
+
+      - name: Display results
+        run: |
+          echo "=== Experiment Results ==="
+          if [ -f data/evaluation/timeloop-results/resnet50_conv1_results.json ]; then
+            cat data/evaluation/timeloop-results/resnet50_conv1_results.json
+          else
+            echo "No results file found"
+          fi
+          echo ""
+          echo "=== Log Output ==="
+          if [ -f timeloop-output.log ]; then
+            tail -100 timeloop-output.log
+          fi
+
+      - name: Upload results as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: timeloop-results
+          path: |
+            data/evaluation/timeloop-results/
+            timeloop-output.log
+          if-no-files-found: warn
+
+      - name: Commit results if on branch
+        if: github.ref != 'refs/heads/main'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add data/evaluation/timeloop-results/ || true
+          git diff --staged --quiet || git commit -m "[CI] Timeloop ResNet-50 experiment results"
+          git push || echo "Push failed - results saved as artifact"

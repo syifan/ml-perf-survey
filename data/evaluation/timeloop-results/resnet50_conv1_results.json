@@ -1,0 +1,15 @@
+{
+  "experiment": "timeloop_resnet50_conv1",
+  "analytical_estimates": {
+    "total_macs": 118013952,
+    "num_pes": 168,
+    "ideal_cycles": 702464,
+    "estimated_utilization": 0.6,
+    "estimated_cycles": 1170773,
+    "energy_per_mac_fj": 5500,
+    "total_energy_uj": 649.08,
+    "estimated_latency_ms": 5.854
+  },
+  "timeloop_results": null,
+  "note": "Analytical only mode - Timeloop not executed"
+}
