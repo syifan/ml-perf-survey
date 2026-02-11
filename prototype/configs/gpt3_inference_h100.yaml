@@ -1,0 +1,14 @@
+name: gpt3-inference-h100
+model_type: llm
+model:
+  name: GPT-3
+  layers: 96
+  parameters: 175e9
+task: inference
+batch_size: 1
+hardware:
+  device: H100
+  count: 1
+dataset:
+  name: custom
+  sequence_length: 2048

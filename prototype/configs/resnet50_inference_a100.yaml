@@ -1,0 +1,14 @@
+name: resnet50-inference-a100
+model_type: cnn
+model:
+  name: ResNet-50
+  layers: 50
+  parameters: 25.6e6
+task: inference
+batch_size: 1
+hardware:
+  device: A100
+  count: 1
+dataset:
+  name: ImageNet
+  input_shape: [3, 224, 224]

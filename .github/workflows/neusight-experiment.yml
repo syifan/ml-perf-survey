@@ -1,0 +1,86 @@
+name: NeuSight Prediction Experiment
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'flux/neusight-experiment*'
+    paths:
+      - 'scripts/benchmarks/neusight/**'
+      - '.github/workflows/neusight-experiment.yml'
+
+jobs:
+  neusight-prediction:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+
+      - name: Install base dependencies
+        run: |
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install pyyaml numpy
+
+      - name: Clone NeuSight repository
+        run: |
+          git clone --depth 1 https://github.com/sitar-lab/NeuSight.git /tmp/NeuSight
+          echo "=== NeuSight repo structure ==="
+          ls -la /tmp/NeuSight/
+          echo ""
+          echo "=== Scripts ==="
+          find /tmp/NeuSight/scripts -type f | head -30
+          echo ""
+          echo "=== Data/configs ==="
+          find /tmp/NeuSight/data -type f 2>/dev/null | head -30 || echo "No data dir"
+
+      - name: Install NeuSight
+        run: |
+          cd /tmp/NeuSight
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt 2>&1 | tail -10
+          fi
+          if [ -f setup.py ] || [ -f pyproject.toml ]; then
+            pip install -e . 2>&1 | tail -10
+          fi
+        continue-on-error: true
+
+      - name: Run NeuSight experiment
+        run: |
+          mkdir -p data/evaluation/neusight-results
+          python3 scripts/benchmarks/neusight/run_neusight_prediction.py \
+            --skip-clone \
+            --output-dir data/evaluation/neusight-results
+        continue-on-error: true
+
+      - name: Display results
+        run: |
+          echo "=== Experiment Results ==="
+          if [ -f data/evaluation/neusight-results/neusight_results.json ]; then
+            python3 -m json.tool data/evaluation/neusight-results/neusight_results.json
+          else
+            echo "No results file found"
+          fi
+
+      - name: Upload results as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: neusight-results
+          path: |
+            data/evaluation/neusight-results/
+          if-no-files-found: warn
+
+      - name: Commit results if on branch
+        if: github.ref != 'refs/heads/main'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add data/evaluation/neusight-results/ || true
+          git diff --staged --quiet || git commit -m "[CI] NeuSight prediction experiment results"
+          git push || echo "Push failed - results saved as artifact"
