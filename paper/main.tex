@@ -60,7 +60,7 @@
 \begin{abstract}
 As machine learning workloads grow in scale and complexity---spanning training and inference for CNNs, transformers, mixture-of-experts models, and LLMs---architects and system designers need fast, accurate methods to predict their performance across diverse hardware platforms.
 This survey provides a comprehensive analysis of the tools and methods available for modeling and simulating the performance of ML workloads, covering analytical models, cycle-accurate simulators, trace-driven approaches, and ML-augmented hybrid techniques.
-We survey over 50 tools from architecture venues (MICRO, ISCA, HPCA, ASPLOS) and systems venues (MLSys, OSDI, NSDI) published between 2016--2026, spanning DNN accelerator modeling (Timeloop, MAESTRO, Sparseloop), GPU simulation (GPGPU-Sim, Accel-Sim, NeuSight), distributed training simulation (ASTRA-sim, Lumos, SimAI), and LLM inference serving (VIDUR, Frontier, AMALI).
+We survey over 30 tools drawn from 53 papers across architecture venues (MICRO, ISCA, HPCA, ASPLOS) and systems venues (MLSys, OSDI, NSDI) published between 2016--2026, spanning DNN accelerator modeling (Timeloop, MAESTRO, Sparseloop), GPU simulation (GPGPU-Sim, Accel-Sim, NeuSight), distributed training simulation (ASTRA-sim, Lumos, SimAI), and LLM inference serving (VIDUR, Frontier, AMALI).
 We organize the literature along three dimensions---methodology type (analytical, simulation, ML-augmented, hybrid), target platform (accelerators, GPUs, distributed systems, edge devices), and abstraction level (kernel, model, system)---while additionally characterizing tools by workload coverage, revealing a pervasive CNN-validation bias.
 Our analysis reveals that hybrid approaches combining analytical structure with learned components achieve the best accuracy-speed trade-offs, while pure analytical models offer superior interpretability for design space exploration.
 We conduct hands-on reproducibility evaluations of five representative tools, finding that reproducibility varies dramatically: Docker-first tools score 8.5+/10 on our rubric while tools relying on serialized ML models risk becoming unusable.
@@ -98,7 +98,7 @@ This survey fills that gap by providing a methodology-centric view of the tools 
 We make the following contributions:
 \begin{itemize}
     \item A \textbf{methodology-centric taxonomy} organizing tools along three dimensions: methodology type (analytical, simulation, ML-augmented, hybrid), target platform (DNN accelerators, GPUs, distributed systems, edge devices), and abstraction level (kernel, model, system), with a quantitative coverage matrix identifying research gaps and a workload coverage analysis exposing the CNN-validation bias in the literature.
-    \item A \textbf{systematic survey} of over 50 modeling tools and methods from architecture venues (MICRO, ISCA, HPCA, ASPLOS) and systems venues (MLSys, OSDI, NSDI) published between 2016--2026, using documented selection criteria.
+    \item A \textbf{systematic survey} of over 30 modeling tools drawn from 53 papers across architecture venues (MICRO, ISCA, HPCA, ASPLOS) and systems venues (MLSys, OSDI, NSDI) published between 2016--2026, using documented selection criteria.
     \item A \textbf{comparative analysis} examining trade-offs between accuracy, speed, generalization, and interpretability, with careful qualification of paper-reported accuracy claims and identification of cases where reported numbers are unverifiable.
     \item \textbf{Hands-on reproducibility evaluations} of representative tools with a 10-point rubric, and identification of \textbf{open challenges} including the CNN-to-transformer generalization gap, kernel-to-end-to-end error composition, and emerging accelerator support.
 \end{itemize}
@@ -109,8 +109,8 @@ Section~\ref{sec:background} provides background on ML workload characteristics 
 Section~\ref{sec:taxonomy} presents our classification taxonomy.
 Section~\ref{sec:survey} surveys approaches organized by target platform.
 Section~\ref{sec:comparison} offers comparative analysis across key dimensions and a practitioner tool selection guide.
-Section~\ref{sec:challenges} discusses open challenges and future directions.
 Section~\ref{sec:evaluation} presents hands-on reproducibility evaluations.
+Section~\ref{sec:challenges} discusses open challenges and future directions.
 Section~\ref{sec:conclusion} concludes.
 
 Figure~\ref{fig:timeline} illustrates the evolution of performance modeling tools for ML workloads, from early analytical frameworks through simulators to modern hybrid approaches.
@@ -624,12 +624,8 @@ Its reported 0.61\% RMSE measures how faithfully the ML surrogate reproduces the
 This distinction matters: surrogate fidelity enables fast DSE but does not validate the underlying simulator's accuracy.
 
 \textbf{Emerging accelerators.}
-Processing-in-memory (PIM) architectures present fundamentally different modeling challenges.
-uPIMulator~\cite{upimulator2024} provides cycle-accurate PIM simulation for UPMEM devices, modeling the unique characteristics of processing-in-memory where compute units are embedded within DRAM banks---fundamentally different from conventional architectures where data must traverse a memory hierarchy to reach compute units.
-AttAcc~\cite{attacc2024} specifically targets attention acceleration by placing compute near the KV cache memory, reducing the data movement bottleneck that dominates LLM decode performance.
-NeuPIMs~\cite{neupims2024} models heterogeneous PIM systems that combine conventional GPU processing for compute-bound operations with PIM for memory-bound attention, requiring co-simulation of two fundamentally different execution models.
-PAISE~\cite{paise2025} addresses PIM-accelerated LLM inference scheduling, modeling the scheduling decisions unique to PIM architectures where data placement determines compute locality.
-These tools remain in early stages compared to the mature DNN accelerator modeling ecosystem: none report accuracy against fabricated PIM hardware, and validation relies on RTL simulation or analytical baselines.
+Processing-in-memory (PIM) architectures present fundamentally different modeling challenges, as they blur the compute-memory boundary that conventional frameworks assume.
+Early PIM modeling tools~\cite{upimulator2024,attacc2024,neupims2024,paise2025} target attention acceleration and heterogeneous PIM-GPU co-simulation, but none report accuracy against fabricated PIM hardware---we discuss PIM modeling gaps further in Section~\ref{subsec:emerging-hardware}.
 
 \subsection{GPU Performance Modeling}
 \label{subsec:gpu-modeling}
@@ -700,19 +696,15 @@ VIDUR~\cite{vidur2024} simulates LLM inference serving with scheduling strategie
 Frontier~\cite{frontier2025} extends to MoE and disaggregated inference with stage-centric simulation.
 ThrottLL'eM~\cite{throttllem2025} models the interaction between GPU power management (frequency throttling, power capping) and LLM inference performance, addressing a dimension that most tools ignore: real GPU deployments operate under power and thermal constraints that reduce effective performance below theoretical peaks.
 By modeling throttling effects, ThrottLL'eM enables energy-efficient inference scheduling that trades latency headroom for power savings---a critical concern for datacenter operators where energy costs dominate TCO.
-Recent LLM inference optimizations also change the performance characteristics that simulators must capture: MEDUSA~\cite{medusa2024} introduces speculative decoding with multiple decode heads that transforms the sequential token-by-token generation into parallel verification, fundamentally altering the compute-to-memory ratio that models like VIDUR assume.
-POD-Attention~\cite{podattention2025} achieves full prefill-decode overlap, breaking the assumption of sequential phase execution that underlies most analytical LLM inference models.
-AQUA~\cite{aqua2025} demonstrates 20$\times$ improved responsiveness through network-accelerated KV cache offloading across GPU domains, introducing network latency into what was previously a local memory management problem.
-These optimizations illustrate a moving-target challenge: performance models must track not just hardware evolution but algorithmic innovations that restructure execution patterns.
+Recent LLM inference optimizations also change the performance characteristics that simulators must capture: for example, MEDUSA~\cite{medusa2024} introduces speculative decoding that transforms sequential token generation into parallel verification, fundamentally altering the compute-to-memory ratio that models like VIDUR assume.
+Such optimizations illustrate a moving-target challenge: performance models must track not just hardware evolution but algorithmic innovations that restructure execution patterns.
 These tools collectively enable infrastructure planning and scheduling algorithm comparison at scale.
 
 \textbf{Memory system interactions.}
 Memory increasingly dominates ML performance.
 KV cache management is the dominant LLM serving challenge; vLLM's PagedAttention~\cite{vllm2023} achieves 2--4$\times$ throughput improvement.
 VIDUR models cache allocation and eviction at the system level.
-Memory simulators have evolved through multiple generations: DRAMSim2~\cite{dramsim2_2011} established cycle-accurate DDR2/DDR3 simulation validated against manufacturer Verilog models, while DRAMSim3~\cite{dramsim3_2020} added thermal modeling and HMC support.
-Ramulator~\cite{ramulator2015} introduced extensible support across DDRx, LPDDRx, GDDRx, and HBM standards, with Ramulator 2~\cite{ramulator2_2023} adding DDR5, HBM3, and RowHammer mitigation modeling.
-These simulators are primarily integrated with CPU/GPU simulators rather than used standalone for ML workloads, but they provide critical memory subsystem fidelity for tools like Accel-Sim that model data movement bottlenecks in ML training.
+Underlying memory subsystem fidelity is provided by simulators such as DRAMSim3~\cite{dramsim3_2020} and Ramulator 2~\cite{ramulator2_2023}, which are integrated with tools like Accel-Sim rather than used standalone for ML workloads.
 
 \subsection{Edge Device Modeling}
 \label{subsec:edge-modeling}
@@ -1092,119 +1084,6 @@ Three practical recommendations emerge from this analysis:
 (3)~For \emph{distributed system planning}, use VIDUR for LLM serving configuration (scheduler comparison, batch sizing) and ASTRA-sim or SimAI for training parallelism exploration at scale.
 
 % ==============================================================================
-% OPEN CHALLENGES
-% ==============================================================================
-\section{Open Challenges and Future Directions}
-\label{sec:challenges}
-
-\subsection{Workload Coverage Gaps}
-\label{subsec:workload-gaps}
-
-Existing tools are primarily validated on CNN workloads.
-Transformers, mixture-of-experts (MoE), diffusion models, and dynamic inference patterns (e.g., AI agents with tool use~\cite{dynamicreasoning2026}) remain underrepresented in validation benchmarks.
-LLM serving introduces variable sequence lengths (128--128K tokens) and dynamic batching that challenge static models.
-Neural scaling laws~\cite{kaplan2020scaling} and compute-optimal training recipes~\cite{hoffmann2022chinchilla} establish power-law relationships between model size, data, and compute that predict training loss---but these address statistical convergence, not hardware-specific latency.
-Subsequent work on scaling law estimation~\cite{scalinglaws2024,scalinglawguide2025} provides practical guidance but still does not bridge the gap to hardware performance prediction.
-
-Figure~\ref{fig:workload-coverage} illustrates the shift in workload coverage across surveyed tools over time.
-Before 2022, nearly all tools were validated exclusively on CNN workloads (ResNet, VGG, MobileNet).
-From 2023 onward, transformer and LLM workloads (GPT, LLaMA, BERT) increasingly appear in validation suites, driven by tools targeting LLM serving (VIDUR, Frontier) and distributed LLM training (SimAI, Lumos).
-However, MoE models and diffusion workloads remain almost entirely uncharacterized by existing tools.
-
-\begin{figure}[t]
-\centering
-\resizebox{\columnwidth}{!}{%
-\begin{tikzpicture}
-\begin{axis}[
-    ybar stacked,
-    bar width=14pt,
-    xlabel={Publication year},
-    ylabel={Number of tools},
-    ymin=0, ymax=16,
-    xtick={2016,2018,2020,2022,2024,2026},
-    xticklabels={2016--17,2018--19,2020--21,2022--23,2024--25,2026},
-    xticklabel style={font=\scriptsize},
-    yticklabel style={font=\scriptsize},
-    xlabel style={font=\small},
-    ylabel style={font=\small},
-    legend style={at={(0.02,0.98)}, anchor=north west, font=\tiny, draw=none, fill=white, fill opacity=0.9, text opacity=1, legend columns=2},
-    legend cell align={left},
-    height=5.5cm,
-    width=8.5cm,
-    enlarge x limits={abs=0.8cm},
-]
-% CNN-only tools per period
-\addplot[fill=blue!50, draw=blue!70] coordinates {(2016,2) (2018,2) (2020,4) (2022,3) (2024,2) (2026,0)};
-% CNN+Transformer tools
-\addplot[fill=orange!50, draw=orange!70] coordinates {(2016,0) (2018,1) (2020,0) (2022,2) (2024,3) (2026,0)};
-% LLM/distributed tools
-\addplot[fill=red!50, draw=red!70] coordinates {(2016,0) (2018,0) (2020,1) (2022,1) (2024,8) (2026,2)};
-% General/cross-workload
-\addplot[fill=green!50, draw=green!70] coordinates {(2016,0) (2018,0) (2020,1) (2022,0) (2024,2) (2026,1)};
-\legend{CNN only, CNN+Transformer, LLM/Distributed, Cross-workload}
-\end{axis}
-\end{tikzpicture}%
-}
-\caption{Workload coverage of surveyed tools by publication period. Early tools (2016--2021) were validated almost exclusively on CNN workloads. The shift toward transformer and LLM workloads accelerates from 2023, but MoE and diffusion models remain largely uncharacterized.}
-\label{fig:workload-coverage}
-\end{figure}
-
-\subsection{The Composition Problem}
-\label{subsec:composition}
-
-Many tools predict kernel-level or operator-level performance, but composing these predictions into accurate end-to-end estimates is an unsolved problem.
-Memory allocation overhead, kernel launch latency, inter-operator data movement, and framework scheduling introduce compounding errors.
-For distributed systems, the composition extends across devices with communication overhead and synchronization.
-No surveyed tool provides validated composition guarantees.
-
-\subsection{Emerging Hardware Support}
-\label{subsec:emerging-hardware}
-
-PIM architectures~\cite{upimulator2024,attacc2024,neupims2024,paise2025}, neuromorphic processors, and analog compute present fundamentally different modeling challenges.
-Existing frameworks (Timeloop, MAESTRO) assume conventional memory hierarchies; PIM blurs the compute-memory boundary.
-Chiplet-based designs and disaggregated architectures introduce new interconnect modeling requirements.
-
-\subsection{Integration with Design Flows}
-\label{subsec:integration-challenges}
-
-Compiler integration (TVM, Ansor) needs uncertainty quantification for exploration-exploitation trade-offs.
-Architecture exploration (ArchGym) requires active learning for sample efficiency.
-LLM serving needs real-time prediction within microseconds; VIDUR provides offline simulation but online adaptation remains challenging.
-FlashAttention~\cite{flashattention2022} and other hardware-aware algorithm optimizations change the performance landscape faster than models can be retrained.
-
-\subsection{Reproducibility and Trust}
-\label{subsec:reproducibility-trust}
-
-Our evaluation reveals a critical gap between reported accuracy and independently verifiable results.
-nn-Meter's claimed $<$1\% MAPE is unverifiable because the tool cannot be run.
-Accuracy claims without reproducible evaluation are of limited value to practitioners.
-While the MLPerf Training~\cite{mlperf_training2020} and Inference~\cite{mlperf_inference2020} benchmarks standardize hardware \emph{measurement}, no equivalent exists for performance \emph{prediction}---the community would benefit from standardized prediction benchmarks with common workloads, hardware targets, and evaluation protocols.
-
-\subsection{Threats to Validity}
-\label{subsec:threats}
-
-\textbf{Selection bias.}
-Our literature search focused on top architecture venues (MICRO, ISCA, HPCA, ASPLOS) and systems venues (MLSys, OSDI, SOSP, NSDI), potentially under-representing work from application-specific venues, industry reports, or non-English publications.
-
-\textbf{Tool evaluation scope.}
-Our reproducibility evaluation covers five tools (Timeloop, ASTRA-sim, VIDUR, nn-Meter, NeuSight), selected for coverage across methodology types and availability of open-source implementations.
-Results may not generalize to proprietary tools.
-
-\textbf{Metrics comparability.}
-Accuracy figures use different metrics (MAPE, RMSE, Kendall's $\tau$), benchmarks, and hardware targets.
-Tables~\ref{tab:survey-summary} and~\ref{tab:comparison-summary} report metrics as stated in original papers; cross-paper comparisons should be interpreted with caution.
-
-\subsection{Future Directions}
-\label{subsec:future-directions}
-
-Five high-priority research opportunities:
-(1) \textbf{Transformer/MoE-aware tools}---current tools are validated on CNNs; attention and expert routing have distinct performance characteristics.
-(2) \textbf{Validated composition}---methods to compose kernel predictions into end-to-end estimates with bounded error.
-(3) \textbf{Unified energy-latency-memory prediction}---most tools focus on latency; edge and datacenter deployment need energy and memory modeling, as highlighted by MLPerf Power~\cite{mlperfpower2025}.
-(4) \textbf{Temporal robustness}---benchmarks for evaluating model accuracy under software stack evolution.
-(5) \textbf{Unified tooling}---no single tool addresses all needs; Docker-first deployment, portable model formats (ONNX), and composable modeling engines with standard workload representations (Chakra~\cite{chakra2023}) could reduce fragmentation.
-
-% ==============================================================================
 % EXPERIMENTAL EVALUATION
 % ==============================================================================
 \section{Experimental Evaluation}
@@ -1322,13 +1201,127 @@ ASTRA-sim's 5--15\% accuracy at our evaluation scale may not hold at production 
 nn-Meter claims $<$1\% MAPE but cannot be run; Timeloop claims 5--10\% and can be verified against reference outputs; VIDUR claims $<$5\% and produces internally consistent simulations.
 Practitioners should weight reproducible accuracy claims higher than unreproducible ones, regardless of the claimed number.
 
+\subsection{Threats to Validity}
+\label{subsec:threats}
+
+\textbf{Selection bias.}
+Our literature search focused on top architecture venues (MICRO, ISCA, HPCA, ASPLOS) and systems venues (MLSys, OSDI, SOSP, NSDI), potentially under-representing work from application-specific venues, industry reports, or non-English publications.
+We also exclude commercial and proprietary tools (NVIDIA Nsight Compute, Google's internal TPU performance models, AMD profiling frameworks) because their methodologies and accuracy characteristics are not publicly documented; this limits our coverage of the tools actually used in industry practice.
+
+\textbf{Tool evaluation scope.}
+Our reproducibility evaluation covers five tools (Timeloop, ASTRA-sim, VIDUR, nn-Meter, NeuSight), selected for coverage across methodology types and availability of open-source implementations.
+Results may not generalize to proprietary tools.
+
+\textbf{Metrics comparability.}
+Accuracy figures use different metrics (MAPE, RMSE, Kendall's $\tau$), benchmarks, and hardware targets.
+Tables~\ref{tab:survey-summary} and~\ref{tab:comparison-summary} report metrics as stated in original papers; cross-paper comparisons should be interpreted with caution.
+
+% ==============================================================================
+% OPEN CHALLENGES
+% ==============================================================================
+\section{Open Challenges and Future Directions}
+\label{sec:challenges}
+
+\subsection{Workload Coverage Gaps}
+\label{subsec:workload-gaps}
+
+Existing tools are primarily validated on CNN workloads.
+Transformers, mixture-of-experts (MoE), diffusion models, and dynamic inference patterns (e.g., AI agents with tool use~\cite{dynamicreasoning2026}) remain underrepresented in validation benchmarks.
+LLM serving introduces variable sequence lengths (128--128K tokens) and dynamic batching that challenge static models.
+Neural scaling laws~\cite{kaplan2020scaling} and compute-optimal training recipes~\cite{hoffmann2022chinchilla} establish power-law relationships between model size, data, and compute that predict training loss---but these address statistical convergence, not hardware-specific latency.
+Subsequent work on scaling law estimation~\cite{scalinglaws2024,scalinglawguide2025} provides practical guidance but still does not bridge the gap to hardware performance prediction.
+
+Figure~\ref{fig:workload-coverage} illustrates the shift in workload coverage across surveyed tools over time.
+Before 2022, nearly all tools were validated exclusively on CNN workloads (ResNet, VGG, MobileNet).
+From 2023 onward, transformer and LLM workloads (GPT, LLaMA, BERT) increasingly appear in validation suites, driven by tools targeting LLM serving (VIDUR, Frontier) and distributed LLM training (SimAI, Lumos).
+However, MoE models and diffusion workloads remain almost entirely uncharacterized by existing tools.
+
+\begin{figure}[t]
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tikzpicture}
+\begin{axis}[
+    ybar stacked,
+    bar width=14pt,
+    xlabel={Publication year},
+    ylabel={Number of tools},
+    ymin=0, ymax=16,
+    xtick={2016,2018,2020,2022,2024,2026},
+    xticklabels={2016--17,2018--19,2020--21,2022--23,2024--25,2026},
+    xticklabel style={font=\scriptsize},
+    yticklabel style={font=\scriptsize},
+    xlabel style={font=\small},
+    ylabel style={font=\small},
+    legend style={at={(0.02,0.98)}, anchor=north west, font=\tiny, draw=none, fill=white, fill opacity=0.9, text opacity=1, legend columns=2},
+    legend cell align={left},
+    height=5.5cm,
+    width=8.5cm,
+    enlarge x limits={abs=0.8cm},
+]
+% CNN-only tools per period
+\addplot[fill=blue!50, draw=blue!70] coordinates {(2016,2) (2018,2) (2020,4) (2022,3) (2024,2) (2026,0)};
+% CNN+Transformer tools
+\addplot[fill=orange!50, draw=orange!70] coordinates {(2016,0) (2018,1) (2020,0) (2022,2) (2024,3) (2026,0)};
+% LLM/distributed tools
+\addplot[fill=red!50, draw=red!70] coordinates {(2016,0) (2018,0) (2020,1) (2022,1) (2024,8) (2026,2)};
+% General/cross-workload
+\addplot[fill=green!50, draw=green!70] coordinates {(2016,0) (2018,0) (2020,1) (2022,0) (2024,2) (2026,1)};
+\legend{CNN only, CNN+Transformer, LLM/Distributed, Cross-workload}
+\end{axis}
+\end{tikzpicture}%
+}
+\caption{Workload coverage of surveyed tools by publication period. Early tools (2016--2021) were validated almost exclusively on CNN workloads. The shift toward transformer and LLM workloads accelerates from 2023, but MoE and diffusion models remain largely uncharacterized.}
+\label{fig:workload-coverage}
+\end{figure}
+
+\subsection{The Composition Problem}
+\label{subsec:composition}
+
+Many tools predict kernel-level or operator-level performance, but composing these predictions into accurate end-to-end estimates is an unsolved problem.
+Memory allocation overhead, kernel launch latency, inter-operator data movement, and framework scheduling introduce compounding errors.
+For distributed systems, the composition extends across devices with communication overhead and synchronization.
+No surveyed tool provides validated composition guarantees.
+
+\subsection{Emerging Hardware Support}
+\label{subsec:emerging-hardware}
+
+PIM architectures~\cite{upimulator2024,attacc2024,neupims2024,paise2025}, neuromorphic processors, and analog compute present fundamentally different modeling challenges.
+Existing frameworks (Timeloop, MAESTRO) assume conventional memory hierarchies; PIM blurs the compute-memory boundary.
+Chiplet-based designs and disaggregated architectures introduce new interconnect modeling requirements.
+
+\subsection{Integration with Design Flows}
+\label{subsec:integration-challenges}
+
+Compiler integration (TVM, Ansor) needs uncertainty quantification for exploration-exploitation trade-offs.
+Architecture exploration (ArchGym) requires active learning for sample efficiency.
+LLM serving needs real-time prediction within microseconds; VIDUR provides offline simulation but online adaptation remains challenging.
+FlashAttention~\cite{flashattention2022} and other hardware-aware algorithm optimizations change the performance landscape faster than models can be retrained.
+
+\subsection{Reproducibility and Trust}
+\label{subsec:reproducibility-trust}
+
+Our evaluation (Section~\ref{sec:evaluation}) reveals a critical gap between reported accuracy and independently verifiable results.
+nn-Meter's claimed $<$1\% MAPE is unverifiable because the tool cannot be run.
+Accuracy claims without reproducible evaluation are of limited value to practitioners.
+While the MLPerf Training~\cite{mlperf_training2020} and Inference~\cite{mlperf_inference2020} benchmarks standardize hardware \emph{measurement}, no equivalent exists for performance \emph{prediction}---the community would benefit from standardized prediction benchmarks with common workloads, hardware targets, and evaluation protocols.
+
+\subsection{Future Directions}
+\label{subsec:future-directions}
+
+Five high-priority research opportunities:
+(1) \textbf{Transformer/MoE-aware tools}---current tools are validated on CNNs; attention and expert routing have distinct performance characteristics.
+(2) \textbf{Validated composition}---methods to compose kernel predictions into end-to-end estimates with bounded error.
+(3) \textbf{Unified energy-latency-memory prediction}---most tools focus on latency; edge and datacenter deployment need energy and memory modeling, as highlighted by MLPerf Power~\cite{mlperfpower2025}.
+(4) \textbf{Temporal robustness}---benchmarks for evaluating model accuracy under software stack evolution.
+(5) \textbf{Unified tooling}---no single tool addresses all needs; Docker-first deployment, portable model formats (ONNX), and composable modeling engines with standard workload representations (Chakra~\cite{chakra2023}) could reduce fragmentation.
+
 % ==============================================================================
 % CONCLUSION
 % ==============================================================================
 \section{Conclusion}
 \label{sec:conclusion}
 
-This survey analyzed over 50 tools and methods for modeling and predicting the performance of ML workloads, organized along two primary dimensions: methodology type (analytical, simulation, trace-driven, ML-augmented, hybrid) and target platform (DNN accelerators, GPUs, distributed systems, edge devices).
+This survey analyzed over 30 tools and methods for modeling and predicting the performance of ML workloads, organized along two primary dimensions: methodology type (analytical, simulation, trace-driven, ML-augmented, hybrid) and target platform (DNN accelerators, GPUs, distributed systems, edge devices).
 
 \textbf{Key findings.}
 (1) \emph{Methodology determines trade-offs, not quality.} Analytical frameworks (Timeloop, MAESTRO) offer microsecond evaluation with full interpretability for accelerator design space exploration; trace-driven simulators (ASTRA-sim, VIDUR, SimAI, Lumos) provide 2--15\% accuracy for system-level distributed training and LLM serving; hybrid approaches (NeuSight, Concorde) achieve the best accuracy on GPU kernel prediction (2--3\% error) by combining analytical structure with learned components.
