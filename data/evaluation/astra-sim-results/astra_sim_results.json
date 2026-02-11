@@ -1,0 +1,891 @@
+{
+  "results_dir": "results",
+  "log_files": [
+    {
+      "file": "microbench_all_reduce_4npus_1MB.log",
+      "npu_results": [],
+      "raw_lines": []
+    },
+    {
+      "file": "microbench_all_reduce_8npus.log",
+      "npu_results": [
+        {
+          "npu_id": 4,
+          "total_cycles": 57426
+        },
+        {
+          "npu_id": 5,
+          "total_cycles": 57426
+        },
+        {
+          "npu_id": 6,
+          "total_cycles": 57426
+        },
+        {
+          "npu_id": 7,
+          "total_cycles": 57426
+        },
+        {
+          "npu_id": 0,
+          "total_cycles": 57426
+        },
+        {
+          "npu_id": 1,
+          "total_cycles": 57426
+        },
+        {
+          "npu_id": 2,
+          "total_cycles": 57426
+        },
+        {
+          "npu_id": 3,
+          "total_cycles": 57426
+        }
+      ],
+      "raw_lines": [
+        "[2026-02-11 23:31:07.966] [workload] [info] sys[4] finished, 57426 cycles, exposed communication 57426 cycles.",
+        "[2026-02-11 23:31:07.966] [statistics] [info] sys[4], Wall time: 57426",
+        "[2026-02-11 23:31:07.966] [statistics] [info] sys[4], Comm time: 57426",
+        "[2026-02-11 23:31:07.966] [workload] [info] sys[5] finished, 57426 cycles, exposed communication 57426 cycles.",
+        "[2026-02-11 23:31:07.966] [statistics] [info] sys[5], Wall time: 57426",
+        "[2026-02-11 23:31:07.966] [statistics] [info] sys[5], Comm time: 57426",
+        "[2026-02-11 23:31:07.966] [workload] [info] sys[6] finished, 57426 cycles, exposed communication 57426 cycles.",
+        "[2026-02-11 23:31:07.966] [statistics] [info] sys[6], Wall time: 57426",
+        "[2026-02-11 23:31:07.966] [statistics] [info] sys[6], Comm time: 57426",
+        "[2026-02-11 23:31:07.966] [workload] [info] sys[7] finished, 57426 cycles, exposed communication 57426 cycles.",
+        "[2026-02-11 23:31:07.966] [statistics] [info] sys[7], Wall time: 57426",
+        "[2026-02-11 23:31:07.966] [statistics] [info] sys[7], Comm time: 57426",
+        "[2026-02-11 23:31:07.966] [workload] [info] sys[0] finished, 57426 cycles, exposed communication 57426 cycles.",
+        "[2026-02-11 23:31:07.966] [statistics] [info] sys[0], Wall time: 57426",
+        "[2026-02-11 23:31:07.966] [statistics] [info] sys[0], Comm time: 57426",
+        "[2026-02-11 23:31:07.966] [workload] [info] sys[1] finished, 57426 cycles, exposed communication 57426 cycles.",
+        "[2026-02-11 23:31:07.966] [statistics] [info] sys[1], Wall time: 57426",
+        "[2026-02-11 23:31:07.966] [statistics] [info] sys[1], Comm time: 57426",
+        "[2026-02-11 23:31:07.966] [workload] [info] sys[2] finished, 57426 cycles, exposed communication 57426 cycles.",
+        "[2026-02-11 23:31:07.966] [statistics] [info] sys[2], Wall time: 57426",
+        "[2026-02-11 23:31:07.966] [statistics] [info] sys[2], Comm time: 57426",
+        "[2026-02-11 23:31:07.966] [workload] [info] sys[3] finished, 57426 cycles, exposed communication 57426 cycles.",
+        "[2026-02-11 23:31:07.966] [statistics] [info] sys[3], Wall time: 57426",
+        "[2026-02-11 23:31:07.966] [statistics] [info] sys[3], Comm time: 57426"
+      ]
+    },
+    {
+      "file": "microbench_all_reduce_8npus_1MB.log",
+      "npu_results": [
+        {
+          "npu_id": 4,
+          "total_cycles": 57426
+        },
+        {
+          "npu_id": 5,
+          "total_cycles": 57426
+        },
+        {
+          "npu_id": 6,
+          "total_cycles": 57426
+        },
+        {
+          "npu_id": 7,
+          "total_cycles": 57426
+        },
+        {
+          "npu_id": 0,
+          "total_cycles": 57426
+        },
+        {
+          "npu_id": 1,
+          "total_cycles": 57426
+        },
+        {
+          "npu_id": 2,
+          "total_cycles": 57426
+        },
+        {
+          "npu_id": 3,
+          "total_cycles": 57426
+        }
+      ],
+      "raw_lines": [
+        "[2026-02-11 23:31:08.708] [workload] [info] sys[4] finished, 57426 cycles, exposed communication 57426 cycles.",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[4], Wall time: 57426",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[4], Comm time: 57426",
+        "[2026-02-11 23:31:08.708] [workload] [info] sys[5] finished, 57426 cycles, exposed communication 57426 cycles.",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[5], Wall time: 57426",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[5], Comm time: 57426",
+        "[2026-02-11 23:31:08.708] [workload] [info] sys[6] finished, 57426 cycles, exposed communication 57426 cycles.",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[6], Wall time: 57426",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[6], Comm time: 57426",
+        "[2026-02-11 23:31:08.708] [workload] [info] sys[7] finished, 57426 cycles, exposed communication 57426 cycles.",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[7], Wall time: 57426",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[7], Comm time: 57426",
+        "[2026-02-11 23:31:08.708] [workload] [info] sys[0] finished, 57426 cycles, exposed communication 57426 cycles.",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[0], Wall time: 57426",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[0], Comm time: 57426",
+        "[2026-02-11 23:31:08.708] [workload] [info] sys[1] finished, 57426 cycles, exposed communication 57426 cycles.",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[1], Wall time: 57426",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[1], Comm time: 57426",
+        "[2026-02-11 23:31:08.708] [workload] [info] sys[2] finished, 57426 cycles, exposed communication 57426 cycles.",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[2], Wall time: 57426",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[2], Comm time: 57426",
+        "[2026-02-11 23:31:08.708] [workload] [info] sys[3] finished, 57426 cycles, exposed communication 57426 cycles.",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[3], Wall time: 57426",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[3], Comm time: 57426"
+      ]
+    },
+    {
+      "file": "resnet50_full.log",
+      "npu_results": [
+        {
+          "npu_id": 0,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 1,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 2,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 3,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 4,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 5,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 6,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 7,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 0,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 1,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 2,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 3,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 4,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 5,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 6,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 7,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 0,
+          "total_cycles": 1096768270
+        },
+        {
+          "npu_id": 1,
+          "total_cycles": 1096768270
+        },
+        {
+          "npu_id": 2,
+          "total_cycles": 1096768270
+        },
+        {
+          "npu_id": 3,
+          "total_cycles": 1096768270
+        },
+        {
+          "npu_id": 0,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 1,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 2,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 3,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 4,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 5,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 6,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 7,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 4,
+          "total_cycles": 57426
+        },
+        {
+          "npu_id": 5,
+          "total_cycles": 57426
+        },
+        {
+          "npu_id": 6,
+          "total_cycles": 57426
+        },
+        {
+          "npu_id": 7,
+          "total_cycles": 57426
+        },
+        {
+          "npu_id": 0,
+          "total_cycles": 57426
+        },
+        {
+          "npu_id": 1,
+          "total_cycles": 57426
+        },
+        {
+          "npu_id": 2,
+          "total_cycles": 57426
+        },
+        {
+          "npu_id": 3,
+          "total_cycles": 57426
+        },
+        {
+          "npu_id": 0,
+          "total_cycles": 57426
+        },
+        {
+          "npu_id": 1,
+          "total_cycles": 57426
+        },
+        {
+          "npu_id": 2,
+          "total_cycles": 57426
+        },
+        {
+          "npu_id": 3,
+          "total_cycles": 57426
+        },
+        {
+          "npu_id": 0,
+          "total_cycles": 57426
+        },
+        {
+          "npu_id": 1,
+          "total_cycles": 57426
+        },
+        {
+          "npu_id": 2,
+          "total_cycles": 57426
+        },
+        {
+          "npu_id": 3,
+          "total_cycles": 57426
+        },
+        {
+          "npu_id": 0,
+          "total_cycles": 57426
+        },
+        {
+          "npu_id": 1,
+          "total_cycles": 57426
+        },
+        {
+          "npu_id": 2,
+          "total_cycles": 57426
+        },
+        {
+          "npu_id": 3,
+          "total_cycles": 57426
+        },
+        {
+          "npu_id": 5,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 6,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 7,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 5,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 6,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 7,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 1,
+          "total_cycles": 1096768270
+        },
+        {
+          "npu_id": 2,
+          "total_cycles": 1096768270
+        },
+        {
+          "npu_id": 3,
+          "total_cycles": 1096768270
+        },
+        {
+          "npu_id": 5,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 6,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 7,
+          "total_cycles": 1098621886
+        }
+      ],
+      "raw_lines": [
+        "[2026-02-11 23:31:08.383] [workload] [info] sys[0] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[0], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[0], Comm time: 3307886",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[0], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.383] [workload] [info] sys[1] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[1], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[1], Comm time: 3307886",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[1], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.383] [workload] [info] sys[2] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[2], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[2], Comm time: 3307886",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[2], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.383] [workload] [info] sys[3] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[3], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[3], Comm time: 3307886",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[3], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.383] [workload] [info] sys[4] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[4], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[4], Comm time: 3307886",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[4], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.383] [workload] [info] sys[5] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[5], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[5], Comm time: 3307886",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[5], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.383] [workload] [info] sys[6] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[6], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[6], Comm time: 3307886",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[6], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.383] [workload] [info] sys[7] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[7], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[7], Comm time: 3307886",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[7], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.439] [workload] [info] sys[0] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[0], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[0], Comm time: 3307886",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[0], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.439] [workload] [info] sys[1] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[1], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[1], Comm time: 3307886",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[1], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.439] [workload] [info] sys[2] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[2], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[2], Comm time: 3307886",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[2], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.439] [workload] [info] sys[3] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[3], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[3], Comm time: 3307886",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[3], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.439] [workload] [info] sys[4] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[4], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[4], Comm time: 3307886",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[4], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.439] [workload] [info] sys[5] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[5], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[5], Comm time: 3307886",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[5], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.439] [workload] [info] sys[6] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[6], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[6], Comm time: 3307886",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[6], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.439] [workload] [info] sys[7] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[7], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[7], Comm time: 3307886",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[7], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.598] [workload] [info] sys[0] finished, 1096768270 cycles, exposed communication 1454270 cycles.",
+        "[2026-02-11 23:31:08.598] [statistics] [info] sys[0], Wall time: 1096768270",
+        "[2026-02-11 23:31:08.598] [statistics] [info] sys[0], Comm time: 1454270",
+        "[2026-02-11 23:31:08.598] [statistics] [info] sys[0], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.598] [workload] [info] sys[1] finished, 1096768270 cycles, exposed communication 1454270 cycles.",
+        "[2026-02-11 23:31:08.598] [statistics] [info] sys[1], Wall time: 1096768270",
+        "[2026-02-11 23:31:08.598] [statistics] [info] sys[1], Comm time: 1454270",
+        "[2026-02-11 23:31:08.598] [statistics] [info] sys[1], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.598] [workload] [info] sys[2] finished, 1096768270 cycles, exposed communication 1454270 cycles.",
+        "[2026-02-11 23:31:08.598] [statistics] [info] sys[2], Wall time: 1096768270",
+        "[2026-02-11 23:31:08.598] [statistics] [info] sys[2], Comm time: 1454270",
+        "[2026-02-11 23:31:08.598] [statistics] [info] sys[2], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.598] [workload] [info] sys[3] finished, 1096768270 cycles, exposed communication 1454270 cycles.",
+        "[2026-02-11 23:31:08.598] [statistics] [info] sys[3], Wall time: 1096768270",
+        "[2026-02-11 23:31:08.598] [statistics] [info] sys[3], Comm time: 1454270",
+        "[2026-02-11 23:31:08.598] [statistics] [info] sys[3], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.687] [workload] [info] sys[0] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[0], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[0], Comm time: 3307886",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[0], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.687] [workload] [info] sys[1] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[1], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[1], Comm time: 3307886",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[1], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.687] [workload] [info] sys[2] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[2], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[2], Comm time: 3307886",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[2], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.687] [workload] [info] sys[3] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[3], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[3], Comm time: 3307886",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[3], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.687] [workload] [info] sys[4] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[4], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[4], Comm time: 3307886",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[4], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.687] [workload] [info] sys[5] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[5], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[5], Comm time: 3307886",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[5], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.687] [workload] [info] sys[6] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[6], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[6], Comm time: 3307886",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[6], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.687] [workload] [info] sys[7] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[7], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[7], Comm time: 3307886",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[7], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.708] [workload] [info] sys[4] finished, 57426 cycles, exposed communication 57426 cycles.",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[4], Wall time: 57426",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[4], Comm time: 57426",
+        "[2026-02-11 23:31:08.708] [workload] [info] sys[5] finished, 57426 cycles, exposed communication 57426 cycles.",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[5], Wall time: 57426",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[5], Comm time: 57426",
+        "[2026-02-11 23:31:08.708] [workload] [info] sys[6] finished, 57426 cycles, exposed communication 57426 cycles.",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[6], Wall time: 57426",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[6], Comm time: 57426",
+        "[2026-02-11 23:31:08.708] [workload] [info] sys[7] finished, 57426 cycles, exposed communication 57426 cycles.",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[7], Wall time: 57426",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[7], Comm time: 57426",
+        "[2026-02-11 23:31:08.708] [workload] [info] sys[0] finished, 57426 cycles, exposed communication 57426 cycles.",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[0], Wall time: 57426",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[0], Comm time: 57426",
+        "[2026-02-11 23:31:08.708] [workload] [info] sys[1] finished, 57426 cycles, exposed communication 57426 cycles.",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[1], Wall time: 57426",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[1], Comm time: 57426",
+        "[2026-02-11 23:31:08.708] [workload] [info] sys[2] finished, 57426 cycles, exposed communication 57426 cycles.",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[2], Wall time: 57426",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[2], Comm time: 57426",
+        "[2026-02-11 23:31:08.708] [workload] [info] sys[3] finished, 57426 cycles, exposed communication 57426 cycles.",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[3], Wall time: 57426",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[3], Comm time: 57426",
+        "[2026-02-11 23:31:07.966] [workload] [info] sys[0] finished, 57426 cycles, exposed communication 57426 cycles.",
+        "[2026-02-11 23:31:07.966] [statistics] [info] sys[0], Wall time: 57426",
+        "[2026-02-11 23:31:07.966] [statistics] [info] sys[0], Comm time: 57426",
+        "[2026-02-11 23:31:07.966] [workload] [info] sys[1] finished, 57426 cycles, exposed communication 57426 cycles.",
+        "[2026-02-11 23:31:07.966] [statistics] [info] sys[1], Wall time: 57426",
+        "[2026-02-11 23:31:07.966] [statistics] [info] sys[1], Comm time: 57426",
+        "[2026-02-11 23:31:07.966] [workload] [info] sys[2] finished, 57426 cycles, exposed communication 57426 cycles.",
+        "[2026-02-11 23:31:07.966] [statistics] [info] sys[2], Wall time: 57426",
+        "[2026-02-11 23:31:07.966] [statistics] [info] sys[2], Comm time: 57426",
+        "[2026-02-11 23:31:07.966] [workload] [info] sys[3] finished, 57426 cycles, exposed communication 57426 cycles.",
+        "[2026-02-11 23:31:07.966] [statistics] [info] sys[3], Wall time: 57426",
+        "[2026-02-11 23:31:07.966] [statistics] [info] sys[3], Comm time: 57426",
+        "[2026-02-11 23:31:08.708] [workload] [info] sys[0] finished, 57426 cycles, exposed communication 57426 cycles.",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[0], Wall time: 57426",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[0], Comm time: 57426",
+        "[2026-02-11 23:31:08.708] [workload] [info] sys[1] finished, 57426 cycles, exposed communication 57426 cycles.",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[1], Wall time: 57426",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[1], Comm time: 57426",
+        "[2026-02-11 23:31:08.708] [workload] [info] sys[2] finished, 57426 cycles, exposed communication 57426 cycles.",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[2], Wall time: 57426",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[2], Comm time: 57426",
+        "[2026-02-11 23:31:08.708] [workload] [info] sys[3] finished, 57426 cycles, exposed communication 57426 cycles.",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[3], Wall time: 57426",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[3], Comm time: 57426",
+        "[2026-02-11 23:31:08.708] [workload] [info] sys[0] finished, 57426 cycles, exposed communication 57426 cycles.",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[0], Wall time: 57426",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[0], Comm time: 57426",
+        "[2026-02-11 23:31:08.708] [workload] [info] sys[1] finished, 57426 cycles, exposed communication 57426 cycles.",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[1], Wall time: 57426",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[1], Comm time: 57426",
+        "[2026-02-11 23:31:08.708] [workload] [info] sys[2] finished, 57426 cycles, exposed communication 57426 cycles.",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[2], Wall time: 57426",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[2], Comm time: 57426",
+        "[2026-02-11 23:31:08.708] [workload] [info] sys[3] finished, 57426 cycles, exposed communication 57426 cycles.",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[3], Wall time: 57426",
+        "[2026-02-11 23:31:08.708] [statistics] [info] sys[3], Comm time: 57426",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[4], Comm time: 3307886",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[4], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.439] [workload] [info] sys[5] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[5], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[5], Comm time: 3307886",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[5], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.439] [workload] [info] sys[6] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[6], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[6], Comm time: 3307886",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[6], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.439] [workload] [info] sys[7] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[7], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[7], Comm time: 3307886",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[7], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[4], Comm time: 3307886",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[4], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.383] [workload] [info] sys[5] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[5], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[5], Comm time: 3307886",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[5], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.383] [workload] [info] sys[6] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[6], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[6], Comm time: 3307886",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[6], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.383] [workload] [info] sys[7] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[7], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[7], Comm time: 3307886",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[7], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.598] [statistics] [info] sys[0], Comm time: 1454270",
+        "[2026-02-11 23:31:08.598] [statistics] [info] sys[0], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.598] [workload] [info] sys[1] finished, 1096768270 cycles, exposed communication 1454270 cycles.",
+        "[2026-02-11 23:31:08.598] [statistics] [info] sys[1], Wall time: 1096768270",
+        "[2026-02-11 23:31:08.598] [statistics] [info] sys[1], Comm time: 1454270",
+        "[2026-02-11 23:31:08.598] [statistics] [info] sys[1], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.598] [workload] [info] sys[2] finished, 1096768270 cycles, exposed communication 1454270 cycles.",
+        "[2026-02-11 23:31:08.598] [statistics] [info] sys[2], Wall time: 1096768270",
+        "[2026-02-11 23:31:08.598] [statistics] [info] sys[2], Comm time: 1454270",
+        "[2026-02-11 23:31:08.598] [statistics] [info] sys[2], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.598] [workload] [info] sys[3] finished, 1096768270 cycles, exposed communication 1454270 cycles.",
+        "[2026-02-11 23:31:08.598] [statistics] [info] sys[3], Wall time: 1096768270",
+        "[2026-02-11 23:31:08.598] [statistics] [info] sys[3], Comm time: 1454270",
+        "[2026-02-11 23:31:08.598] [statistics] [info] sys[3], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[4], Comm time: 3307886",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[4], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.687] [workload] [info] sys[5] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[5], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[5], Comm time: 3307886",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[5], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.687] [workload] [info] sys[6] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[6], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[6], Comm time: 3307886",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[6], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.687] [workload] [info] sys[7] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[7], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[7], Comm time: 3307886",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[7], GPU time: 1095314000"
+      ]
+    },
+    {
+      "file": "resnet50_hgx-h100-validated_16npus.log",
+      "npu_results": [
+        {
+          "npu_id": 0,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 1,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 2,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 3,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 4,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 5,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 6,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 7,
+          "total_cycles": 1098621886
+        }
+      ],
+      "raw_lines": [
+        "[2026-02-11 23:31:08.439] [workload] [info] sys[0] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[0], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[0], Comm time: 3307886",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[0], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.439] [workload] [info] sys[1] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[1], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[1], Comm time: 3307886",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[1], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.439] [workload] [info] sys[2] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[2], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[2], Comm time: 3307886",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[2], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.439] [workload] [info] sys[3] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[3], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[3], Comm time: 3307886",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[3], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.439] [workload] [info] sys[4] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[4], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[4], Comm time: 3307886",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[4], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.439] [workload] [info] sys[5] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[5], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[5], Comm time: 3307886",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[5], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.439] [workload] [info] sys[6] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[6], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[6], Comm time: 3307886",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[6], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.439] [workload] [info] sys[7] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[7], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[7], Comm time: 3307886",
+        "[2026-02-11 23:31:08.439] [statistics] [info] sys[7], GPU time: 1095314000"
+      ]
+    },
+    {
+      "file": "resnet50_hgx-h100-validated_4npus.log",
+      "npu_results": [],
+      "raw_lines": []
+    },
+    {
+      "file": "resnet50_hgx-h100-validated_8npus.log",
+      "npu_results": [
+        {
+          "npu_id": 0,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 1,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 2,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 3,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 4,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 5,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 6,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 7,
+          "total_cycles": 1098621886
+        }
+      ],
+      "raw_lines": [
+        "[2026-02-11 23:31:08.383] [workload] [info] sys[0] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[0], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[0], Comm time: 3307886",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[0], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.383] [workload] [info] sys[1] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[1], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[1], Comm time: 3307886",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[1], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.383] [workload] [info] sys[2] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[2], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[2], Comm time: 3307886",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[2], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.383] [workload] [info] sys[3] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[3], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[3], Comm time: 3307886",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[3], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.383] [workload] [info] sys[4] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[4], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[4], Comm time: 3307886",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[4], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.383] [workload] [info] sys[5] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[5], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[5], Comm time: 3307886",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[5], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.383] [workload] [info] sys[6] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[6], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[6], Comm time: 3307886",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[6], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.383] [workload] [info] sys[7] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[7], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[7], Comm time: 3307886",
+        "[2026-02-11 23:31:08.383] [statistics] [info] sys[7], GPU time: 1095314000"
+      ]
+    },
+    {
+      "file": "resnet50_hgx_h100_16gpu_8npus.log",
+      "npu_results": [],
+      "raw_lines": []
+    },
+    {
+      "file": "resnet50_hgx_h100_32gpu_8npus.log",
+      "npu_results": [],
+      "raw_lines": []
+    },
+    {
+      "file": "resnet50_hgx_h100_4gpu_4npus.log",
+      "npu_results": [
+        {
+          "npu_id": 0,
+          "total_cycles": 1096768270
+        },
+        {
+          "npu_id": 1,
+          "total_cycles": 1096768270
+        },
+        {
+          "npu_id": 2,
+          "total_cycles": 1096768270
+        },
+        {
+          "npu_id": 3,
+          "total_cycles": 1096768270
+        }
+      ],
+      "raw_lines": [
+        "[2026-02-11 23:31:08.598] [workload] [info] sys[0] finished, 1096768270 cycles, exposed communication 1454270 cycles.",
+        "[2026-02-11 23:31:08.598] [statistics] [info] sys[0], Wall time: 1096768270",
+        "[2026-02-11 23:31:08.598] [statistics] [info] sys[0], Comm time: 1454270",
+        "[2026-02-11 23:31:08.598] [statistics] [info] sys[0], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.598] [workload] [info] sys[1] finished, 1096768270 cycles, exposed communication 1454270 cycles.",
+        "[2026-02-11 23:31:08.598] [statistics] [info] sys[1], Wall time: 1096768270",
+        "[2026-02-11 23:31:08.598] [statistics] [info] sys[1], Comm time: 1454270",
+        "[2026-02-11 23:31:08.598] [statistics] [info] sys[1], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.598] [workload] [info] sys[2] finished, 1096768270 cycles, exposed communication 1454270 cycles.",
+        "[2026-02-11 23:31:08.598] [statistics] [info] sys[2], Wall time: 1096768270",
+        "[2026-02-11 23:31:08.598] [statistics] [info] sys[2], Comm time: 1454270",
+        "[2026-02-11 23:31:08.598] [statistics] [info] sys[2], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.598] [workload] [info] sys[3] finished, 1096768270 cycles, exposed communication 1454270 cycles.",
+        "[2026-02-11 23:31:08.598] [statistics] [info] sys[3], Wall time: 1096768270",
+        "[2026-02-11 23:31:08.598] [statistics] [info] sys[3], Comm time: 1454270",
+        "[2026-02-11 23:31:08.598] [statistics] [info] sys[3], GPU time: 1095314000"
+      ]
+    },
+    {
+      "file": "resnet50_hgx_h100_8gpu_8npus.log",
+      "npu_results": [
+        {
+          "npu_id": 0,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 1,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 2,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 3,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 4,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 5,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 6,
+          "total_cycles": 1098621886
+        },
+        {
+          "npu_id": 7,
+          "total_cycles": 1098621886
+        }
+      ],
+      "raw_lines": [
+        "[2026-02-11 23:31:08.687] [workload] [info] sys[0] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[0], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[0], Comm time: 3307886",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[0], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.687] [workload] [info] sys[1] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[1], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[1], Comm time: 3307886",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[1], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.687] [workload] [info] sys[2] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[2], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[2], Comm time: 3307886",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[2], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.687] [workload] [info] sys[3] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[3], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[3], Comm time: 3307886",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[3], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.687] [workload] [info] sys[4] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[4], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[4], Comm time: 3307886",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[4], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.687] [workload] [info] sys[5] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[5], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[5], Comm time: 3307886",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[5], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.687] [workload] [info] sys[6] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[6], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[6], Comm time: 3307886",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[6], GPU time: 1095314000",
+        "[2026-02-11 23:31:08.687] [workload] [info] sys[7] finished, 1098621886 cycles, exposed communication 3307886 cycles.",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[7], Wall time: 1098621886",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[7], Comm time: 3307886",
+        "[2026-02-11 23:31:08.687] [statistics] [info] sys[7], GPU time: 1095314000"
+      ]
+    }
+  ],
+  "published_validation": {
+    "hgx-h100": {
+      "2": {
+        "geomean_error_pct": 20.63
+      },
+      "4": {
+        "geomean_error_pct": 12.01
+      },
+      "8": {
+        "geomean_error_pct": 9.69
+      }
+    }
+  }
+}
