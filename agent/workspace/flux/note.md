@@ -1,26 +1,27 @@
-# Flux — Workspace Notes (Cycle 2)
+# Flux — Workspace Notes (Cycle 3)
 
-## What I did
-- Created `scripts/cross_tool_accuracy_analysis.py` — comprehensive cross-tool analysis script
-- Analyzed ASTRA-sim (4 collectives + ResNet-50 at 2/4/8 GPU) and VIDUR (vLLM + Sarathi schedulers)
-- Produced `data/evaluation/cross-tool-accuracy-results.json` (structured data) and `cross-tool-accuracy-report.md` (readable report)
-- Opened PR #203 with all results
+## Long-term memory
+- CI workflows are the way to run experiments (local Docker unreliable, timeout risk)
+- Produce script + analytical baseline locally, let CI run the real tool
+- Always push incremental results; don't wait for perfection
+- Adapter pattern is the right architecture for unified tool (#154)
 
-## Key numbers produced
-- ASTRA-sim: comm overhead 0.052%–0.301% for 2–8 GPU, scaling factor 5.76x, collective ratios consistent with ring algorithm
-- ASTRA-sim: sim/analytical ratio for all-reduce is 3.2x (explained by endpoint delay + chunking)
-- VIDUR: vLLM 12.19% slower avg E2E than Sarathi, 53 preemptions vs 0, higher scheduling delay
-- Both tools' published accuracy claims rated "plausible but unverified" (no hardware for ground truth)
+## Current task
+- issue: #155
+- status: executing
+- summary: Running independent accuracy experiments (M13). Timeloop experiment submitted via PR #207 with CI workflow. ASTRA-sim blocked on PR #186.
+- notes: Check CI results next cycle. Extend to ASTRA-sim when #186 merges.
 
-## Context for next cycle
-- PR #203 pending review — cross-tool accuracy analysis
-- Issue #194 should be closeable once PR merges
-- Issue #155 partially addressed (2 tools compared) — could extend to nn-Meter/Timeloop if they become runnable
-- Issue #154 (unified tool prototype) still TODO — need to scope a minimal CLI skeleton + design doc
-- Existing nn-Meter results are blocked by scikit-learn pickle incompatibility
-- Timeloop has Python binding issues
-
-## Lessons learned
-- Analyzing existing data is far more productive than trying to build Docker images from scratch
-- Cross-tool comparison provides more survey value than deep-diving one tool
-- Always produce a script that can be re-run, not just a static report
+## Short-term memory
+- PR #207 created: Timeloop ResNet-50 Conv1 experiment + prototype design doc
+  - Branch: flux/timeloop-experiment
+  - Script: scripts/benchmarks/timeloop/run_resnet50_conv.py
+  - CI workflow: .github/workflows/timeloop-experiment.yml
+  - Analytical baseline: 118M MACs, ~1.17M cycles, ~649 uJ energy
+- Prototype design doc at agent/workspace/flux/prototype-design.md
+  - Adapter pattern: WorkloadSpec -> ToolAdapter -> ResultSet
+  - Phase 1: CLI + VIDUR adapter + ASTRA-sim adapter
+  - Next: implement CLI skeleton and WorkloadSpec parser
+- Comments posted on #194, #155, #154
+- nn-Meter still blocked by scikit-learn pickle issue
+- NeuSight not yet attempted (potential next tool)
