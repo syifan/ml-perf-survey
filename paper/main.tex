@@ -370,7 +370,7 @@ Table~\ref{tab:taxonomy-matrix} provides a unified view combining the coverage m
 
 \end{tikzpicture}%
 }
-\caption{Two-dimensional taxonomy for ML workload performance modeling. The primary axis is methodology type (how performance is predicted); the secondary axis is target platform. Arrows show dominant pairings: analytical models for accelerators, cycle-accurate simulation for GPUs/CPUs, trace-driven simulation for distributed systems, and ML-augmented approaches for edge devices and compiler cost models.}
+\caption{Taxonomy of ML workload performance modeling along two of three dimensions (methodology type and target platform; abstraction level is detailed in \S\ref{subsec:by-abstraction}). Arrows show dominant pairings: analytical models for accelerators, cycle-accurate simulation for GPUs/CPUs, trace-driven simulation for distributed systems, and ML-augmented approaches for edge devices and compiler cost models.}
 \label{fig:taxonomy-overview}
 \end{figure}
 
@@ -418,8 +418,7 @@ AMALI~\cite{amali2025} targets LLM inference on GPUs through improved memory hie
 
 Analytical models provide microsecond evaluation, full interpretability, and ``what-if'' design analysis.
 Their limitation is that they require manual derivation per architecture and may miss complex dynamic effects (e.g., memory contention, scheduling variability).
-AMALI's 23.6\% MAPE illustrates the fundamental boundary of analytical approaches for complex workloads: reducing GPU LLM inference modeling error from 127\% to 24\% through improved memory hierarchy treatment represents significant progress, but the residual error stems from dynamic microarchitectural effects (warp scheduling, L2 cache contention, bank conflicts) that resist closed-form treatment~\cite{amali2025}.
-This is not a quality limitation but rather reveals \emph{when} analytical models reach their accuracy ceiling and ML-augmented or hybrid approaches become necessary.
+AMALI's 23.6\% MAPE illustrates the accuracy ceiling of analytical approaches for complex GPU workloads---the residual error stems from dynamic microarchitectural effects that resist closed-form treatment (see \S\ref{subsec:gpu-modeling} for detailed analysis).
 
 \subsubsection{Cycle-Accurate Simulation}
 
@@ -463,14 +462,13 @@ nn-Meter's paper-reported $<$1\% MAPE cannot be independently verified, as the t
 Hybrid approaches combine analytical structure with learned components, achieving both interpretability and high accuracy.
 The analytical component provides a physics-based prior; the ML component learns residual corrections.
 
-NeuSight~\cite{neusight2025} uses tile-based prediction mirroring CUDA's execution model with MLP prediction heads, achieving 2.3\% error on GPT-3 inference across H100, A100, and V100 GPUs.
-Concorde~\cite{concorde2025} fuses compositional analytical models with learned corrections for CPU performance, achieving 2\% CPI error at five orders of magnitude faster than gem5.
-Habitat~\cite{habitat2021} decomposes execution into analytically-modeled compute and memory components that scale with hardware parameters.
-ArchGym~\cite{archgym2023} connects ML optimization algorithms to analytical simulators for design space exploration.
+NeuSight~\cite{neusight2025} uses tile-based prediction mirroring CUDA's execution model, achieving 2.3\% error on GPT-3 inference.
+Concorde~\cite{concorde2025} fuses analytical models with learned corrections for CPU performance at 2\% CPI error.
+Habitat~\cite{habitat2021} decomposes execution into analytically-modeled compute and memory components.
+ArchGym~\cite{archgym2023} connects ML optimization to analytical simulators for design space exploration.
 
 The latency predictor study~\cite{latencypredictorsnas2024} demonstrates that hybrid approaches with transfer learning achieve 22.5\% average improvement over baselines.
-Note that accuracy comparisons between hybrid and pure approaches require care: ArchGym's reported 0.61\% RMSE measures surrogate-vs-simulator fidelity, not real hardware accuracy, and should not be directly compared with NeuSight's 2.3\% MAPE against measured hardware~\cite{archgym2023}.
-Similarly, NeuSight's claimed ``50$\times$ improvement over Habitat'' compares against Habitat running on H100 hardware that did not exist when Habitat was published---the two tools solve different problems (static prediction vs.\ profiling-based transfer) and should be understood as complementary rather than competing.
+Note that cross-tool accuracy comparisons require careful contextualization---we discuss methodological caveats (surrogate fidelity vs.\ real hardware error, evaluation-era fairness) in \S\ref{subsec:gpu-modeling} and \S\ref{subsec:cross-cutting}.
 
 \subsection{Secondary Axis: Target Platform}
 \label{subsec:by-platform}
@@ -1340,16 +1338,16 @@ Five high-priority research opportunities:
 \section{Conclusion}
 \label{sec:conclusion}
 
-This survey analyzed over 30 tools and methods for modeling and predicting the performance of ML workloads, organized along two primary dimensions: methodology type (analytical, simulation, trace-driven, ML-augmented, hybrid) and target platform (DNN accelerators, GPUs, distributed systems, edge devices).
+This survey analyzed over 30 tools and methods for modeling and predicting the performance of ML workloads, organized along three dimensions: methodology type (analytical, simulation, trace-driven, ML-augmented, hybrid), target platform (DNN accelerators, GPUs, distributed systems, edge devices), and abstraction level (kernel, model, system).
 
 \textbf{Key findings.}
-(1) \emph{Methodology determines trade-offs, not quality.} Analytical frameworks (Timeloop, MAESTRO) offer microsecond evaluation with full interpretability for accelerator design space exploration; trace-driven simulators (ASTRA-sim, VIDUR, SimAI, Lumos) provide 2--15\% accuracy for system-level distributed training and LLM serving; hybrid approaches (NeuSight, Concorde) achieve the best accuracy on GPU kernel prediction (2--3\% error) by combining analytical structure with learned components.
+(1) \emph{Methodology determines trade-offs, not quality.} Analytical frameworks (Timeloop, MAESTRO) offer microsecond evaluation with full interpretability for accelerator design space exploration; trace-driven simulators (ASTRA-sim, VIDUR, SimAI, Lumos) provide 2--15\% error for system-level distributed training and LLM serving; hybrid approaches achieve the best accuracy--speed trade-offs by combining analytical structure with learned components (NeuSight: 2.3\% MAPE on GPU kernels; Concorde: 2\% CPI error on CPUs).
 (2) \emph{LLM workloads demand specialized modeling.} Prefill/decode phase distinctions, KV cache management, multi-stage inference pipelines, and dynamic batching require purpose-built tools (VIDUR, Frontier, LIFE, HERMES) rather than extensions of CNN-era frameworks.
-(3) \emph{Reproducibility is a practical bottleneck.} Docker-first tools (Timeloop, ASTRA-sim, VIDUR) score 8.5+/10 on our rubric, while tools relying on serialized ML models (nn-Meter) risk becoming unusable due to dependency drift---a challenge the community must address through portable model formats and pinned environments.
+(3) \emph{Reproducibility is a practical bottleneck.} Docker-first tools (Timeloop, ASTRA-sim, VIDUR) score 8.5+/10 on our rubric, while tools relying on serialized ML models (nn-Meter) have already become unusable due to dependency drift---a challenge the community must address through portable model formats and pinned environments.
 (4) \emph{Accuracy claims require scrutiny.} Paper-reported accuracy numbers are measured under varying benchmarks, metrics, and hardware targets; direct cross-tool comparison remains unreliable without standardized evaluation protocols.
 
 \textbf{Gaps and future directions.}
-The most pressing gaps align with the challenges identified in Section~\ref{sec:challenges}: (1) nearly all tools are validated on CNN workloads, leaving transformer, MoE, and diffusion model performance largely uncharacterized; (2) composing kernel-level predictions into accurate end-to-end estimates remains unsolved; (3) emerging hardware (PIM, chiplets, disaggregated architectures) lacks mature modeling support; and (4) cross-platform generalization (GPU$\rightarrow$TPU$\rightarrow$accelerator) requires new transfer learning or meta-learning approaches.
+The most pressing gaps align with the challenges identified in Section~\ref{sec:challenges}: (1) nearly all tools are validated on CNN workloads, leaving transformer, MoE, and diffusion model performance largely uncharacterized; (2) composing kernel-level predictions into accurate end-to-end estimates remains unsolved; (3) emerging hardware (PIM, chiplets, disaggregated architectures) lacks mature modeling support; (4) cross-platform generalization (GPU$\rightarrow$TPU$\rightarrow$accelerator) remains limited; and (5) reproducibility failures (dependency drift, unverifiable accuracy claims) undermine trust in the tools that practitioners depend on.
 The community would benefit most from standardized benchmarks for cross-tool accuracy comparison and from unified tooling with composable modeling engines and standard workload representations.
 
 As ML workloads grow in scale and diversity, accurate performance prediction becomes critical for hardware design, system provisioning, and serving infrastructure planning.
