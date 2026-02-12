@@ -710,6 +710,7 @@ TVM~\cite{tvm2018} and Ansor~\cite{ansor2020} use ML cost models (XGBoost, MLP) 
 The TenSet dataset~\cite{tenset2021} (52M records) enables pre-trained models that accelerate autotuning 10$\times$.
 TLP~\cite{tlp2023} uses deep learning (transformer-based architecture) for tensor program cost modeling, specifically designed for the irregular computation patterns in transformer workloads that challenge traditional XGBoost cost models; it achieves $<$10\% MAPE on transformer operators where TVM's default cost model shows higher error, demonstrating that workload-specific cost models can significantly improve autotuning for non-CNN workloads.
 SynPerf~\cite{synperf2025} takes a complementary approach, using performance models to guide GPU kernel synthesis rather than merely evaluating existing kernels.
+Note that SwizzlePerf and SynPerf are primarily \emph{consumers} of performance models---they use performance predictions to guide optimization and synthesis, rather than providing general-purpose performance prediction themselves.
 These tools prioritize ranking accuracy for schedule selection over absolute error.
 
 \textbf{Synthesis.}
@@ -1035,7 +1036,7 @@ The interpretability gap is practically significant: architects need to understa
 \label{subsec:methodology-distribution}
 
 Figure~\ref{fig:methodology-breakdown} shows the distribution of surveyed tools across methodology types.
-Trace-driven simulation is the most common approach (9 tools), driven by the recent proliferation of distributed training and LLM serving simulators.
+Trace-driven simulation is the most common approach (7 tools), driven by the recent proliferation of distributed training and LLM serving simulators.
 Analytical and ML-augmented approaches are equally represented (8 tools each), reflecting the field's split between interpretable physics-based models and data-driven prediction.
 Hybrid approaches remain the smallest category (4 tools), despite achieving the best accuracy---suggesting significant room for future work combining analytical structure with learned components.
 
@@ -1061,7 +1062,7 @@ Hybrid approaches remain the smallest category (4 tools), despite achieving the 
     every node near coord/.append style={xshift=1pt},
     xtick={0,2,4,6,8,10},
 ]
-\addplot[fill=orange!50, draw=orange!70] coordinates {(9,0)};
+\addplot[fill=orange!50, draw=orange!70] coordinates {(7,0)};
 \addplot[fill=blue!50, draw=blue!70] coordinates {(8,1)};
 \addplot[fill=purple!50, draw=purple!70] coordinates {(8,2)};
 \addplot[fill=red!50, draw=red!70] coordinates {(5,3)};
@@ -1339,9 +1340,19 @@ However, MoE models and diffusion workloads remain almost entirely uncharacteriz
 \label{subsec:composition}
 
 Many tools predict kernel-level or operator-level performance, but composing these predictions into accurate end-to-end estimates is an unsolved problem.
-Memory allocation overhead, kernel launch latency, inter-operator data movement, and framework scheduling introduce compounding errors.
-For distributed systems, the composition extends across devices with communication overhead and synchronization.
-No surveyed tool provides validated composition guarantees.
+Memory allocation overhead, kernel launch latency, inter-operator data movement, and framework scheduling introduce compounding errors that grow with model depth.
+
+To illustrate the severity: NeuSight achieves 2.3\% kernel-level MAPE, but a model with 100 layers accumulates prediction variance across all layers.
+Under independent error assumptions, the end-to-end standard deviation scales as $\sigma_{\text{model}} \approx \sigma_{\text{kernel}} \cdot \sqrt{N}$, yielding roughly $10\times$ higher variance at $N=100$ layers.
+In practice, errors are not independent---systematic biases in memory bandwidth estimation or cache miss prediction produce correlated errors that can compound \emph{linearly} rather than sub-linearly, potentially yielding 20--30\% model-level error from individually accurate kernel predictions.
+VIDUR sidesteps this problem for LLM serving by profiling entire prefill/decode phases rather than composing kernel predictions, but this sacrifices generality.
+
+For distributed systems, the composition extends across devices: communication overhead, pipeline bubble time, and synchronization barriers each introduce additional error sources that no surveyed tool validates end-to-end against measured composition error.
+Three potential approaches merit investigation:
+(1)~\emph{error propagation analysis}---bounding end-to-end error as a function of per-component accuracy using sensitivity analysis or interval arithmetic;
+(2)~\emph{end-to-end calibration}---learning a correction model that adjusts composed predictions against measured end-to-end latency;
+(3)~\emph{hierarchical composition}---tools that jointly predict across abstraction levels rather than treating composition as post-hoc aggregation.
+No surveyed tool provides validated composition guarantees, making this arguably the most impactful open problem for practical deployment of performance prediction.
 
 \subsection{Emerging Hardware Support}
 \label{subsec:emerging-hardware}
