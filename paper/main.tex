@@ -61,10 +61,10 @@
 \begin{abstract}
 As machine learning workloads grow in scale and complexity---spanning training and inference for CNNs, transformers, mixture-of-experts models, and LLMs---architects and system designers need fast, accurate methods to predict their performance across diverse hardware platforms.
 This survey provides a comprehensive analysis of the tools and methods available for modeling and simulating the performance of ML workloads, covering analytical models, cycle-accurate simulators, trace-driven approaches, and ML-augmented hybrid techniques.
-We survey approximately 25 tools drawn from 53 papers across architecture venues (MICRO, ISCA, HPCA, ASPLOS) and systems venues (MLSys, OSDI, NSDI) published between 2016--2026, spanning DNN accelerator modeling (Timeloop, MAESTRO, Sparseloop), GPU simulation (GPGPU-Sim, Accel-Sim, NeuSight), distributed training simulation (ASTRA-sim, Lumos, SimAI), and LLM inference serving (VIDUR, Frontier, AMALI).
+We survey 22 tools in depth (with 15+ additional tools discussed) drawn from 53 papers across architecture venues (MICRO, ISCA, HPCA, ASPLOS) and systems venues (MLSys, OSDI, NSDI) published between 2016--2026, spanning DNN accelerator modeling (Timeloop, MAESTRO, Sparseloop), GPU simulation (GPGPU-Sim, Accel-Sim, NeuSight), distributed training simulation (ASTRA-sim, Lumos, SimAI), and LLM inference serving (VIDUR, Frontier, AMALI).
 We organize the literature along three dimensions---methodology type (analytical, simulation, ML-augmented, hybrid), target platform (accelerators, GPUs, distributed systems, edge devices), and abstraction level (kernel, model, system)---while additionally characterizing tools by workload coverage, revealing a pervasive CNN-validation bias.
 Our analysis reveals that hybrid approaches combining analytical structure with learned components achieve the best accuracy-speed trade-offs, while pure analytical models offer superior interpretability for design space exploration.
-We conduct hands-on reproducibility evaluations of five representative tools, finding that reproducibility varies dramatically: Docker-first tools score 8.5+/10 on our rubric while tools relying on serialized ML models risk becoming unusable.
+We conduct hands-on reproducibility evaluations of five representative tools, finding that reproducibility varies dramatically: among our evaluated tools, those with Docker-first deployment score 8.5+/10 on our rubric, while tools relying on serialized ML models (e.g., pickle-based predictors) risk becoming unusable due to dependency incompatibilities.
 We identify key open challenges including cross-workload generalization beyond CNNs, composition of kernel-level predictions to end-to-end accuracy, and support for emerging architectures.
 This survey provides practitioners guidance for selecting appropriate modeling tools and researchers a roadmap for advancing the field of ML workload performance prediction.
 \end{abstract}
@@ -84,14 +84,14 @@ This survey provides practitioners guidance for selecting appropriate modeling t
 Machine learning workloads---spanning training and inference for CNNs, transformers, mixture-of-experts models, and graph neural networks---have become the dominant consumers of compute across datacenters and edge devices.
 The shift toward domain-specific architectures~\cite{hennessy2019golden}---from Google's TPU~\cite{tpuv1_2017,tpuv4_2023} to custom accelerators---has created a heterogeneous landscape where architects need fast, accurate performance predictions for design space exploration, parallelization selection, and hardware-software co-design.
 Yet ML workloads pose unique challenges: diverse computational patterns (dense matrix operations, sparse accesses, communication-bound collectives) across GPUs, TPUs, custom accelerators, and multi-device clusters.
-A rich tool ecosystem has emerged: analytical models (Timeloop~\cite{timeloop2019}, MAESTRO~\cite{maestro2019}: 5--10\% error at microsecond speed), cycle-accurate simulators (GPGPU-Sim~\cite{gpgpusim2009}, Accel-Sim~\cite{accelsim2020}: hours per workload), trace-driven simulators (ASTRA-sim~\cite{astrasim2023}, VIDUR~\cite{vidur2024}), and hybrid approaches (NeuSight~\cite{neusight2025}: 2.3\% error).
+A rich tool ecosystem has emerged: analytical models (Timeloop~\cite{timeloop2019}: 5--10\% error; MAESTRO~\cite{maestro2019}: 5--15\% error; both at microsecond speed), cycle-accurate simulators (GPGPU-Sim~\cite{gpgpusim2009}, Accel-Sim~\cite{accelsim2020}: hours per workload), trace-driven simulators (ASTRA-sim~\cite{astrasim2023}, VIDUR~\cite{vidur2024}), and hybrid approaches (NeuSight~\cite{neusight2025}: 2.3\% error).
 Yet no comprehensive survey organizes these methods for the practitioner who must select a tool for a specific task.
 Existing surveys focus on ML \emph{techniques} for modeling~\cite{granite2022} or specific hardware~\cite{timeloop2019}; this survey fills that gap with a methodology-centric view.
 
 We make the following contributions:
 \begin{itemize}
     \item A \textbf{methodology-centric taxonomy} organizing tools along three dimensions: methodology type (analytical, simulation, ML-augmented, hybrid), target platform, and abstraction level, with a coverage matrix identifying research gaps and a workload analysis exposing CNN-validation bias.
-    \item A \textbf{systematic survey} of approximately 25 tools from 53 papers across architecture venues (MICRO, ISCA, HPCA, ASPLOS) and systems venues (MLSys, OSDI, NSDI) published 2016--2026.
+    \item A \textbf{systematic survey} of 22 tools (with 15+ additional tools discussed) from 53 papers across architecture venues (MICRO, ISCA, HPCA, ASPLOS) and systems venues (MLSys, OSDI, NSDI) published 2016--2026.
     \item A \textbf{comparative analysis} of accuracy--speed trade-offs with careful qualification of reported claims and cases where numbers are unverifiable.
     \item \textbf{Hands-on reproducibility evaluations} with a 10-point rubric, and identification of \textbf{open challenges} including the CNN-to-transformer generalization gap, kernel-to-end-to-end error composition, and emerging accelerator support.
 \end{itemize}
@@ -193,11 +193,12 @@ LLM inference splits into compute-bound prefill and memory-bound decode phases~\
 \subsection{Modeling Methodologies}
 \label{subsec:modeling-methodologies}
 
-We classify approaches into four categories.
+We classify approaches into five categories.
 \textbf{Analytical models} express performance as closed-form functions (e.g., the roofline model~\cite{williams2009roofline}: $P = \min(\pi, \beta \cdot I)$), offering microsecond evaluation but requiring per-architecture derivation.
-\textbf{Cycle-accurate simulators} (GPGPU-Sim~\cite{gpgpusim2009}, Accel-Sim~\cite{accelsim2020}) achieve high fidelity at $1000$--$10000\times$ slowdown; statistical sampling techniques~\cite{simpoint2002,smarts2003} and checkpoint-driven approaches~\cite{looppoint2022} reduce this cost by identifying representative execution phases, while dedicated memory simulators~\cite{dramsim3_2020,ramulator2_2023} provide cycle-accurate DRAM modeling.
+\textbf{Cycle-accurate simulators} (GPGPU-Sim~\cite{gpgpusim2009}, Accel-Sim~\cite{accelsim2020}) achieve high fidelity at $1000$--$10000\times$ slowdown~\cite{gpgpusim2009,accelsim2020}; statistical sampling techniques~\cite{simpoint2002,smarts2003} and checkpoint-driven approaches~\cite{looppoint2022} reduce this cost by identifying representative execution phases, while dedicated memory simulators~\cite{dramsim3_2020,ramulator2_2023} provide cycle-accurate DRAM modeling.
 \textbf{Trace-driven simulators} (ASTRA-sim~\cite{astrasim2023}, VIDUR~\cite{vidur2024}) trade fidelity for orders-of-magnitude speedup.
-\textbf{ML-augmented approaches} learn from profiling data (nn-Meter~\cite{nnmeter2021}, NeuSight~\cite{neusight2025}) but may not generalize beyond training distributions.
+\textbf{ML-augmented approaches} learn from profiling data (nn-Meter~\cite{nnmeter2021}) but may not generalize beyond training distributions.
+\textbf{Hybrid approaches} combine analytical structure with learned components (NeuSight~\cite{neusight2025}, Habitat~\cite{habitat2021}), aiming to balance accuracy, speed, and interpretability.
 
 \subsection{Problem Formulation}
 \label{subsec:problem-formulation}
@@ -242,7 +243,7 @@ Hybrid           & 1 & 2 & \textbf{0} & \textbf{0} & 1 & ms & Mixed & Med. & Tra
 \end{tabular}
 \end{table*}
 
-Table~\ref{tab:taxonomy-matrix} reveals three structural gaps: (1)~trace-driven simulation is used exclusively for distributed systems, with no single-device trace-driven tools; (2)~edge devices are served only by ML-augmented approaches, lacking hybrid alternatives; (3)~no ML-augmented tool targets distributed systems directly.
+Table~\ref{tab:taxonomy-matrix} reveals three structural gaps: (1)~trace-driven \emph{execution replay} simulation (as distinct from instruction-trace-driven cycle-accurate simulation such as Accel-Sim) is used exclusively for distributed systems; (2)~edge devices are served only by ML-augmented approaches, lacking hybrid alternatives; (3)~no ML-augmented tool targets distributed systems directly.
 Methodologies cluster into two speed regimes: sub-millisecond (analytical, ML-augmented, hybrid) for DSE, and minutes-to-hours (simulation, trace-driven) for validation.
 
 Figure~\ref{fig:tool-architecture} illustrates how tools from different methodology types compose: analytical engines provide fast base estimates, ML components learn residual corrections, and trace-driven simulators orchestrate system-level execution.
@@ -318,7 +319,7 @@ Figure~\ref{fig:tool-architecture} illustrates how tools from different methodol
 The choice of methodology determines fundamental trade-offs between accuracy, evaluation speed, data requirements, and interpretability, as summarized in Table~\ref{tab:taxonomy-matrix}; Section~\ref{sec:survey} provides detailed per-tool analysis.
 
 \textbf{Analytical models} (Timeloop~\cite{timeloop2019}: 5--10\% vs.\ RTL; MAESTRO~\cite{maestro2019}; Sparseloop~\cite{sparseloop2022}; AMALI~\cite{amali2025}) provide microsecond evaluation and full interpretability but require per-architecture derivation (AMALI's 23.6\% MAPE illustrates GPU dynamic effects).
-\textbf{Cycle-accurate simulators} (GPGPU-Sim~\cite{gpgpusim2009}, Accel-Sim~\cite{accelsim2020}: 0.90--0.97 IPC; PyTorchSim~\cite{pytorchsim2025}) are impractical for DSE at $1000$--$10000\times$ slowdown.
+\textbf{Cycle-accurate simulators} (GPGPU-Sim~\cite{gpgpusim2009}, Accel-Sim~\cite{accelsim2020}: 0.90--0.97 IPC; PyTorchSim~\cite{pytorchsim2025}) are impractical for DSE at $1000$--$10000\times$ slowdown~\cite{gpgpusim2009,accelsim2020}.
 \textbf{Trace-driven simulators} (ASTRA-sim~\cite{astrasim2023}: 5--15\%; VIDUR~\cite{vidur2024}: $<$5\%; SimAI~\cite{simai2025}; Frontier~\cite{frontier2025}) replay execution traces for system-level modeling.
 \textbf{ML-augmented models} (nn-Meter~\cite{nnmeter2021}; LitePred~\cite{litepred2024}; HELP~\cite{help2021}; TVM~\cite{tvm2018}/Ansor~\cite{ansor2020}) learn from profiling data but risk \emph{silent distribution shift}.
 \textbf{Hybrid} approaches (NeuSight~\cite{neusight2025}: 2.3\% MAPE; Habitat~\cite{habitat2021}; ArchGym~\cite{archgym2023}) combine analytical priors with learned corrections~\cite{latencypredictorsnas2024}.
@@ -542,9 +543,9 @@ ESM~\cite{esm2025} finds well-tuned random forests match deep learning surrogate
 \subsection{Cross-Cutting Themes}
 \label{subsec:cross-cutting}
 
-\emph{Structural decomposition} mirroring hardware execution outperforms black-box approaches (Timeloop's loop nests, NeuSight's tiles, VIDUR's prefill/decode), and \emph{verifiable moderate accuracy} predicts adoption better than claimed high accuracy.
-A persistent \textbf{accuracy--generality--speed trilemma} explains methodological diversity: simulators maximize accuracy but sacrifice speed; analytical models maximize speed but sacrifice accuracy; ML approaches achieve both but sacrifice generality.
-Subdomain maturity mirrors economic incentive: accelerator DSE is most mature (irreversible chip errors), distributed training is fastest-growing (million-dollar runs), and edge modeling has weakest reproducibility.
+\emph{Structural decomposition} mirroring hardware execution outperforms black-box approaches (Timeloop's loop nests, NeuSight's tiles, VIDUR's prefill/decode), and tools with \emph{verifiable} accuracy (e.g., Timeloop's reference outputs, VIDUR's Docker-based reproduction) appear more widely adopted than tools reporting high but unverifiable accuracy (e.g., nn-Meter).
+A persistent \textbf{accuracy--generality--speed trade-off} characterizes the field: simulators maximize accuracy but sacrifice speed; analytical models maximize speed but sacrifice accuracy; ML approaches achieve both but sacrifice generality.
+Subdomain maturity correlates with economic incentive: accelerator DSE is most mature (irreversible chip errors), distributed training is fastest-growing (million-dollar runs), and edge modeling has weakest reproducibility.
 
 % ==============================================================================
 % COMPARISON AND ANALYSIS
@@ -684,7 +685,7 @@ For \emph{accelerator DSE}, use Timeloop or MAESTRO for microsecond-speed exhaus
 For \emph{GPU evaluation}, NeuSight offers the best accuracy--speed balance for LLMs; use Accel-Sim when microarchitectural detail is needed, accepting the $1000\times$ slowdown.
 For \emph{distributed systems}, use VIDUR for LLM serving configuration and ASTRA-sim or SimAI for training parallelism at scale; MAD Max provides fast analytical estimates when trace collection is impractical.
 For \emph{edge devices}, LitePred offers the broadest platform coverage, while HELP excels with minimal profiling data.
-Practitioners should prioritize tools with Docker-first deployment (VIDUR, Timeloop, ASTRA-sim) over tools with unpinned dependencies, as our evaluation shows reproducibility scores strongly predict long-term usability.
+Practitioners should consider tools with Docker-first deployment (VIDUR, Timeloop, ASTRA-sim) over tools with unpinned dependencies, as our evaluation of five tools suggests containerization correlates with higher reproducibility scores.
 
 \begin{figure}[t]
 \centering
@@ -844,7 +845,7 @@ Tile-based decomposition mirrors CUDA tiling for dense operations; irregular wor
 \textbf{nn-Meter} (3/10).
 After four attempts ($>$4h), no predictions ran: pickle-serialized predictors (scikit-learn 0.23.1) are incompatible with current versions. The claimed $<$1\% MAPE is \textbf{unverifiable}.
 
-Figure~\ref{fig:reproducibility-scores} visualizes the reproducibility scores, highlighting the strong correlation between Docker-first deployment and high scores.
+Figure~\ref{fig:reproducibility-scores} visualizes the reproducibility scores, showing that Docker-first tools scored consistently higher in our evaluation.
 
 \begin{figure}[t]
 \centering
@@ -889,7 +890,7 @@ Figure~\ref{fig:reproducibility-scores} visualizes the reproducibility scores, h
 \label{subsec:eval-lessons}
 
 Five lessons emerge:
-(1)~\textbf{Docker-first deployment} is the strongest reproducibility predictor (Docker tools: 8.5+/10; nn-Meter without Docker: 3/10).
+(1)~\textbf{Docker-first deployment} correlates with high reproducibility in our sample (Docker tools: 8.5+/10; nn-Meter without Docker: 3/10), though our sample of five tools limits causal conclusions.
 (2)~\textbf{ML model serialization is fragile}---nn-Meter's pickle-based predictors became unusable within two years.
 (3)~\textbf{Reference outputs enable trust without hardware}---Timeloop and ASTRA-sim include verifiable baselines.
 (4)~\textbf{Scale-limited evaluation understates system tools}---our 2--8 GPU tests show only 0.30\% communication overhead, far below production scales~\cite{llama3scaling2025}.
@@ -1015,9 +1016,9 @@ No MLPerf~\cite{mlperf_training2020,mlperf_inference2020} equivalent exists for 
 \section{Conclusion}
 \label{sec:conclusion}
 
-This survey analyzed approximately 25 tools for predicting ML workload performance, organized by methodology type, target platform, and abstraction level.
+This survey analyzed 22 tools in depth for predicting ML workload performance, organized by methodology type, target platform, and abstraction level.
 Key findings:
-(1)~\emph{Methodology determines trade-offs, not quality}---analytical models offer microsecond interpretable evaluation, trace-driven simulators provide 2--15\% system-level error, and hybrid approaches achieve the best accuracy--speed balance (NeuSight: 2.3\% MAPE).
+(1)~\emph{No single methodology dominates}---analytical models offer microsecond interpretable evaluation, trace-driven simulators provide 2--15\% system-level error, and hybrid approaches achieve the best accuracy--speed balance (NeuSight: 2.3\% MAPE), with the right choice depending on the practitioner's priorities.
 (2)~\emph{LLM workloads demand specialized modeling}---prefill/decode distinctions, KV cache management, and dynamic batching require purpose-built tools (VIDUR, Frontier) rather than CNN-era extensions.
 (3)~\emph{Reproducibility is a practical bottleneck}---Docker-first tools score 8.5+/10 while tools relying on serialized ML models have become unusable.
 (4)~\emph{Accuracy claims require scrutiny} due to varying benchmarks and metrics.
