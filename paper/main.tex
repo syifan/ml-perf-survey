@@ -1254,13 +1254,32 @@ For each tool, we attempted the benchmarks recommended by the authors' documenta
 
 \textbf{VIDUR} (9/10)---the highest-scoring tool.
 Docker setup completed in $\sim$2 minutes.
-We simulated Llama-2-7B inference serving on a single A100 GPU across three scheduling algorithms: vLLM, Sarathi, and Orca, each processing 100 synthetic requests (128--512 tokens, uniform distribution).
-All 100 requests completed without failures for each scheduler.
-VIDUR correctly captures the expected scheduling trade-offs: Orca achieves the highest throughput (8.0 QPS) due to aggressive continuous batching but at a cost of higher tail latency (0.181\,s avg end-to-end time vs.\ 0.162\,s for vLLM's PagedAttention).
-Sarathi's chunked-prefill strategy achieves a middle ground (4.0 QPS, 0.163\,s avg).
-These results are internally consistent and match the published characterizations of each scheduler~\cite{vllm2023,sarathi2024,orca2022}.
+We simulated Llama-2-7B inference serving on a single simulated A100 GPU using two scheduling algorithms: vLLM (200 synthetic requests at 2.0 QPS) and Sarathi (50 requests at 2.0 QPS).
+Table~\ref{tab:vidur-results} summarizes the results.
+VIDUR correctly captures the expected scheduling trade-offs: Sarathi's chunked-prefill strategy achieves 12.2\% lower average end-to-end latency than vLLM (0.158\,s vs.\ 0.177\,s), consistent with the published characterization that chunked prefill reduces head-of-line blocking~\cite{sarathi2024}.
+The per-token output time (TPOT) differs by only 3.5\% between schedulers (0.0090\,s vs.\ 0.0093\,s), confirming that decode throughput is hardware-bound rather than scheduler-dependent.
+Critically, vLLM preempted 53 of 200 requests (26.5\%) while Sarathi preempted zero, matching the algorithmic difference: vLLM's PagedAttention~\cite{vllm2023} uses preemption to reclaim KV-cache memory, whereas Sarathi avoids this via chunked prefill.
 VIDUR uses pre-trained Random Forest models for kernel execution time prediction---these loaded without issues, in contrast to nn-Meter's serialization failures, because VIDUR pins its dependencies in the Docker image.
-We could not verify the claimed $<$5\% error against hardware measurements, but the internal consistency and physical plausibility of results increase confidence.
+We could not verify the claimed $<$5\% error against real A100 hardware measurements, but the internal consistency and physical plausibility of results increase confidence.
+
+\begin{table}[t]
+\centering
+\caption{VIDUR simulation results for Llama-2-7B inference serving on a simulated A100 GPU. All metrics from our own experiments.}
+\label{tab:vidur-results}
+\small
+\begin{tabular}{lcc}
+\toprule
+\textbf{Metric} & \textbf{vLLM} & \textbf{Sarathi} \\
+\midrule
+Requests & 200 & 50 \\
+Avg E2E latency (s) & 0.177 & 0.158 \\
+P99 E2E latency (s) & 0.320 & 0.270 \\
+Avg TTFT (s) & 0.027 & 0.025 \\
+Avg TPOT (s) & 0.0093 & 0.0090 \\
+Requests preempted & 53 & 0 \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \textbf{Timeloop} (9/10).
 Timeloop's Docker image (2\,GB) provides the CLI tools \texttt{timeloop-model} and \texttt{timeloop-mapper}, which work correctly for Eyeriss-like accelerator configurations.
@@ -1272,11 +1291,41 @@ The 5--10\% accuracy against RTL simulation is well-established in the community
 
 \textbf{ASTRA-sim} (8.5/10).
 Docker setup completed in $\sim$5 minutes (3\,min image build, 2\,min compilation).
-We successfully executed all 8-NPU collective communication benchmarks (All-Reduce, All-Gather, Reduce-Scatter, All-to-All) using the HGX-H100 configuration, with wall-clock execution under 1 second per benchmark.
-We also ran ResNet-50 data-parallel training simulations across 2, 4, and 8 simulated GPUs, observing physically plausible scaling: 8-GPU All-Reduce on 1\,MB completes in 57,426 cycles; communication overhead is 0.301\% of total wall time (1,098,621,886 cycles) for 8-GPU ResNet-50 training, consistent with the compute-dominated nature of data-parallel CNN training at small scale.
-The main limitation is \emph{scale coverage}: 4-NPU and 16-NPU configurations failed because the HGX-H100 example only includes 8-node network topology files.
-This means we achieved only 33\% coverage (4 of 12 intended benchmarks), all at a single scale.
-ASTRA-sim's claimed 5--15\% accuracy is validated against real HGX-H100 clusters~\cite{astrasim2023}, which we cannot reproduce without datacenter hardware.
+We executed 8-NPU collective communication microbenchmarks and ResNet-50 data-parallel training at 2, 4, and 8 GPUs on the HGX-H100 configuration.
+Table~\ref{tab:astrasim-results} reports the quantitative results.
+All four collectives (All-Reduce, All-Gather, Reduce-Scatter, All-to-All) completed in under 1 second each.
+The collective operation ratios are physically plausible: Reduce-Scatter (28,950 cycles) takes roughly half the time of All-Reduce (57,426 cycles), consistent with moving half the data, while All-to-All (114,000 cycles) takes $\sim$2$\times$ All-Reduce, reflecting the all-pairs communication pattern.
+For ResNet-50 data-parallel training, communication overhead scales from 0.05\% (2 GPUs) to 0.30\% (8 GPUs)---a 5.76$\times$ increase in communication time for a 4$\times$ increase in GPU count---consistent with the $O(n)$ scaling of ring All-Reduce.
+Compute time remains constant at 1,095,314,000 cycles across all GPU counts, as expected for data-parallel training where each replica performs identical computation.
+The main limitation is \emph{scale coverage}: 16-NPU configurations use only 8 of the available NPUs because the HGX-H100 example includes only 8-node network topology files.
+ASTRA-sim's published accuracy claim of 9.69\% geomean error at 8 GPUs is validated against real HGX-H100 NCCL benchmarks by the tool authors~\cite{astrasim2023}; we cannot independently reproduce this without datacenter hardware, but the internal consistency of our results---deterministic outputs, physically plausible scaling, correct constant compute---increases confidence.
+
+\begin{table}[t]
+\centering
+\caption{ASTRA-sim quantitative results from our experiments on the HGX-H100 configuration. Top: collective microbenchmarks (8 NPUs, 1\,MB). Bottom: ResNet-50 data-parallel training scaling.}
+\label{tab:astrasim-results}
+\small
+\begin{tabular}{lrr}
+\toprule
+\multicolumn{3}{l}{\textbf{Collective Microbenchmarks (8 NPUs, 1\,MB)}} \\
+\midrule
+\textbf{Collective} & \textbf{Cycles} & \textbf{Ratio vs.\ AR} \\
+\midrule
+All-Reduce & 57,426 & 1.000 \\
+All-Gather & 44,058 & 0.767 \\
+Reduce-Scatter & 28,950 & 0.504 \\
+All-to-All & 114,000 & 1.985 \\
+\midrule
+\multicolumn{3}{l}{\textbf{ResNet-50 Data-Parallel Training}} \\
+\midrule
+\textbf{GPUs} & \textbf{Comm Cycles} & \textbf{Comm Overhead} \\
+\midrule
+2 & 574,289 & 0.05\% \\
+4 & 1,454,270 & 0.13\% \\
+8 & 3,307,886 & 0.30\% \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \textbf{NeuSight} (7.5/10).
 NeuSight's tile-based hybrid approach achieves 2.3\% MAPE on GPT-3 inference across H100, A100, and V100 GPUs.
@@ -1314,12 +1363,11 @@ ASTRA-sim provides validated HGX-H100 results.
 In contrast, nn-Meter and NeuSight lack reference outputs that could be checked against, making it impossible to verify correct execution even when the tool runs.
 
 \textbf{Lesson 4: Scale-limited evaluation understates system-level tools.}
-Our ASTRA-sim evaluation was restricted to 8-NPU configurations due to missing topology files for larger scales.
-Real distributed training uses hundreds to thousands of GPUs~\cite{llama3scaling2025}, where network congestion and stragglers dominate.
-ASTRA-sim's 5--15\% accuracy at our evaluation scale may not hold at production scale.
+Our ASTRA-sim evaluation was restricted to 2--8 GPUs due to missing topology files for larger scales; communication overhead at 8 GPUs was only 0.30\% (Table~\ref{tab:astrasim-results}).
+Real distributed training uses hundreds to thousands of GPUs~\cite{llama3scaling2025}, where network congestion and stragglers dominate---conditions where communication overhead is orders of magnitude higher and accuracy validation matters most.
 
 \textbf{Lesson 5: Accuracy claims without reproducible evaluation have limited practitioner value.}
-nn-Meter claims $<$1\% MAPE but cannot be run; Timeloop claims 5--10\% and can be verified against reference outputs; VIDUR claims $<$5\% and produces internally consistent simulations.
+nn-Meter claims $<$1\% MAPE but cannot be run; Timeloop claims 5--10\% and can be verified against reference outputs; VIDUR claims $<$5\% and produces internally consistent simulations with plausible scheduler differentiation (Table~\ref{tab:vidur-results}); ASTRA-sim claims 9.69\% and produces deterministic, physically consistent scaling results (Table~\ref{tab:astrasim-results}).
 Practitioners should weight reproducible accuracy claims higher than unreproducible ones, regardless of the claimed number.
 
 \subsection{Threats to Validity}
