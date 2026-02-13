@@ -85,11 +85,7 @@ Machine learning workloads---spanning training and inference for CNNs, transform
 The shift toward domain-specific architectures~\cite{hennessy2019golden}, from Google's TPU~\cite{tpuv1_2017,tpuv4_2023} to custom training accelerators, has created a heterogeneous hardware landscape where architects and system designers need fast, accurate performance predictions to navigate vast design spaces, select parallelization strategies, provision serving infrastructure, and optimize hardware-software co-design.
 Yet ML workloads pose unique modeling challenges: they exhibit diverse computational patterns (dense matrix operations in attention layers, sparse accesses in GNNs, communication-bound collective operations in distributed training) across this increasingly heterogeneous landscape of GPUs, TPUs, custom accelerators, and multi-device clusters.
 
-A rich ecosystem of modeling and simulation tools has emerged to address these challenges, spanning a methodological spectrum from analytical models to cycle-accurate simulators to ML-augmented hybrid approaches.
-Analytical frameworks like Timeloop~\cite{timeloop2019} and MAESTRO~\cite{maestro2019} model DNN accelerator performance through closed-form data movement analysis, achieving 5--10\% error versus RTL at microsecond evaluation speed.
-Cycle-accurate simulators like GPGPU-Sim~\cite{gpgpusim2009} and Accel-Sim~\cite{accelsim2020} provide detailed GPU modeling but require hours per workload.
-Trace-driven simulators like ASTRA-sim~\cite{astrasim2023} and VIDUR~\cite{vidur2024} target distributed training and LLM serving at system scale.
-ML-augmented approaches like NeuSight~\cite{neusight2025} learn performance functions from profiling data, achieving 2.3\% error on GPU kernel prediction.
+A rich ecosystem of tools has emerged, spanning analytical models (Timeloop~\cite{timeloop2019}, MAESTRO~\cite{maestro2019}: 5--10\% error at microsecond speed), cycle-accurate simulators (GPGPU-Sim~\cite{gpgpusim2009}, Accel-Sim~\cite{accelsim2020}: detailed but hours per workload), trace-driven simulators (ASTRA-sim~\cite{astrasim2023}, VIDUR~\cite{vidur2024}: system-scale training and serving), and ML-augmented hybrid approaches (NeuSight~\cite{neusight2025}: 2.3\% error on GPU kernels).
 Each methodology occupies a distinct point in the accuracy-speed-generality trade-off space.
 
 Despite this rich tool landscape, no comprehensive survey organizes these methods from the perspective of the ML workload practitioner---the architect or engineer who needs to select a modeling tool for a specific design or deployment task.
@@ -104,15 +100,7 @@ We make the following contributions:
     \item \textbf{Hands-on reproducibility evaluations} of representative tools with a 10-point rubric, and identification of \textbf{open challenges} including the CNN-to-transformer generalization gap, kernel-to-end-to-end error composition, and emerging accelerator support.
 \end{itemize}
 
-The remainder of this paper is organized as follows.
-Section~\ref{sec:methodology} describes our survey methodology and positions this work relative to existing surveys.
-Section~\ref{sec:background} provides background on ML workload characteristics and modeling fundamentals.
-Section~\ref{sec:taxonomy} presents our classification taxonomy.
-Section~\ref{sec:survey} surveys approaches organized by target platform.
-Section~\ref{sec:comparison} offers comparative analysis across key dimensions and a practitioner tool selection guide.
-Section~\ref{sec:evaluation} presents hands-on reproducibility evaluations.
-Section~\ref{sec:challenges} discusses open challenges and future directions.
-Section~\ref{sec:conclusion} concludes.
+The paper proceeds as follows: Section~\ref{sec:methodology} describes our methodology; Section~\ref{sec:background} provides background; Section~\ref{sec:taxonomy} presents the taxonomy; Section~\ref{sec:survey} surveys tools by platform; Section~\ref{sec:comparison} compares accuracy and provides tool selection guidance; Section~\ref{sec:evaluation} presents reproducibility evaluations; Section~\ref{sec:challenges} discusses open challenges; and Section~\ref{sec:conclusion} concludes.
 
 Figure~\ref{fig:timeline} illustrates the evolution of performance modeling tools for ML workloads, from early analytical frameworks through simulators to modern hybrid approaches.
 
@@ -612,53 +600,14 @@ The maturity of each subdomain mirrors economic incentive: accelerator DSE is mo
 \section{Comparison and Analysis}
 \label{sec:comparison}
 
-We analyze trade-offs across methodology types along accuracy, speed, generalization, and interpretability.
-Table~\ref{tab:comparison-summary} summarizes characteristics of representative tools.
-
-\begin{table*}[t]
-\centering
-\caption{Comparative analysis of representative tools across key dimensions. Accuracy figures are as reported in original papers; direct comparison is limited by differences in benchmarks, workloads, hardware targets, and evaluation protocols. $^\dagger$Unverifiable. $^*$Surrogate fidelity, not hardware accuracy.}
-\label{tab:comparison-summary}
-\small
-\begin{tabular}{llccccc}
-\toprule
-\textbf{Tool} & \textbf{Methodology} & \textbf{Accuracy (reported)} & \textbf{Setup Cost} & \textbf{Generalization} & \textbf{Interpretability} & \textbf{Eval. Speed} \\
-\midrule
-Timeloop~\cite{timeloop2019} & Analytical & 5--10\% & Arch spec only & Any accelerator & High & $\mu$s \\
-MAESTRO~\cite{maestro2019} & Analytical & 5--15\% & Arch spec only & Any accelerator & High & $\mu$s \\
-AMALI~\cite{amali2025} & Analytical & 23.6\% MAPE & None & GPU LLM inference & High & ms \\
-\midrule
-Accel-Sim~\cite{accelsim2020} & Simulation & 10--20\% & GPU binary & GPU-specific & High & Hours \\
-ASTRA-sim~\cite{astrasim2023} & Trace-driven & 5--15\% & Execution trace & Configurable & Medium & Minutes \\
-VIDUR~\cite{vidur2024} & Trace-driven & $<$5\% & Kernel profiles & LLM-specific & High & Seconds \\
-SimAI~\cite{simai2025} & Trace-driven & 1.9\% & Full-stack setup & LLM training & Medium & Minutes \\
-Lumos~\cite{lumos2025} & Trace-driven & 3.3\% & Execution trace & LLM training & Medium & Minutes \\
-\midrule
-nn-Meter~\cite{nnmeter2021} & ML-augmented & $<$1\%$^\dagger$ & 1K samples/kernel & Device-specific & Medium & ms \\
-LitePred~\cite{litepred2024} & ML-augmented & 0.7\% MAPE & 100 samples/device & 85+ devices & Low & ms \\
-HELP~\cite{help2021} & ML-augmented & 1.9\% MAPE & 10 samples/device & Cross-platform & Low & ms \\
-TVM~\cite{tvm2018} & ML-augmented & $\sim$15\% MAPE & 10K+ & Operator-level & Medium & ms \\
-\midrule
-NeuSight~\cite{neusight2025} & Hybrid & 2.3\% MAPE & Pre-trained & Cross-GPU & Medium & ms \\
-Habitat~\cite{habitat2021} & Hybrid & 11.8\% MAPE & Online profiling & Cross-GPU & Medium & Per-kernel \\
-ArchGym~\cite{archgym2023} & Hybrid & 0.61\% RMSE$^*$ & Simulation runs & Arch-specific & Medium & ms \\
-Concorde~\cite{concorde2025} & Hybrid & 2\% CPI & Training corpus & Cross-$\mu$arch & Medium & ms \\
-\bottomrule
-\end{tabular}
-\end{table*}
+We analyze trade-offs across methodology types along accuracy and speed dimensions (see Table~\ref{tab:survey-summary} for per-tool details); generalization and interpretability challenges are deferred to Section~\ref{sec:challenges}.
 
 \subsection{Accuracy by Problem Difficulty}
 \label{subsec:accuracy-difficulty}
 
-Rather than comparing accuracy directly across different benchmarks and metrics, we organize results by problem difficulty.
-\textbf{Accelerator dataflow modeling} is most amenable to prediction (Timeloop: 5--10\% error via purely analytical means).
-\textbf{Single-GPU kernel prediction} achieves 2--12\% error through hybrid approaches (NeuSight, Habitat).
-\textbf{Distributed system-level prediction} achieves 2--15\% error (SimAI 1.9\%, Lumos 3.3\%, ASTRA-sim 5--15\%).
-\textbf{Cross-platform edge prediction} achieves 0.7--2\% error (LitePred, HELP) but requires per-device profiling.
-\textbf{GPU analytical modeling} remains hardest (AMALI: 23.6\% MAPE for LLM inference).
-
-Figure~\ref{fig:accuracy-comparison} visualizes reported MAPE across tools.
-Hybrid approaches achieve the lowest error on GPU workloads, trace-driven simulators cluster at 2--15\% for distributed systems, and analytical models trade accuracy for speed.
+We organize accuracy results by inherent problem difficulty rather than comparing across incompatible benchmarks (Figure~\ref{fig:accuracy-comparison}).
+Accelerator dataflow modeling is most tractable (Timeloop: 5--10\%); single-GPU kernel prediction achieves 2--12\% via hybrid methods (NeuSight, Habitat); distributed systems reach 2--15\% (SimAI 1.9\%, ASTRA-sim 5--15\%); cross-platform edge prediction achieves 0.7--2\% but requires per-device profiling; and GPU analytical modeling remains hardest (AMALI: 23.6\%).
+Setup costs vary dramatically: analytical models require only architecture specifications, ML-augmented approaches need 10--10K profiling samples per device, and cycle-accurate simulators require hardware-specific binaries or traces.
 
 \begin{figure}[t]
 \centering
@@ -718,54 +667,10 @@ Hybrid approaches achieve the lowest error on GPU workloads, trace-driven simula
 \label{fig:accuracy-comparison}
 \end{figure}
 
-\begin{figure}[t]
-\centering
-\resizebox{0.9\columnwidth}{!}{%
-\begin{tikzpicture}
-\begin{axis}[
-    xbar,
-    y dir=reverse,
-    xlabel={Number of surveyed tools},
-    xmin=0, xmax=12,
-    ytick={0,1,2,3,4},
-    yticklabels={Analytical, Trace-driven, ML-augmented, Simulation, Hybrid},
-    yticklabel style={font=\small},
-    xticklabel style={font=\small},
-    xlabel style={font=\small},
-    bar width=10pt,
-    height=4.5cm,
-    width=7.5cm,
-    nodes near coords,
-    nodes near coords style={font=\small, anchor=west},
-    xtick={0,2,4,6,8,10},
-]
-\addplot[fill=blue!50, draw=blue!70] coordinates {(8,0)};
-\addplot[fill=orange!50, draw=orange!70] coordinates {(7,1)};
-\addplot[fill=purple!50, draw=purple!70] coordinates {(7,2)};
-\addplot[fill=red!50, draw=red!70] coordinates {(4,3)};
-\addplot[fill=green!50, draw=green!70] coordinates {(4,4)};
-\end{axis}
-\end{tikzpicture}%
-}
-\caption{Distribution of surveyed tools by methodology type. Hybrid approaches achieve the best accuracy despite being underrepresented (4 tools).}
-\label{fig:methodology-breakdown}
-\end{figure}
-
-\subsection{Generalization and Interpretability}
-\label{subsec:generalization}
-
-\textbf{Workload generalization} remains the primary challenge: nearly all accuracy numbers are measured on CNNs, with CNN$\rightarrow$transformer transfer largely unvalidated (NeuSight is a notable exception).
-\textbf{Hardware generalization} shows promise through meta-learning (HELP: 10-sample adaptation), feature-based transfer (LitePred: 85 devices), and analytical decomposition (Habitat), but cross-family transfer (GPU$\rightarrow$TPU$\rightarrow$PIM) remains unsolved.
-\textbf{Temporal generalization}---software stack evolution invalidating trained models---is addressed by no surveyed tool.
-
-Analytical models provide actionable design insight: Timeloop identifies data movement bottlenecks, MAESTRO reveals suboptimal dataflows, VIDUR exposes scheduling inefficiencies.
-ML-augmented approaches offer feature importance but limited causal understanding; hybrid approaches (NeuSight, Concorde) provide partial interpretability.
-The gap is practically significant: architects need to understand \emph{why} a design is slow, not just predict \emph{that} it is slow.
-
 \subsection{Practitioner Tool Selection}
 \label{subsec:tool-selection}
 
-Figure~\ref{fig:decision-flowchart} presents a decision flowchart for tool selection; Figure~\ref{fig:speed-accuracy} plots the speed--accuracy trade-off.
+Figure~\ref{fig:decision-flowchart} presents a decision flowchart for tool selection based on platform and use case.
 
 \begin{figure}[t]
 \centering
@@ -811,54 +716,6 @@ Figure~\ref{fig:decision-flowchart} presents a decision flowchart for tool selec
 }
 \caption{Practitioner decision flowchart for tool selection. Platform determines the candidate set; speed and use case narrow the choice.}
 \label{fig:decision-flowchart}
-\end{figure}
-
-\begin{figure}[t]
-\centering
-\resizebox{\columnwidth}{!}{%
-\begin{tikzpicture}
-\begin{axis}[
-    xlabel={Reported MAPE (\%)},
-    ylabel={Evaluation Speed},
-    xmin=0, xmax=28,
-    ymin=-0.5, ymax=5.5,
-    ytick={0,1,2,3,4,5},
-    yticklabels={Hours, Minutes, Seconds, ms, $\mu$s--ms, $\mu$s},
-    xticklabel style={font=\scriptsize},
-    yticklabel style={font=\scriptsize},
-    xlabel style={font=\small},
-    ylabel style={font=\small},
-    height=6cm,
-    width=8cm,
-    legend style={at={(0.97,0.03)}, anchor=south east, font=\tiny, draw=none, fill=white, fill opacity=0.9, text opacity=1},
-    legend cell align={left},
-    grid=both,
-    grid style={gray!20},
-]
-\addplot[only marks, mark=square*, blue!70, mark size=3pt] coordinates {(7.5,5) (10,5) (23.6,3)};
-\node[font=\tiny, anchor=south west] at (axis cs:7.5,5) {Timeloop};
-\node[font=\tiny, anchor=south west] at (axis cs:10,5) {MAESTRO};
-\node[font=\tiny, anchor=south east] at (axis cs:23.6,3) {AMALI};
-\addplot[only marks, mark=triangle*, red!70, mark size=3pt] coordinates {(15,0)};
-\node[font=\tiny, anchor=south west] at (axis cs:15,0) {Accel-Sim};
-\addplot[only marks, mark=diamond*, orange!80, mark size=3pt] coordinates {(10,1) (3.3,1) (1.9,1) (5,2)};
-\node[font=\tiny, anchor=south west] at (axis cs:10,1) {ASTRA-sim};
-\node[font=\tiny, anchor=south east] at (axis cs:3.3,1) {Lumos};
-\node[font=\tiny, anchor=south west] at (axis cs:1.9,1) {SimAI};
-\node[font=\tiny, anchor=south west] at (axis cs:5,2) {VIDUR};
-\addplot[only marks, mark=*, purple!70, mark size=3pt] coordinates {(0.7,3) (1.9,3) (15,3)};
-\node[font=\tiny, anchor=south west] at (axis cs:0.7,3) {LitePred};
-\node[font=\tiny, anchor=south east] at (axis cs:1.9,3) {HELP};
-\node[font=\tiny, anchor=south west] at (axis cs:15,3) {TVM};
-\addplot[only marks, mark=pentagon*, green!60!black, mark size=3pt] coordinates {(2.3,3) (11.8,3)};
-\node[font=\tiny, anchor=north west] at (axis cs:2.3,3) {NeuSight};
-\node[font=\tiny, anchor=north west] at (axis cs:11.8,3) {Habitat};
-\legend{Analytical, Simulation, Trace-driven, ML-augmented, Hybrid}
-\end{axis}
-\end{tikzpicture}%
-}
-\caption{Speed--accuracy trade-off. Hybrid approaches (upper-left) achieve fast evaluation and low error; cycle-accurate simulation (lower-right) provides highest fidelity at impractical speeds.}
-\label{fig:speed-accuracy}
 \end{figure}
 
 Three recommendations:
@@ -973,11 +830,11 @@ The claimed $<$1\% MAPE is \textbf{unverifiable on any current software stack}; 
 \label{subsec:eval-lessons}
 
 Five lessons emerge:
-(1)~\textbf{Docker-first deployment} is the strongest reproducibility predictor---all three Docker-based tools scored 8.5+/10 while nn-Meter scored 3/10.
-(2)~\textbf{ML model serialization is fragile}---nn-Meter's pickle-based storage became unusable within two years; tools should use version-stable formats or provide retraining scripts.
-(3)~\textbf{Reference outputs enable trust without hardware}---Timeloop and ASTRA-sim include verifiable reference results.
+(1)~\textbf{Docker-first deployment} is the strongest reproducibility predictor (Docker tools: 8.5+/10; nn-Meter without Docker: 3/10).
+(2)~\textbf{ML model serialization is fragile}---nn-Meter's pickle-based predictors became unusable within two years.
+(3)~\textbf{Reference outputs enable trust without hardware}---Timeloop and ASTRA-sim include verifiable baselines.
 (4)~\textbf{Scale-limited evaluation understates system tools}---our 2--8 GPU tests show only 0.30\% communication overhead, far below production scales~\cite{llama3scaling2025}.
-(5)~\textbf{Reproducible accuracy claims should be weighted higher} than unreproducible ones, regardless of the claimed number.
+(5)~\textbf{Reproducible accuracy claims should be weighted higher} than unreproducible ones.
 
 \textbf{Threats.}
 Our venue-focused search may under-represent industry and non-English publications; we exclude proprietary tools (Nsight Compute, internal TPU models); and accuracy metrics vary across papers (MAPE, RMSE, Kendall's $\tau$), limiting direct comparison.
@@ -988,10 +845,13 @@ Our venue-focused search may under-represent industry and non-English publicatio
 \section{Open Challenges and Future Directions}
 \label{sec:challenges}
 
-\textbf{Workload coverage gaps.}
-Existing tools are primarily validated on CNNs; transformers, MoE, diffusion models, and dynamic inference~\cite{dynamicreasoning2026} remain underrepresented.
+\textbf{Generalization gaps.}
+Three dimensions of generalization remain largely unsolved.
+\emph{Workload generalization}: nearly all accuracy numbers are measured on CNNs, with CNN$\rightarrow$transformer transfer largely unvalidated (NeuSight is a notable exception); MoE, diffusion models, and dynamic inference~\cite{dynamicreasoning2026} have almost no validated prediction tools.
 Neural scaling laws~\cite{kaplan2020scaling,hoffmann2022chinchilla,scalinglaws2024,scalinglawguide2025} predict training loss but not hardware-specific latency.
-Figure~\ref{fig:workload-coverage} shows the shift: before 2022, nearly all tools targeted CNNs; from 2023, LLM workloads increasingly appear, but MoE and diffusion remain uncharacterized.
+Figure~\ref{fig:workload-coverage} shows the shift from CNN-only validation toward LLM workloads since 2023, but MoE and diffusion remain uncharacterized.
+\emph{Hardware generalization}: meta-learning (HELP: 10-sample adaptation), feature-based transfer (LitePred: 85 devices), and analytical decomposition (Habitat) show promise, but cross-family transfer (GPU$\rightarrow$TPU$\rightarrow$PIM) remains unsolved.
+\emph{Temporal generalization}---software stack evolution silently invalidating trained models---is addressed by no surveyed tool.
 
 \begin{figure}[t]
 \centering
@@ -1028,25 +888,16 @@ Figure~\ref{fig:workload-coverage} shows the shift: before 2022, nearly all tool
 \end{figure}
 
 \textbf{The composition problem.}
-Composing kernel-level predictions into end-to-end estimates is unsolved.
-NeuSight achieves 2.3\% kernel-level MAPE, but for a 100-layer model, independent errors yield $\sim$$10\times$ higher variance ($\sigma_{\text{model}} \approx \sigma_{\text{kernel}} \cdot \sqrt{N}$); correlated errors can compound linearly, potentially yielding 20--30\% model-level error.
+Composing kernel-level predictions into end-to-end estimates is unsolved: NeuSight's 2.3\% kernel MAPE yields $\sim$$10\times$ higher variance at model level ($\sigma_{\text{model}} \approx \sigma_{\text{kernel}} \cdot \sqrt{N}$), and correlated errors can compound linearly.
 VIDUR sidesteps this by profiling entire prefill/decode phases.
-Three approaches merit investigation: error propagation analysis, end-to-end calibration, and hierarchical joint prediction across abstraction levels.
 
-\textbf{Emerging hardware and design integration.}
-PIM architectures~\cite{upimulator2024,attacc2024,neupims2024,paise2025}, chiplets, and disaggregated designs blur conventional memory hierarchy assumptions.
-Compiler integration needs uncertainty quantification~\cite{tvm2018,ansor2020}; LLM serving needs real-time prediction; and hardware-aware optimizations (FlashAttention~\cite{flashattention2022}) change the performance landscape faster than models can be retrained.
-
-\textbf{Reproducibility and trust.}
-While MLPerf~\cite{mlperf_training2020,mlperf_inference2020} standardizes hardware \emph{measurement}, no equivalent exists for performance \emph{prediction}---standardized prediction benchmarks with common workloads and evaluation protocols would significantly advance the field.
+\textbf{Emerging hardware and reproducibility.}
+PIM architectures~\cite{upimulator2024,attacc2024,neupims2024,paise2025}, chiplets, and disaggregated designs blur conventional memory hierarchy assumptions; hardware-aware optimizations (FlashAttention~\cite{flashattention2022}) change the performance landscape faster than models can be retrained.
+On the reproducibility front, no equivalent of MLPerf~\cite{mlperf_training2020,mlperf_inference2020} exists for performance \emph{prediction}---standardized prediction benchmarks would significantly advance the field.
+Analytical models remain the most interpretable: Timeloop identifies data movement bottlenecks, MAESTRO reveals suboptimal dataflows, and VIDUR exposes scheduling inefficiencies, while ML-augmented approaches offer limited causal understanding.
 
 \textbf{Future directions.}
-Five priorities:
-(1)~Transformer/MoE-aware tools with validated non-CNN accuracy;
-(2)~validated composition methods with bounded end-to-end error;
-(3)~unified energy-latency-memory prediction~\cite{mlperfpower2025};
-(4)~temporal robustness benchmarks for software stack evolution;
-(5)~unified tooling with Docker-first deployment, portable formats (ONNX), and standard workload representations (Chakra~\cite{chakra2023}).
+Five priorities: (1)~transformer/MoE-aware tools with validated non-CNN accuracy; (2)~validated composition methods with bounded end-to-end error; (3)~unified energy-latency-memory prediction~\cite{mlperfpower2025}; (4)~temporal robustness benchmarks for software stack evolution; (5)~unified tooling with Docker-first deployment, portable formats (ONNX), and standard workload representations (Chakra~\cite{chakra2023}).
 
 % ==============================================================================
 % CONCLUSION
