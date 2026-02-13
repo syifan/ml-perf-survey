@@ -213,6 +213,65 @@ Our initial search yielded 287 candidate papers.
 After title/abstract screening against inclusion criteria, 118 remained.
 Full-text review reduced the set to 53 papers that met all criteria.
 We additionally include 12 foundational works (gem5, roofline model, DRAMSim, etc.) as context for understanding the modeling landscape.
+Figure~\ref{fig:selection-process} summarizes the selection process.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[
+  node distance=0.9cm,
+  box/.style={draw, rounded corners, minimum width=5.2cm, minimum height=0.7cm,
+              align=center, font=\small},
+  excl/.style={draw, dashed, rounded corners, minimum width=3.0cm, minimum height=0.7cm,
+               align=center, font=\scriptsize, text=gray!70!black},
+  arr/.style={-{Stealth[length=2.5mm]}, thick},
+]
+% Source box
+\node[box, fill=blue!8] (sources)
+  {Database search + citation tracking\\
+   \scriptsize ACM DL, IEEE Xplore, Semantic Scholar, arXiv};
+
+% Candidates
+\node[box, below=of sources] (candidates)
+  {287 candidate papers};
+
+% After title/abstract
+\node[box, below=of candidates] (screened)
+  {118 papers after title/abstract screening};
+
+% After full-text
+\node[box, below=of screened] (fulltext)
+  {53 papers after full-text review};
+
+% Final corpus
+\node[box, fill=green!8, below=of fulltext] (final)
+  {65 papers in final corpus\\
+   \scriptsize 53 surveyed + 12 foundational};
+
+% Exclusion boxes
+\node[excl, right=0.6cm of candidates] (excl1)
+  {169 excluded\\(title/abstract)};
+\node[excl, right=0.6cm of screened] (excl2)
+  {65 excluded\\(full-text review)};
+
+% Foundational addition
+\node[excl, right=0.6cm of fulltext] (found)
+  {+12 foundational\\works added};
+
+% Arrows
+\draw[arr] (sources) -- (candidates);
+\draw[arr] (candidates) -- (screened);
+\draw[arr] (screened) -- (fulltext);
+\draw[arr] (fulltext) -- (final);
+
+% Exclusion arrows
+\draw[arr, dashed, gray] (candidates.east) -- (excl1.west);
+\draw[arr, dashed, gray] (screened.east) -- (excl2.west);
+\draw[arr, dashed, gray] (found.west) -- (fulltext.east);
+
+\end{tikzpicture}
+\caption{Paper selection process. Initial database searches and citation tracking yielded 287 candidates; title/abstract screening and full-text review reduced the set to 53 papers meeting all inclusion criteria. 12 foundational works were added for context, yielding 65 papers in the final corpus.}
+\label{fig:selection-process}
+\end{figure}
 
 \textbf{Time period.}
 We cover papers published between 2016--2026, with foundational works from earlier years included for context.
