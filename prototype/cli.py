@@ -169,6 +169,135 @@ def cmd_validate(args):
         print(f"\nFull report saved to {output_path}")
 
 
+def cmd_report(args):
+    """Generate a markdown report with coverage matrix and metric comparisons."""
+    from datetime import date
+
+    configs_dir = Path(args.configs) if args.configs else Path(__file__).parent / "configs"
+    if not configs_dir.exists():
+        print(f"Error: configs directory '{configs_dir}' not found.")
+        sys.exit(1)
+
+    yaml_files = sorted(configs_dir.glob("*.yaml"))
+    if not yaml_files:
+        print(f"No workload configs found in {configs_dir}")
+        sys.exit(1)
+
+    adapters = list_adapters()
+    tool_names = list(adapters.keys())
+
+    # Run all tool-workload combinations
+    workloads = []
+    results_map = {}  # (workload_name, tool_name) -> ResultSet
+    for yaml_file in yaml_files:
+        spec = WorkloadSpec.from_yaml(str(yaml_file))
+        workloads.append(spec)
+        for name, adapter_cls in adapters.items():
+            adapter = adapter_cls()
+            if adapter.supports(spec):
+                result = adapter.run(spec)
+                results_map[(spec.name, name)] = result
+
+    # Build report
+    lines = []
+    lines.append("# Unified Tool Prototype — Evaluation Report")
+    lines.append(f"\n**Generated:** {date.today().isoformat()}")
+    lines.append(f"**Tools:** {len(adapters)}")
+    lines.append(f"**Workloads:** {len(workloads)}")
+    lines.append(f"**Total runs:** {len(results_map)}")
+    ok = sum(1 for r in results_map.values() if r.exit_code == 0)
+    fail = sum(1 for r in results_map.values() if r.exit_code != 0)
+    lines.append(f"**Pass/Fail:** {ok}/{fail}")
+
+    # Tool overview table
+    lines.append("\n## Tool Overview\n")
+    lines.append("| Tool | Category | Metrics |")
+    lines.append("|------|----------|---------|")
+    for name, adapter_cls in adapters.items():
+        a = adapter_cls()
+        lines.append(f"| {name} | {a.category} | {', '.join(a.supported_metrics)} |")
+
+    # Coverage matrix
+    lines.append("\n## Coverage Matrix\n")
+    header = "| Workload | " + " | ".join(tool_names) + " |"
+    sep = "|----------|" + "|".join(["---"] * len(tool_names)) + "|"
+    lines.append(header)
+    lines.append(sep)
+    for spec in workloads:
+        row = f"| {spec.name} |"
+        for t in tool_names:
+            key = (spec.name, t)
+            if key in results_map:
+                r = results_map[key]
+                row += " PASS |" if r.exit_code == 0 else " FAIL |"
+            else:
+                row += " — |"
+        lines.append(row)
+
+    # Per-workload metric tables
+    lines.append("\n## Per-Workload Results\n")
+    for spec in workloads:
+        lines.append(f"### {spec.name}")
+        lines.append(f"**Model:** {spec.model.get('name', 'N/A')} | "
+                      f"**Task:** {spec.task} | "
+                      f"**Hardware:** {spec.hardware.get('device', 'N/A')}"
+                      f"{' x' + str(spec.hardware.get('count', 1)) if spec.hardware.get('count', 1) > 1 else ''}\n")
+
+        wk_results = [(t, results_map[(spec.name, t)])
+                       for t in tool_names if (spec.name, t) in results_map]
+        if not wk_results:
+            lines.append("No tools support this workload.\n")
+            continue
+
+        # Collect all metrics across tools for this workload
+        all_metrics = set()
+        for _, r in wk_results:
+            if r.exit_code == 0:
+                all_metrics.update(r.metrics.keys())
+        all_metrics = sorted(all_metrics)
+
+        if all_metrics:
+            header = "| Metric | " + " | ".join(t for t, _ in wk_results) + " |"
+            sep = "|--------|" + "|".join(["---"] * len(wk_results)) + "|"
+            lines.append(header)
+            lines.append(sep)
+            for m in all_metrics:
+                row = f"| {m} |"
+                for _, r in wk_results:
+                    val = r.metrics.get(m)
+                    if val is None:
+                        row += " — |"
+                    elif isinstance(val, float):
+                        row += f" {val:,.4f} |"
+                    elif isinstance(val, int):
+                        row += f" {val:,} |"
+                    else:
+                        row += f" {val} |"
+                lines.append(row)
+        lines.append("")
+
+    # Category analysis
+    lines.append("## Category Analysis\n")
+    categories = {}
+    for name, adapter_cls in adapters.items():
+        a = adapter_cls()
+        cat = a.category
+        if cat not in categories:
+            categories[cat] = []
+        categories[cat].append(name)
+    for cat, tools in categories.items():
+        lines.append(f"- **{cat}:** {', '.join(tools)}")
+
+    report_text = "\n".join(lines) + "\n"
+
+    output_path = Path(args.output) if args.output else Path("data/evaluation/prototype-report.md")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w") as f:
+        f.write(report_text)
+    print(f"Report written to {output_path}")
+    print(f"({ok} passed, {fail} failed, {len(results_map)} total runs)")
+
+
 def main():
     parser = argparse.ArgumentParser(
         prog="mlperf-model",
@@ -195,6 +324,11 @@ def main():
     val_parser.add_argument("--configs", "-c", help="Configs directory (default: prototype/configs)")
     val_parser.add_argument("--output", "-o", help="Output JSON report path")
 
+    # report
+    rep_parser = subparsers.add_parser("report", help="Generate markdown evaluation report")
+    rep_parser.add_argument("--configs", "-c", help="Configs directory (default: prototype/configs)")
+    rep_parser.add_argument("--output", "-o", help="Output markdown file path")
+
     args = parser.parse_args()
 
     if args.command == "list":
@@ -205,6 +339,8 @@ def main():
         cmd_compare(args)
     elif args.command == "validate":
         cmd_validate(args)
+    elif args.command == "report":
+        cmd_report(args)
 
 
 if __name__ == "__main__":

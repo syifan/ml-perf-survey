@@ -1,0 +1,192 @@
+{
+  "workloads": 5,
+  "tools": 5,
+  "total_runs": 13,
+  "passed": 12,
+  "failed": 1,
+  "results": [
+    {
+      "tool": "timeloop",
+      "workload": "bert-large-inference-a100",
+      "metrics": {
+        "cycles": 1170773,
+        "energy_uj": 649.08,
+        "utilization": 0.6,
+        "latency_ms": 5.854
+      },
+      "exit_code": 0,
+      "error": null
+    },
+    {
+      "tool": "analytical",
+      "workload": "bert-large-inference-a100",
+      "metrics": {
+        "latency_ms": 1.8564,
+        "throughput_samples_s": 538.67,
+        "arithmetic_intensity": 851.76,
+        "memory_gb": 0.68,
+        "compute_time_ms": 1.8564,
+        "memory_time_ms": 0.3335,
+        "bottleneck": "compute"
+      },
+      "exit_code": 0,
+      "error": null
+    },
+    {
+      "tool": "neusight",
+      "workload": "bert-large-inference-a100",
+      "metrics": {
+        "latency_ms": 396.475,
+        "predicted_latency_ms": 414.127,
+        "ape_pct": 4.45,
+        "config": "bert_large-inf-512-16",
+        "device": "NVIDIA_A100-PCIE-40GB",
+        "source": "precomputed_ci"
+      },
+      "exit_code": 0,
+      "error": null
+    },
+    {
+      "tool": "analytical",
+      "workload": "gpt3-inference-h100",
+      "metrics": {
+        "latency_ms": 353.8928,
+        "throughput_samples_s": 2.83,
+        "arithmetic_intensity": 1000.0,
+        "memory_gb": 350.0,
+        "compute_time_ms": 353.8928,
+        "memory_time_ms": 104.4776,
+        "bottleneck": "compute"
+      },
+      "exit_code": 0,
+      "error": null
+    },
+    {
+      "tool": "vidur",
+      "workload": "gpt3-inference-h100",
+      "metrics": {},
+      "exit_code": 1,
+      "error": "No VIDUR results for model=gpt-3 device=h100"
+    },
+    {
+      "tool": "vidur",
+      "workload": "llama2-7b-serving-a100",
+      "metrics": {
+        "avg_e2e_time_s": 0.170333756510085,
+        "p50_e2e_time_s": 0.17694264566809892,
+        "p99_e2e_time_s": 0.3134836102467915,
+        "avg_ttft_s": 0.026611024771988526,
+        "avg_tpot_s": 0.0093307681607618,
+        "throughput_tokens_per_s": 98531.46700614833,
+        "avg_exec_time_s": 0.16014823545113507,
+        "avg_sched_delay_s": 0.002205374747277742,
+        "num_requests": 100,
+        "avg_prefill_tokens": 293.67,
+        "avg_decode_tokens": 15.21,
+        "scheduler": "vllm",
+        "source": "precomputed",
+        "schedulers_available": [
+          "vllm",
+          "sarathi",
+          "orca"
+        ]
+      },
+      "exit_code": 0,
+      "error": null
+    },
+    {
+      "tool": "timeloop",
+      "workload": "resnet50-inference-a100",
+      "metrics": {
+        "cycles": 1170773,
+        "energy_uj": 649.08,
+        "utilization": 0.6,
+        "latency_ms": 5.854
+      },
+      "exit_code": 0,
+      "error": null
+    },
+    {
+      "tool": "analytical",
+      "workload": "resnet50-inference-a100",
+      "metrics": {
+        "latency_ms": 0.0263,
+        "throughput_samples_s": 38048.78,
+        "arithmetic_intensity": 160.16,
+        "memory_gb": 0.051,
+        "compute_time_ms": 0.0263,
+        "memory_time_ms": 0.0251,
+        "bottleneck": "compute"
+      },
+      "exit_code": 0,
+      "error": null
+    },
+    {
+      "tool": "neusight",
+      "workload": "resnet50-inference-a100",
+      "metrics": {
+        "mean_ape_pct": 8.63,
+        "num_models": 16,
+        "device": "A100",
+        "mode": "inf",
+        "source": "precomputed_ci_aggregate"
+      },
+      "exit_code": 0,
+      "error": null
+    },
+    {
+      "tool": "timeloop",
+      "workload": "resnet50-training-h100-8gpu",
+      "metrics": {
+        "cycles": 1170773,
+        "energy_uj": 649.08,
+        "utilization": 0.6,
+        "latency_ms": 5.854
+      },
+      "exit_code": 0,
+      "error": null
+    },
+    {
+      "tool": "analytical",
+      "workload": "resnet50-training-h100-8gpu",
+      "metrics": {
+        "latency_ms": 0.2653,
+        "throughput_samples_s": 3769.05,
+        "arithmetic_intensity": 5125.0,
+        "memory_gb": 0.051,
+        "compute_time_ms": 0.2653,
+        "memory_time_ms": 0.0153,
+        "bottleneck": "compute"
+      },
+      "exit_code": 0,
+      "error": null
+    },
+    {
+      "tool": "astra-sim",
+      "workload": "resnet50-training-h100-8gpu",
+      "metrics": {
+        "total_cycles": 1098621886,
+        "communication_cycles": 3307886,
+        "compute_cycles": 1095314000,
+        "gpu_count": 8,
+        "npus_in_result": 8,
+        "source": "precomputed_ci"
+      },
+      "exit_code": 0,
+      "error": null
+    },
+    {
+      "tool": "neusight",
+      "workload": "resnet50-training-h100-8gpu",
+      "metrics": {
+        "mean_ape_pct": 6.6,
+        "num_models": 18,
+        "device": "H100",
+        "mode": "train",
+        "source": "precomputed_ci_aggregate"
+      },
+      "exit_code": 0,
+      "error": null
+    }
+  ]
+}
