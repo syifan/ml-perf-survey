@@ -1,0 +1,151 @@
+name: VIDUR Experiment
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'experiment-runner/vidur*'
+    paths:
+      - 'scripts/benchmarks/vidur/**'
+      - '.github/workflows/vidur-experiment.yml'
+
+jobs:
+  vidur-validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build VIDUR Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: scripts/benchmarks/vidur
+          load: true
+          tags: mlperf-vidur:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Run VIDUR vLLM scheduler experiment
+        run: |
+          mkdir -p results/vllm
+          docker run --rm \
+            -v ${{ github.workspace }}/results/vllm:/output \
+            mlperf-vidur:latest \
+            --replica_config_model_name meta-llama/Llama-2-7b-hf \
+            --replica_config_device a100 \
+            --replica_config_network_device a100_pairwise_nvlink \
+            --replica_scheduler_provider vllm \
+            --request_generator_provider synthetic \
+            --synthetic_request_generator_num_requests 200 \
+            --poisson_request_interval_generator_qps 2.0 \
+            --uniform_request_length_generator_min_tokens 128 \
+            --uniform_request_length_generator_max_tokens 512 \
+            --uniform_request_length_generator_prefill_to_decode_ratio 20.0 \
+            --seed 42 \
+            --metrics_store_request_metrics \
+            --metrics_store_batch_metrics \
+            --metrics_store_utilization_metrics \
+            --metrics_output_dir /output \
+            2>&1 | tee results/vllm/run.log || true
+
+      - name: Run VIDUR Sarathi scheduler experiment
+        run: |
+          mkdir -p results/sarathi
+          docker run --rm \
+            -v ${{ github.workspace }}/results/sarathi:/output \
+            mlperf-vidur:latest \
+            --replica_config_model_name meta-llama/Llama-2-7b-hf \
+            --replica_config_device a100 \
+            --replica_config_network_device a100_pairwise_nvlink \
+            --replica_scheduler_provider sarathi \
+            --replica_scheduler_chunk_size 512 \
+            --request_generator_provider synthetic \
+            --synthetic_request_generator_num_requests 200 \
+            --poisson_request_interval_generator_qps 2.0 \
+            --uniform_request_length_generator_min_tokens 128 \
+            --uniform_request_length_generator_max_tokens 512 \
+            --uniform_request_length_generator_prefill_to_decode_ratio 20.0 \
+            --seed 42 \
+            --metrics_store_request_metrics \
+            --metrics_store_batch_metrics \
+            --metrics_store_utilization_metrics \
+            --metrics_output_dir /output \
+            2>&1 | tee results/sarathi/run.log || true
+
+      - name: Run VIDUR Orca scheduler experiment
+        run: |
+          mkdir -p results/orca
+          docker run --rm \
+            -v ${{ github.workspace }}/results/orca:/output \
+            mlperf-vidur:latest \
+            --replica_config_model_name meta-llama/Llama-2-7b-hf \
+            --replica_config_device a100 \
+            --replica_config_network_device a100_pairwise_nvlink \
+            --replica_scheduler_provider orca \
+            --request_generator_provider synthetic \
+            --synthetic_request_generator_num_requests 200 \
+            --poisson_request_interval_generator_qps 2.0 \
+            --uniform_request_length_generator_min_tokens 128 \
+            --uniform_request_length_generator_max_tokens 512 \
+            --uniform_request_length_generator_prefill_to_decode_ratio 20.0 \
+            --seed 42 \
+            --metrics_store_request_metrics \
+            --metrics_store_batch_metrics \
+            --metrics_store_utilization_metrics \
+            --metrics_output_dir /output \
+            2>&1 | tee results/orca/run.log || true
+
+      - name: List result files
+        run: |
+          echo "=== Result directory structure ==="
+          find results/ -type f | head -50
+
+      - name: Parse and analyze results
+        run: |
+          mkdir -p data/evaluation/vidur-results
+
+          # Analyze results - try with timestamped subdirs first, fallback to direct
+          python3 scripts/benchmarks/vidur/analyze_results.py results --json \
+            > data/evaluation/vidur-results/vidur_results.json 2>&1 || true
+
+          python3 scripts/benchmarks/vidur/analyze_results.py results \
+            --markdown data/evaluation/vidur-results/vidur_summary.md 2>&1 || true
+
+          python3 scripts/benchmarks/vidur/analyze_results.py results 2>&1 || true
+
+      - name: Display results summary
+        run: |
+          echo "=== VIDUR Results ==="
+          echo ""
+          if [ -f data/evaluation/vidur-results/vidur_results.json ]; then
+            python3 -m json.tool data/evaluation/vidur-results/vidur_results.json
+          else
+            echo "No JSON results generated"
+          fi
+          echo ""
+          if [ -f data/evaluation/vidur-results/vidur_summary.md ]; then
+            cat data/evaluation/vidur-results/vidur_summary.md
+          fi
+
+      - name: Upload results as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vidur-results
+          path: |
+            results/
+            data/evaluation/vidur-results/
+          if-no-files-found: warn
+
+      - name: Commit results if on branch
+        if: github.ref != 'refs/heads/main'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add data/evaluation/vidur-results/ || true
+          git diff --staged --quiet || git commit -m "[CI] VIDUR experiment results"
+          git push || echo "Push failed - results saved as artifact"
