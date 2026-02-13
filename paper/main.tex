@@ -173,7 +173,8 @@ We cover 2016--2026 and classify each paper by \emph{methodology type} (analytic
 \subsection{Related Surveys}
 \label{subsec:related-surveys}
 
-Prior surveys address adjacent topics: Rakhshanfar and Zarandi~\cite{rakhshanfar2021survey} survey ML for processor DSE; Sze et al.~\cite{sze2017efficient} treat DNN hardware design (the foundation for Timeloop/MAESTRO); GPGPU-Sim~\cite{gpgpusim2009} and gem5~\cite{binkert2011gem5} have extensive evaluation literature; and MLPerf~\cite{mlperf_training2020,mlperf_inference2020} standardizes \emph{measurement} rather than \emph{prediction}.
+Prior surveys address adjacent topics: Rakhshanfar and Zarandi~\cite{rakhshanfar2021survey} survey ML for processor DSE; Sze et al.~\cite{sze2017efficient} treat DNN hardware design (the foundation for Timeloop/MAESTRO); GPGPU-Sim~\cite{gpgpusim2009} and gem5~\cite{binkert2011gem5} have extensive evaluation literature; SST~\cite{sst2012} provides modular system-level simulation widely used for interconnect and HPC modeling; and MLPerf~\cite{mlperf_training2020,mlperf_inference2020} standardizes \emph{measurement} rather than \emph{prediction}.
+Early ML accelerator modeling (2014--2018) established foundational approaches: DianNao~\cite{diannao2014} introduced analytical dataflow modeling for dedicated accelerators, Eyeriss~\cite{eyeriss2016} systematized row-stationary dataflow analysis, and Paleo~\cite{paleo2017} pioneered layer-wise analytical estimation.
 This survey differs by spanning the full methodology spectrum across all major platforms with hands-on reproducibility evaluations.
 The closest prior work, Dudziak et al.~\cite{latencypredictorsnas2024}, compares edge device predictors for NAS; we broaden to the full landscape.
 
@@ -501,8 +502,12 @@ TLP~\cite{tlp2023} & GPU & M & Tensor program & $<$10\% & ms & Transformer cost 
 \subsection{DNN Accelerator Modeling}
 \label{subsec:accelerator-modeling}
 
-DNN accelerators' computational regularity makes this domain amenable to analytical modeling~\cite{sze2017efficient}.
-Timeloop~\cite{timeloop2019} computes data reuse from loop-nest representations at 5--10\% error with 2000$\times$ speedup; MAESTRO~\cite{maestro2019} simplifies specification via data-centric directives; Sparseloop~\cite{sparseloop2022} extends to sparse tensors.
+DNN accelerators' computational regularity---fixed dataflow patterns and deterministic memory access---makes this domain uniquely amenable to analytical modeling~\cite{sze2017efficient}, building on early accelerator characterization pioneered by DianNao~\cite{diannao2014}.
+Timeloop~\cite{timeloop2019} exploits this regularity by enumerating loop-nest orderings that determine data reuse: because each loop permutation maps to a unique set of spatial and temporal data movements, Timeloop can analytically compute the exact number of memory accesses at each hierarchy level, achieving 5--10\% error with 2000$\times$ speedup.
+MAESTRO~\cite{maestro2019} raises the abstraction level with data-centric directives that describe \emph{which} data dimensions are spatially partitioned rather than \emph{how} loops are ordered; this enables fast operator-level analysis ($\mu$s per mapping) because MAESTRO avoids enumerating individual loop nests and instead reasons about data reuse algebraically.
+The trade-off: MAESTRO's abstraction sacrifices Timeloop's ability to model per-PE utilization, explaining why Timeloop achieves tighter error bounds on architectures with irregular PE arrays.
+SCALE-Sim~\cite{scalesim2019} complements both by providing cycle-accurate systolic array simulation for validation.
+Sparseloop~\cite{sparseloop2022} extends the loop-nest framework to sparse tensors, modeling compression formats (CSR, bitmap) and their impact on irregular memory accesses.
 PyTorchSim~\cite{pytorchsim2025} integrates PyTorch~2 with NPU simulation but lacks real-hardware validation; ArchGym~\cite{archgym2023} connects ML surrogates to simulators (0.61\% RMSE vs.\ simulator, not hardware).
 Accelerator modeling is the most mature subdomain, with Timeloop as the de facto DSE standard. The key gap is silicon validation; emerging PIM tools~\cite{upimulator2024,attacc2024,neupims2024,paise2025} also lack hardware validation.
 
@@ -516,8 +521,11 @@ GPGPU-Sim~\cite{gpgpusim2009} and Accel-Sim~\cite{accelsim2020} achieve 0.90--0.
 These simulators integrate with memory subsystem models---from DRAMSim2~\cite{dramsim2_2011} and Ramulator~\cite{ramulator2015} to their modern successors DRAMSim3~\cite{dramsim3_2020} and Ramulator~2.0~\cite{ramulator2_2023}---for accurate DRAM timing, critical for memory-bound LLM inference.
 
 \textbf{Analytical and hybrid models.}
-AMALI~\cite{amali2025} reduces LLM inference MAPE to 23.6\% via memory hierarchy modeling; the roofline model~\cite{williams2009roofline} provides upper bounds, with recent extensions adapting it to LLM-specific workloads~\cite{rooflinellm2024}.
-NeuSight~\cite{neusight2025} achieves 2.3\% on GPT-3 via tile-based prediction mirroring CUDA execution; Habitat~\cite{habitat2021} achieves 11.8\% cross-GPU transfer via wave scaling.
+AMALI~\cite{amali2025} models GPU performance through memory hierarchy analysis---computing data movement volumes across L1, L2, and HBM levels---but its 23.6\% MAPE reveals a fundamental limitation: analytical memory models cannot capture dynamic effects (warp scheduling contention, bank conflicts, memory coalescing efficiency) that dominate real GPU execution, especially for attention kernels with irregular access patterns.
+The roofline model~\cite{williams2009roofline} provides upper bounds, with recent extensions adapting it to LLM-specific workloads~\cite{rooflinellm2024}.
+NeuSight~\cite{neusight2025} achieves 2.3\% on GPT-3 by decomposing kernels into tiles that mirror CUDA's actual thread block tiling: because GPU hardware schedules thread blocks as atomic units with shared memory, tile-level predictions naturally capture occupancy effects and memory locality that per-operator models miss.
+This structural alignment with hardware execution---predicting per-tile latency and aggregating---is why NeuSight achieves $10\times$ lower error than AMALI despite both being sub-second tools.
+Habitat~\cite{habitat2021} achieves 11.8\% cross-GPU transfer via wave scaling.
 
 \textbf{LLM-specific and compiler models.}
 VIDUR~\cite{vidur2024} simulates LLM serving with scheduling strategies at $<$5\% error; LIFE~\cite{life2025} and HERMES~\cite{hermes2025} target inference; Omniwise~\cite{omniwise2025} and SwizzlePerf~\cite{swizzleperf2025} are emerging predictors.
@@ -542,8 +550,20 @@ ESM~\cite{esm2025} finds well-tuned random forests match deep learning surrogate
 \subsection{Cross-Cutting Themes}
 \label{subsec:cross-cutting}
 
-\emph{Structural decomposition} mirroring hardware execution outperforms black-box approaches (Timeloop's loop nests, NeuSight's tiles, VIDUR's prefill/decode), and \emph{verifiable moderate accuracy} predicts adoption better than claimed high accuracy.
-A persistent \textbf{accuracy--generality--speed trilemma} explains methodological diversity: simulators maximize accuracy but sacrifice speed; analytical models maximize speed but sacrifice accuracy; ML approaches achieve both but sacrifice generality.
+Three architectural insights emerge from our analysis.
+
+\emph{First, structural decomposition that mirrors hardware execution consistently outperforms black-box approaches.}
+Timeloop's loop nests reflect systolic array dataflow, NeuSight's tiles mirror CUDA thread block scheduling, and VIDUR's prefill/decode split captures the GPU's distinct compute- vs.\ memory-bound regimes.
+In each case, the modeling abstraction succeeds because it aligns with the hardware boundary that dominates performance: data reuse at the PE array level, occupancy at the SM level, and phase-level batching at the system level.
+By contrast, AMALI's single-pass memory hierarchy model misses dynamic scheduling effects that cross these boundaries, explaining its higher error.
+
+\emph{Second, the most critical architectural features for accurate ML modeling differ by platform.}
+For accelerators, data reuse (determined by dataflow and tiling) dominates because accelerator designs deliberately eliminate dynamic effects.
+For GPUs, thread block occupancy and memory coalescing are most critical because the SIMT execution model introduces contention not present in systolic arrays.
+For distributed systems, collective communication topology and pipeline bubble overhead dominate because compute per device is well-characterized but inter-device interaction is not.
+This explains why no single methodology works across all platforms.
+
+\emph{Third, a persistent \textbf{accuracy--generality--speed trilemma}} explains methodological diversity: cycle-accurate simulators (Accel-Sim, GPGPU-Sim) maximize accuracy by modeling microarchitectural state but sacrifice speed; analytical models (Timeloop, MAESTRO) maximize speed by exploiting structural regularity but sacrifice accuracy on dynamic workloads; ML-augmented approaches (nn-Meter, LitePred) achieve both speed and accuracy on trained distributions but sacrifice generality to unseen architectures.
 Subdomain maturity mirrors economic incentive: accelerator DSE is most mature (irreversible chip errors), distributed training is fastest-growing (million-dollar runs), and edge modeling has weakest reproducibility.
 
 % ==============================================================================
@@ -615,7 +635,10 @@ Figure~\ref{fig:accuracy-speed} visualizes the accuracy--speed trade-off space, 
 \label{subsec:accuracy-difficulty}
 
 We organize accuracy results by inherent problem difficulty rather than comparing across incompatible benchmarks (Figure~\ref{fig:accuracy-comparison}).
-Accelerator dataflow modeling is most tractable (Timeloop: 5--10\%); single-GPU kernel prediction achieves 2--12\% via hybrid methods (NeuSight, Habitat); distributed systems reach 2--15\% (SimAI 1.9\%, ASTRA-sim 5--15\%); cross-platform edge prediction achieves 0.7--2\% but requires per-device profiling; and GPU analytical modeling remains hardest (AMALI: 23.6\%).
+Accelerator dataflow modeling is most tractable (Timeloop: 5--10\%) because systolic arrays exhibit deterministic data movement---the absence of dynamic scheduling, speculative execution, and shared caches eliminates the primary sources of modeling error.
+Single-GPU kernel prediction achieves 2--12\% via hybrid methods (NeuSight, Habitat), where the accuracy gap relative to accelerators arises from GPU-specific dynamic effects: warp scheduling decisions that depend on runtime register pressure, memory coalescing efficiency that varies with access patterns, and shared memory bank conflicts that are input-dependent.
+Distributed systems reach 2--15\% (SimAI 1.9\%, ASTRA-sim 5--15\%), where the dominant error source shifts from compute modeling to communication topology and collective algorithm selection.
+Cross-platform edge prediction achieves 0.7--2\% but requires per-device profiling; GPU analytical modeling remains hardest (AMALI: 23.6\%).
 Setup costs vary dramatically: analytical models require only architecture specifications, ML-augmented approaches need 10--10K profiling samples per device, and cycle-accurate simulators require hardware-specific binaries or traces.
 
 \begin{figure}[t]
