@@ -299,67 +299,30 @@ The closest prior work is the latency predictor study by Dudziak et al.~\cite{la
 \section{Background}
 \label{sec:background}
 
-This section provides background on the characteristics of ML workloads that make performance modeling challenging, and reviews the fundamental approaches used to model them.
-
 \subsection{ML Workload Characteristics}
 \label{subsec:workload-characteristics}
 
-ML workloads present unique performance modeling challenges compared to general-purpose programs.
-Modern ML frameworks like PyTorch~\cite{pytorch2019} and TensorFlow~\cite{tensorflow2016} define workloads as computation graphs of operators, providing a structured representation that performance models can exploit.
-
-\textbf{Computational structure.}
-ML workloads are composed of well-defined operators (convolutions, matrix multiplications, attention layers, normalization) with statically known shapes and data types.
-This regularity enables analytical modeling of compute and data movement, unlike branch-heavy general-purpose code.
-However, modern architectures like mixture-of-experts (MoE) and dynamic inference introduce input-dependent control flow that complicates static analysis.
-
-\textbf{Memory hierarchy sensitivity.}
-DNN accelerators employ specialized memory hierarchies with explicit data orchestration.
-The mapping of tensor operations to hardware (dataflow, tiling, loop ordering) critically determines performance.
-For LLM inference, KV cache management dominates memory behavior, with cache sizes scaling linearly with sequence length and batch size~\cite{vllm2023}.
-
-\textbf{Scale and distribution.}
-Large model training distributes computation across thousands of GPUs using data, tensor, pipeline, and expert parallelism~\cite{llama3scaling2025}.
-Performance depends on the interplay between compute, memory bandwidth, and network communication---requiring system-level modeling beyond single-device prediction.
-
-\textbf{Distinct inference phases.}
-LLM inference exhibits qualitatively different phases: prefill (compute-bound, processing the full prompt) and decode (memory-bound, generating tokens autoregressively)~\cite{splitwise2024}.
-Effective modeling must capture both phases and their interaction under batched serving~\cite{sarathi2024,orca2022}.
+ML workloads, defined as computation graphs in frameworks like PyTorch~\cite{pytorch2019} and TensorFlow~\cite{tensorflow2016}, present distinct modeling challenges.
+Their operators (convolutions, matrix multiplications, attention) have statically known shapes amenable to analytical modeling, though mixture-of-experts and dynamic inference introduce input-dependent control flow.
+Performance is highly sensitive to how tensors map onto specialized memory hierarchies (dataflow, tiling, loop ordering), and for LLM inference, KV cache management dominates memory behavior~\cite{vllm2023}.
+At scale, training distributes across thousands of GPUs via data, tensor, pipeline, and expert parallelism~\cite{llama3scaling2025}, requiring system-level modeling of compute--memory--network interactions.
+LLM inference further splits into compute-bound prefill and memory-bound decode phases~\cite{splitwise2024}, both of which must be modeled under batched serving~\cite{sarathi2024,orca2022}.
 
 \subsection{Modeling Methodologies}
 \label{subsec:modeling-methodologies}
 
-We classify modeling approaches into four categories that form the primary axis of our taxonomy.
-
-\textbf{Analytical models} express performance as closed-form functions of workload and hardware parameters.
-The roofline model~\cite{williams2009roofline} bounds throughput by $P = \min(\pi, \beta \cdot I)$, where $\pi$ is peak compute, $\beta$ is memory bandwidth, and $I$ is operational intensity.
-For DNN accelerators, Timeloop~\cite{timeloop2019} analytically computes data movement costs across memory hierarchies for any valid mapping.
-Analytical models provide microsecond evaluation and full interpretability, but require manual derivation per architecture and struggle with dynamic microarchitectural effects.
-
-\textbf{Cycle-accurate simulators} model hardware at the register-transfer level.
-gem5~\cite{binkert2011gem5} (CPUs), GPGPU-Sim~\cite{gpgpusim2009} (GPUs), and Accel-Sim~\cite{accelsim2020} (modern GPUs) achieve detailed accuracy but suffer $1000$--$10000\times$ slowdown, making them impractical for full ML workload evaluation.
-Sampling techniques (SimPoint~\cite{simpoint2002}, SMARTS~\cite{smarts2003}) reduce simulation time but were designed for general-purpose workloads and may not capture ML-specific patterns.
-
-\textbf{Trace-driven simulation} uses execution traces as input rather than full binary execution, enabling faster evaluation.
-ASTRA-sim~\cite{astrasim2023} models distributed training using Chakra execution traces~\cite{chakra2023} with pluggable compute, memory, and network backends.
-VIDUR~\cite{vidur2024} provides discrete-event simulation for LLM serving using kernel-level profiles.
-This approach trades some fidelity for orders-of-magnitude speedup over cycle-accurate simulation.
-
-\textbf{ML-augmented approaches} learn performance functions from profiling data.
-These range from simple models (random forests in nn-Meter~\cite{nnmeter2021}, XGBoost in TVM~\cite{tvm2018}) to deep learning (NeuSight~\cite{neusight2025}) and meta-learning (HELP~\cite{help2021}).
-ML-augmented approaches can capture complex non-linear relationships that elude analytical treatment, but require training data and may not generalize beyond their training distribution.
+We classify approaches into four categories forming our taxonomy's primary axis.
+\textbf{Analytical models} express performance as closed-form functions---e.g., the roofline model~\cite{williams2009roofline} bounds throughput by $P = \min(\pi, \beta \cdot I)$, while Timeloop~\cite{timeloop2019} computes data movement costs for DNN accelerator mappings. They offer microsecond evaluation but require per-architecture derivation.
+\textbf{Cycle-accurate simulators} (gem5~\cite{binkert2011gem5}, GPGPU-Sim~\cite{gpgpusim2009}, Accel-Sim~\cite{accelsim2020}) achieve high fidelity but at $1000$--$10000\times$ slowdown; sampling techniques~\cite{simpoint2002,smarts2003} help but were not designed for ML workloads.
+\textbf{Trace-driven simulators} like ASTRA-sim~\cite{astrasim2023} (distributed training via Chakra traces~\cite{chakra2023}) and VIDUR~\cite{vidur2024} (LLM serving) trade some fidelity for orders-of-magnitude speedup.
+\textbf{ML-augmented approaches} learn performance functions from profiling data, ranging from random forests (nn-Meter~\cite{nnmeter2021}) and XGBoost (TVM~\cite{tvm2018}) to deep learning (NeuSight~\cite{neusight2025}) and meta-learning (HELP~\cite{help2021}); they capture non-linear relationships but may not generalize beyond their training distribution.
 
 \subsection{Problem Formulation}
 \label{subsec:problem-formulation}
 
-Performance modeling maps workload $\mathcal{W}$ and hardware $\mathcal{H}$ to a performance metric $y$: $\hat{y} = f(\mathcal{W}, \mathcal{H}; \theta)$.
-Workloads are represented at operator level (layer parameters), graph level (computation graphs), IR level (compiler representations), or trace level (recorded runtime behavior).
-Hardware is characterized by specifications, performance counters, or learned embeddings.
-
-\textbf{Prediction targets} include latency (execution time), throughput (samples/second), energy (Joules per inference), and memory footprint.
-Multi-objective formulations enable Pareto-optimal design selection.
-
-\textbf{Accuracy metrics} vary across the literature: MAPE (scale-invariant relative error), RMSE (penalizes large deviations), and rank correlation (Kendall's $\tau$) for design space ordering.
-Direct comparison across papers is limited by differences in benchmarks, hardware targets, and evaluation protocols---a challenge we discuss in Section~\ref{sec:comparison}.
+Performance modeling maps workload $\mathcal{W}$ and hardware $\mathcal{H}$ to a metric $y$: $\hat{y} = f(\mathcal{W}, \mathcal{H}; \theta)$, with workloads represented at operator, graph, IR, or trace level, and hardware characterized by specifications, counters, or learned embeddings.
+Prediction targets include latency, throughput, energy, and memory footprint.
+Accuracy metrics---MAPE, RMSE, and rank correlation (Kendall's $\tau$)---vary across the literature, and differences in benchmarks, hardware targets, and evaluation protocols limit direct comparison (Section~\ref{sec:comparison}).
 
 % ==============================================================================
 % TAXONOMY
