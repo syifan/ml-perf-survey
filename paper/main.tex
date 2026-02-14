@@ -62,7 +62,7 @@
 As machine learning workloads grow in scale and complexity, architects need fast, accurate methods to predict performance across diverse hardware.
 This survey analyzes 22 tools from 53 papers across architecture and systems venues (2016--2026), covering analytical models, trace-driven simulators, and ML-augmented hybrid techniques for DNN accelerators, GPUs, distributed training, and LLM inference serving.
 We organize the literature by methodology type, target platform, and abstraction level, identifying a temporal validation lag where tools published before 2023 validated primarily on CNNs and finding that hybrid approaches achieve the best accuracy-speed trade-offs.
-We conduct hands-on evaluations of representative tools, independently measuring their performance and accuracy rather than relying on original claims; tools with Docker-first deployment remain reproducible, while those relying on serialized ML models become unusable.
+We conduct hands-on reproducibility evaluations of representative tools, assessing whether practitioners can reproduce each tool's functionality without the original authors' environment; tools with Docker-first deployment remain reproducible, while those relying on serialized ML models become unusable.
 We identify open challenges including cross-workload generalization, kernel-to-end-to-end error composition, and emerging architecture support, providing practitioners tool selection guidance and researchers a roadmap for the field.
 \end{abstract}
 
