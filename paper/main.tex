@@ -503,12 +503,12 @@ TLP~\cite{tlp2023} & GPU & M & Tensor program & $<$10\% & ms & Transformer cost 
 \subsection{DNN Accelerator Modeling}
 \label{subsec:accelerator-modeling}
 
-DNN accelerators' computational regularity---fixed dataflow patterns and deterministic memory access---makes this domain uniquely amenable to analytical modeling~\cite{sze2017efficient}, building on early accelerator characterization pioneered by DianNao~\cite{diannao2014}.
-Timeloop~\cite{timeloop2019} exploits this regularity by enumerating loop-nest orderings that determine data reuse: because each loop permutation maps to a unique set of spatial and temporal data movements, Timeloop can analytically compute the exact number of memory accesses at each hierarchy level, achieving 5--10\% error with 2000$\times$ speedup.
-MAESTRO~\cite{maestro2019} raises the abstraction level with data-centric directives that describe \emph{which} data dimensions are spatially partitioned rather than \emph{how} loops are ordered; this enables fast operator-level analysis ($\mu$s per mapping) because MAESTRO avoids enumerating individual loop nests and instead reasons about data reuse algebraically.
-The trade-off: MAESTRO's abstraction sacrifices Timeloop's ability to model per-PE utilization, explaining why Timeloop achieves tighter error bounds on architectures with irregular PE arrays.
+The analytical tractability of DNN accelerator modeling stems from the regularity of computation~\cite{sze2017efficient}, building on early characterization pioneered by DianNao~\cite{diannao2014}.
+A convolution layer maps to a seven-deep nested loop over batch, output channel, input channel, and spatial dimensions; Timeloop~\cite{timeloop2019} enumerates mappings of these loops to a spatial-temporal hardware hierarchy, computing data reuse at each memory level as the ratio of loop bounds.
+This exhaustive search finds the optimal dataflow in microseconds (5--10\% error, $2000\times$ speedup) because the search space, though combinatorially large, admits efficient pruning: any mapping that exceeds a memory level's capacity is immediately discarded.
+MAESTRO~\cite{maestro2019} achieves similar modeling with a more compact ``data-centric'' representation that specifies which data dimension is stationary at each level, trading enumeration completeness for specification simplicity---but sacrificing Timeloop's ability to model per-PE utilization, explaining why Timeloop achieves tighter error bounds on architectures with irregular PE arrays.
 SCALE-Sim~\cite{scalesim2019} complements both by providing cycle-accurate systolic array simulation for validation.
-Sparseloop~\cite{sparseloop2022} extends the loop-nest framework to sparse tensors, modeling compression formats (CSR, bitmap) and their impact on irregular memory accesses.
+Sparseloop~\cite{sparseloop2022} extends Timeloop's analysis to sparse tensors by introducing format-specific access count models for compression formats (CSR, bitmap)---the key challenge being that sparse data access patterns depend on the data values, requiring statistical or format-aware modeling rather than purely geometric analysis.
 PyTorchSim~\cite{pytorchsim2025} integrates PyTorch~2 with NPU simulation but lacks real-hardware validation; ArchGym~\cite{archgym2023} connects ML surrogates to simulators (0.61\% RMSE vs.\ simulator, not hardware).
 Accelerator modeling is the most mature subdomain, with Timeloop as the de facto DSE standard. The key gap is silicon validation; emerging PIM tools~\cite{upimulator2024,attacc2024,neupims2024,paise2025} also lack hardware validation.
 
@@ -522,16 +522,17 @@ GPGPU-Sim~\cite{gpgpusim2009} and Accel-Sim~\cite{accelsim2020} achieve 0.90--0.
 These simulators integrate with memory subsystem models---from DRAMSim2~\cite{dramsim2_2011} and Ramulator~\cite{ramulator2015} to their modern successors DRAMSim3~\cite{dramsim3_2020} and Ramulator~2.0~\cite{ramulator2_2023}---for accurate DRAM timing, critical for memory-bound LLM inference.
 
 \textbf{Analytical and hybrid models.}
-AMALI~\cite{amali2025} models GPU performance through memory hierarchy analysis---computing data movement volumes across L1, L2, and HBM levels---but its 23.6\% MAPE reveals a fundamental limitation: analytical memory models cannot capture dynamic effects (warp scheduling contention, bank conflicts, memory coalescing efficiency) that dominate real GPU execution, especially for attention kernels with irregular access patterns.
-The roofline model~\cite{williams2009roofline} provides upper bounds, with recent extensions adapting it to LLM-specific workloads~\cite{rooflinellm2024}.
-NeuSight~\cite{neusight2025} achieves 2.3\% on GPT-3 by decomposing kernels into tiles that mirror CUDA's actual thread block tiling: because GPU hardware schedules thread blocks as atomic units with shared memory, tile-level predictions naturally capture occupancy effects and memory locality that per-operator models miss.
-This structural alignment with hardware execution---predicting per-tile latency and aggregating---is why NeuSight achieves $10\times$ lower error than AMALI despite both being sub-second tools.
-Habitat~\cite{habitat2021} achieves 11.8\% cross-GPU transfer via wave scaling.
+AMALI~\cite{amali2025} models GPU performance through memory hierarchy analysis (L1, L2, HBM data movement volumes); the roofline model~\cite{williams2009roofline} provides upper bounds, with recent LLM-specific extensions~\cite{rooflinellm2024}.
+NeuSight~\cite{neusight2025} achieves 2.3\% on GPT-3 by decomposing kernels into tiles that mirror CUDA's thread block tiling; Habitat~\cite{habitat2021} achieves 11.8\% cross-GPU transfer via wave scaling.
+
+The accuracy disparity across these approaches reflects a fundamental architectural distinction.
+Accelerator models achieve 5--10\% error because DNN accelerator execution is deterministic: loop nest orderings fully determine data movement, and spatial architectures have predictable pipeline behavior.
+GPU execution introduces three sources of non-determinism that progressively degrade analytical accuracy: (1)~warp scheduling decisions that depend on runtime resource availability, (2)~memory coalescing patterns that depend on address alignment, and (3)~L2 cache contention that depends on co-running kernels.
+AMALI's 23.6\% MAPE reflects the cost of ignoring these dynamic effects; NeuSight's 2.3\% captures them implicitly through tile-level profiling that matches the GPU's thread block scheduling granularity---predicting per-tile latency and aggregating, which naturally captures occupancy and memory locality that per-operator models miss.
 
 \textbf{LLM-specific and compiler models.}
-VIDUR~\cite{vidur2024} simulates LLM serving with scheduling strategies at $<$5\% error; LIFE~\cite{life2025} and HERMES~\cite{hermes2025} target inference; Omniwise~\cite{omniwise2025} and SwizzlePerf~\cite{swizzleperf2025} are emerging predictors.
+VIDUR~\cite{vidur2024} simulates LLM serving at $<$5\% error; LIFE~\cite{life2025}, HERMES~\cite{hermes2025}, Omniwise~\cite{omniwise2025}, and SwizzlePerf~\cite{swizzleperf2025} target inference.
 TVM~\cite{tvm2018}/Ansor~\cite{ansor2020} ($\sim$15\% MAPE), TLP~\cite{tlp2023} ($<$10\%), and SynPerf~\cite{synperf2025} target compiler autotuning~\cite{tenset2021}.
-GPU modeling spans 2\%--24\% error; NeuSight offers the best accuracy--speed trade-off for LLMs, while AMALI fills pre-silicon gaps.
 
 \subsection{Distributed Training and LLM Serving}
 \label{subsec:distributed-modeling}
@@ -539,6 +540,12 @@ GPU modeling spans 2\%--24\% error; NeuSight offers the best accuracy--speed tra
 Distributed systems require modeling communication, synchronization, and parallelism strategies~\cite{megatronlm2020,gpipe2019,zero2020}.
 ASTRA-sim~\cite{astrasim2023} achieves 5--15\% error via Chakra traces~\cite{chakra2023}; SimAI~\cite{simai2025} reaches 1.9\% at Alibaba scale; Echo~\cite{echo2024} scales simulation to 10K+ devices; Lumos~\cite{lumos2025} 3.3\% on H100s; PRISM~\cite{prism2025} provides prediction intervals at 10K+ GPUs.
 Paleo~\cite{paleo2017} pioneered analytical estimation; MAD Max~\cite{madmax2024} and Sailor~\cite{sailor2025} extend it; Llama~3~\cite{llama3scaling2025} provides validation ground truth at 16K GPUs.
+The speed hierarchy among distributed system simulators directly reflects their modeling granularity.
+VIDUR achieves second-scale simulation by modeling LLM serving at the request level---each prefill and decode phase is a single simulated event with profiled duration---sacrificing visibility into intra-phase behavior.
+ASTRA-sim operates at the collective communication level, replaying Chakra execution traces to model compute-communication overlap, which requires simulating each collective operation individually (minutes per configuration).
+SimAI further decomposes collectives to the NCCL algorithm level, modeling chunk-based ring and tree reduction protocols, which adds fidelity for network congestion effects at the cost of additional simulation time.
+The practical implication: practitioners exploring serving configurations (scheduler, batch size, model placement) should start with VIDUR's fast simulation, then validate promising configurations with ASTRA-sim or SimAI for network-sensitive scenarios.
+
 For inference serving, VIDUR~\cite{vidur2024} models scheduling with vLLM~\cite{vllm2023}; DistServe~\cite{distserve2024} disaggregates prefill and decode for goodput optimization; Frontier~\cite{frontier2025} targets MoE; POD-Attention~\cite{podattention2025} and AQUA~\cite{aqua2025} address prefill-decode overlap and memory offloading respectively; ThrottLL'eM~\cite{throttllem2025} models power effects; speculative decoding~\cite{medusa2024} creates a moving target for all simulators.
 
 \subsection{Edge Device Modeling}
