@@ -920,6 +920,67 @@
 % NEW: GPU Simulation Advances — Added by Maya (issue #148)
 % ============================================================================
 
+% ============================================================================
+% NEW: Proprietary Tools, Compiler Models, Capacity Planning — Added by Paper-Editor (issue #84)
+% ============================================================================
+
+@misc{nsightcompute2019,
+  author    = {{NVIDIA Corporation}},
+  title     = {{Nsight Compute}: Interactive Kernel Profiler},
+  year      = {2019},
+  howpublished = {\url{https://developer.nvidia.com/nsight-compute}},
+  note      = {Industry-standard GPU kernel profiling tool with roofline analysis}
+}
+
+@inproceedings{halide2013,
+  author    = {Ragan-Kelley, Jonathan and Barnes, Connelly and Adams, Andrew and Paris, Sylvain and Durand, Fr{\'e}do and Amarasinghe, Saman},
+  title     = {Halide: A Language and Compiler for Optimizing Parallelism, Locality, and Recomputation in Image Processing Pipelines},
+  booktitle = {Proceedings of the 34th ACM SIGPLAN Conference on Programming Language Design and Implementation (PLDI)},
+  year      = {2013},
+  pages     = {519--530},
+  doi       = {10.1145/2491956.2462176},
+  note      = {Pioneered separation of algorithm and schedule with learned cost models for autoscheduling}
+}
+
+@inproceedings{mlir2020,
+  author    = {Lattner, Chris and Amini, Mehdi and Bondhugula, Uday and Cohen, Albert and Davis, Andy and Pienaar, Jacques and Riddle, River and Shpeisman, Tatiana and Vasilache, Nicolas and Zinenko, Oleksandr},
+  title     = {{MLIR}: Scaling Compiler Infrastructure for Domain Specific Computation},
+  booktitle = {Proceedings of the IEEE/ACM International Symposium on Code Generation and Optimization (CGO)},
+  year      = {2021},
+  pages     = {2--14},
+  doi       = {10.1109/CGO51591.2021.9370308},
+  note      = {Multi-level IR infrastructure enabling cost model composition across abstraction levels}
+}
+
+@inproceedings{triton2019,
+  author    = {Tillet, Philippe and Kung, H. T. and Cox, David},
+  title     = {Triton: An Intermediate Language and Compiler for Tiled Neural Network Computations},
+  booktitle = {Proceedings of the 3rd ACM SIGPLAN International Workshop on Machine Learning and Programming Languages (MAPL)},
+  year      = {2019},
+  pages     = {10--19},
+  doi       = {10.1145/3315508.3329973},
+  note      = {Tile-based GPU programming with heuristic performance model for kernel generation}
+}
+
+@inproceedings{pollux2021,
+  author    = {Qiao, Aurick and Agrawal, Sang Keun and Jayarajan, Anand and Mittal, Moustafa and Altaf, Amar and Cho, Michael and Pekhimenko, Gennady},
+  title     = {Pollux: Co-adaptive Cluster Scheduling for Goodput-Optimized Deep Learning},
+  booktitle = {Proceedings of the 15th USENIX Symposium on Operating Systems Design and Implementation (OSDI)},
+  year      = {2021},
+  pages     = {1--18},
+  note      = {Goodput estimation for co-optimizing resource allocation and training hyperparameters}
+}
+
+@inproceedings{sia2023,
+  author    = {Jayarajan, Anand and Hu, Wei-Lin and Zhao, Gauri and Pekhimenko, Gennady},
+  title     = {Sia: Heterogeneity-aware, Goodput-optimized {ML}-Cluster Scheduling},
+  booktitle = {Proceedings of the 29th Symposium on Operating Systems Principles (SOSP)},
+  year      = {2023},
+  pages     = {642--657},
+  doi       = {10.1145/3600006.3613175},
+  note      = {Extends goodput optimization to heterogeneous GPU clusters for training workloads}
+}
+
 @inproceedings{dissectinggpu2025,
   author    = {Huerta, Rodrigo and Shoushtary, Mojtaba Abaie and Cruz, Jose-Lorenzo and Gonzalez, Antonio},
   title     = {Dissecting and Modeling the Architecture of Modern {GPU} Cores},
