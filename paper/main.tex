@@ -637,13 +637,11 @@ Figure~\ref{fig:accuracy-speed} visualizes the accuracy--speed trade-off space, 
 \node[font=\tiny, anchor=south east] at (0.9,0.7) {LitePred};
 \node[font=\tiny, anchor=north west] at (1.1,1.9) {HELP};
 \node[font=\tiny, anchor=south west] at (1.1,15) {TVM};
-% Pareto frontier (dashed)
-\draw[thick, dashed, black!40] (0,7.5) -- (1,2.3) -- (2,5) -- (3,1.9);
 \legend{Analytical, Simulation, Hybrid, Trace-driven, ML-augmented}
 \end{axis}
 \end{tikzpicture}%
 }
-\caption{Accuracy--speed trade-off across surveyed tools. Each point represents a tool's reported MAPE vs.\ evaluation speed (log-scale categories). The dashed line traces the approximate Pareto frontier. Hybrid (NeuSight) and trace-driven (SimAI) approaches dominate the frontier.}
+\caption{Accuracy--speed trade-off across surveyed tools. Each point represents a tool's reported MAPE vs.\ evaluation speed (log-scale categories). Hybrid (NeuSight) and trace-driven (SimAI) approaches achieve the best accuracy--speed balance.}
 \label{fig:accuracy-speed}
 \end{figure}
 
