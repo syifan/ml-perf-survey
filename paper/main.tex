@@ -81,7 +81,7 @@ This survey provides practitioners guidance for selecting appropriate modeling t
 \section{Introduction}
 \label{sec:introduction}
 
-Machine learning workloads---spanning training and inference for CNNs, transformers, mixture-of-experts models, and graph neural networks---have become the dominant consumers of compute across datacenters and edge devices.
+Machine learning workloads---spanning training and inference for CNNs, transformers, mixture-of-experts models, and LLMs---have become the dominant consumers of compute across datacenters and edge devices.
 The shift toward domain-specific architectures~\cite{hennessy2019golden}---from Google's TPU~\cite{tpuv1_2017,tpuv4_2023} to custom accelerators---has created a heterogeneous landscape where architects need fast, accurate performance predictions for design space exploration, parallelization selection, and hardware-software co-design.
 Yet ML workloads pose unique challenges: diverse computational patterns (dense matrix operations, sparse accesses, communication-bound collectives) across GPUs, TPUs, custom accelerators, and multi-device clusters.
 A rich tool ecosystem has emerged: analytical models (Timeloop~\cite{timeloop2019}: 5--10\% error; MAESTRO~\cite{maestro2019}: 5--15\% error; both at microsecond speed), cycle-accurate simulators (GPGPU-Sim~\cite{gpgpusim2009}, Accel-Sim~\cite{accelsim2020}: hours per workload), trace-driven simulators (ASTRA-sim~\cite{astrasim2023}, VIDUR~\cite{vidur2024}), and hybrid approaches (NeuSight~\cite{neusight2025}: 2.3\% error).
@@ -409,7 +409,7 @@ TVM/Ansor & \checkmark & $\circ$ & --- & --- & --- \\
 \end{tabular}
 \end{table}
 
-Figure~\ref{fig:validation-bias} quantifies this CNN-validation bias: of the 14 surveyed tools, 10 (71\%) include CNN validation, while only 1 tool validates on MoE workloads and none validates on diffusion models.
+Figure~\ref{fig:validation-bias} quantifies this CNN-validation bias: of the 14 surveyed tools, 9 (64\%) include CNN validation, while only 1 tool validates on MoE workloads and none validates on diffusion models.
 The table reveals that \textbf{no surveyed tool has been validated on diffusion models or dynamic inference workloads}~\cite{dynamicreasoning2026}, only Frontier~\cite{frontier2025} has validated MoE support, and no single tool offers validated transformer prediction across the full kernel-to-system stack.
 Practitioners working with non-CNN workloads must accept unvalidated predictions, collect their own validation data, or fall back to measurement.
 
@@ -437,13 +437,13 @@ Practitioners working with non-CNN workloads must accept unvalidated predictions
     extra y tick labels={},
     extra y tick style={grid=major, grid style={black!20, dashed}},
 ]
-\addplot[fill=blue!50, draw=blue!70] coordinates {(10,0) (6,1) (3,2) (1,3) (0,4)};
+\addplot[fill=blue!50, draw=blue!70] coordinates {(9,0) (7,1) (3,2) (1,3) (0,4)};
 \end{axis}
 % Annotation
 \node[font=\tiny, text=red!60!black, align=center] at (5.5,3.7) {No validated\\tools exist};
 \end{tikzpicture}%
 }
-\caption{Workload validation coverage across surveyed tools. CNN validation dominates (71\% of tools), while MoE and diffusion models have minimal or no validated prediction tools, highlighting a critical generalization gap.}
+\caption{Workload validation coverage across surveyed tools. CNN validation dominates (64\% of tools), while MoE and diffusion models have minimal or no validated prediction tools, highlighting a critical generalization gap.}
 \label{fig:validation-bias}
 \end{figure}
 
