@@ -59,10 +59,10 @@
 %%%%%% -- PAPER CONTENT STARTS-- %%%%%%%%
 
 \begin{abstract}
-This survey analyzes 22 performance modeling tools from 53 papers (2016--2026), covering analytical models, trace-driven simulators, and ML-augmented hybrids for DNN accelerators, GPUs, distributed training, and LLM inference.
-We organize the literature by methodology type, target platform, and abstraction level, identifying a temporal validation lag and finding that hybrid approaches achieve the best accuracy-speed trade-offs.
-Hands-on reproducibility evaluations show Docker-first tools remain reproducible while those relying on serialized ML models become unusable.
-We identify open challenges in cross-workload generalization, error composition, and emerging architecture support.
+We survey 22 performance modeling tools from 53 papers (2016--2026), spanning analytical models, trace-driven simulators, and ML-augmented hybrids for DNN accelerators, GPUs, distributed training, and LLM inference.
+Our central finding is an architectural design principle that cuts across subdomain boundaries: tools that decompose prediction along hardware execution boundaries---loop nests for systolic arrays, tiles for GPU SMs, phases for LLM serving---consistently outperform methodology-agnostic approaches, regardless of whether the underlying technique is analytical, learned, or hybrid.
+A coverage matrix over methodology type, target platform, and abstraction level exposes five structural research gaps where no validated tools exist.
+We further characterize how kernel-level prediction errors (2--3\%) amplify to 5--15\% at system level through uncaptured inter-kernel overheads, and show through hands-on evaluation that deployment methodology (Docker-first vs.\ serialized ML models) is a stronger predictor of tool usability than reported accuracy.
 \end{abstract}
 
 %%
@@ -87,15 +87,16 @@ A rich ecosystem of modeling tools has emerged.
 Analytical models (Timeloop~\cite{timeloop2019}, MAESTRO~\cite{maestro2019}) evaluate in microseconds with 5--15\% error.
 Trace-driven simulators (ASTRA-sim~\cite{astrasim2023}, VIDUR~\cite{vidur2024}) replay execution traces for system-level modeling.
 Hybrid approaches (NeuSight~\cite{neusight2025}) combine analytical structure with learned components.
-Yet no comprehensive survey organizes these methods for the practitioner who must select a tool for a specific task.
-Existing surveys focus on ML \emph{techniques} for modeling~\cite{granite2022} or specific hardware~\cite{timeloop2019}; this survey fills that gap with a methodology-centric view that yields new architectural insights.
+Yet no prior work examines \emph{why} certain modeling approaches succeed on certain platforms, or how prediction errors propagate across the abstraction stack.
+Existing surveys focus on ML \emph{techniques} for modeling~\cite{granite2022} or specific hardware~\cite{timeloop2019}; this survey goes beyond cataloging tools to identify cross-cutting architectural principles that explain when and why different approaches work.
 
 We make the following contributions:
 \begin{itemize}
-    \item A \textbf{methodology-centric taxonomy} organizing tools along three dimensions: methodology type, target platform, and abstraction level, with a coverage matrix identifying explicit research gaps (e.g., no trace-driven tools for accelerators, no hybrid tools for distributed systems).
-    \item A \textbf{cross-methodology architectural analysis} revealing why structural decomposition aligned with hardware execution boundaries (loop nests for systolic arrays, tiles for GPU SMs, phases for serving) consistently outperforms methodology-agnostic approaches---an insight that cuts across subdomain boundaries and provides concrete design principles for future tools.
-    \item \textbf{Hands-on reproducibility evaluation} of five representative tools, demonstrating that deployment methodology (Docker-first vs.\ serialized ML models) is a stronger predictor of usability than reported accuracy, with implications for tool design.
-    \item An \textbf{error composition analysis} characterizing how kernel-level prediction errors propagate through the model-to-system abstraction stack, identifying the uncaptured inter-kernel overheads (launch latency, memory allocation, synchronization) that dominate the gap between kernel and end-to-end accuracy.
+    \item A \textbf{cross-cutting architectural design principle}: tools that decompose prediction along hardware execution boundaries---Timeloop's loop nests aligned with systolic array dataflow, NeuSight's tiles mirroring CUDA thread block scheduling, VIDUR's prefill/decode phases capturing distinct compute- vs.\ memory-bound regimes---consistently outperform methodology-agnostic approaches regardless of whether the underlying technique is analytical, learned, or hybrid (Sections~\ref{sec:survey},~\ref{sec:comparison}).
+    This insight unifies findings across subdomain boundaries and provides concrete guidance for future tool design.
+    \item A \textbf{coverage matrix} spanning methodology type, target platform, and abstraction level that exposes five structural research gaps (e.g., no trace-driven tools for accelerators, no hybrid tools for distributed systems), revealing that methodology--platform pairings are driven by hardware regularity rather than researcher preference (Section~\ref{sec:taxonomy}).
+    \item An \textbf{error composition analysis} empirically characterizing how kernel-level prediction errors (2--3\%) amplify through uncaptured inter-kernel overheads---launch latency, memory allocation, synchronization barriers---yielding 5--12\% model-level and 5--15\% system-level error, with correlated errors compounding linearly rather than as $\sqrt{N}$ (Section~\ref{sec:challenges}).
+    \item \textbf{Hands-on reproducibility evaluation} of five tools demonstrating that deployment methodology (Docker-first vs.\ serialized ML models) is a stronger predictor of usability than reported accuracy: nn-Meter's pickle-serialized predictors became unusable within two years while all Docker-based tools reproduced successfully (Section~\ref{sec:evaluation}).
 \end{itemize}
 
 Figure~\ref{fig:timeline} illustrates the evolution of performance modeling tools from early analytical frameworks to modern hybrid approaches.
@@ -928,9 +929,11 @@ Key future directions: (1)~a common evaluation benchmark for modeling tools; (2)
 \section{Conclusion}
 \label{sec:conclusion}
 
-This survey analyzed 22 tools for predicting ML workload performance.
-Key findings: no single methodology dominates---the right choice depends on practitioner priorities; LLM workloads demand specialized modeling (prefill/decode, KV cache, dynamic batching); Docker-first tools remain reproducible while serialized ML models become unusable; and accuracy claims require scrutiny due to varying benchmarks.
-The most pressing gaps are common evaluation benchmarks, validated tools for frontier workloads (MoE, diffusion), kernel-to-end-to-end error composition, and emerging hardware support.
+This survey of 22 ML performance modeling tools yields three actionable findings.
+First, the most accurate tools share a common design principle---structural decomposition aligned with hardware execution boundaries---that transcends methodology type: Timeloop's loop nests for systolic arrays, NeuSight's tiles for GPU SMs, and VIDUR's prefill/decode phases for LLM serving all succeed because they match prediction granularity to the hardware's own scheduling units, while methodology-agnostic approaches (e.g., AMALI's whole-kernel averaging) miss per-unit contention effects.
+Second, kernel-level errors (2--3\%) do not compose gracefully: uncaptured inter-kernel overheads amplify error by $5$--$10\times$ at the system level, and no existing tool bridges this gap with formal composition guarantees.
+Third, reproducibility depends more on deployment methodology than modeling sophistication---Docker-first tools remain usable years later, while serialized ML models become obsolete within two years.
+The most pressing open problems are common evaluation benchmarks, validated tools for frontier workloads (MoE, diffusion), formal error composition bounds, and emerging hardware support.
 
 %%%%%%% -- PAPER CONTENT ENDS -- %%%%%%%%
 
