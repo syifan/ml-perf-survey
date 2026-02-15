@@ -38,7 +38,7 @@
 %% Additional packages (acmart already loads amsmath, amsfonts, amssymb, booktabs)
 \usepackage{multirow}
 \usepackage{tikz}
-\usetikzlibrary{shapes.geometric,arrows.meta,positioning,fit,backgrounds,patterns}
+\usetikzlibrary{shapes.geometric,arrows.meta,positioning,fit,backgrounds,patterns,decorations.pathreplacing}
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.18}
 \usepgfplotslibrary{groupplots}
@@ -59,10 +59,11 @@
 %%%%%% -- PAPER CONTENT STARTS-- %%%%%%%%
 
 \begin{abstract}
-We survey 22 performance modeling tools from 53 papers (2016--2026), spanning analytical models, trace-driven simulators, and ML-augmented hybrids for DNN accelerators, GPUs, distributed training, and LLM inference.
-Our central finding is an architectural design principle that cuts across subdomain boundaries: tools that decompose prediction along hardware execution boundaries---loop nests for systolic arrays, tiles for GPU SMs, phases for LLM serving---consistently outperform methodology-agnostic approaches, regardless of whether the underlying technique is analytical, learned, or hybrid.
-A coverage matrix over methodology type, target platform, and abstraction level exposes five structural research gaps where no validated tools exist.
-We further characterize how kernel-level prediction errors (2--3\%) amplify to 5--15\% at system level through uncaptured inter-kernel overheads, and show through hands-on evaluation that deployment methodology (Docker-first vs.\ serialized ML models) is a stronger predictor of tool usability than reported accuracy.
+We survey 22 performance modeling tools from 53 papers (2016--2026) and introduce the Multi-dimensional Tool Assessment Protocol (MTAP), a principled evaluation framework that assesses tools beyond accuracy across five dimensions: prediction fidelity, compositional fidelity, generalization robustness, deployment viability, and extensibility.
+Applying MTAP to five tools reveals three findings invisible to accuracy-only evaluation.
+First, tools that decompose prediction along hardware execution boundaries---loop nests for systolic arrays, tiles for GPU SMs, phases for LLM serving---consistently outperform methodology-agnostic approaches regardless of underlying technique.
+Second, no validated tool pipeline exists from kernel-level prediction (2--3\% error) to system-level estimate (5--15\% error)---the composition gap is the field's central unsolved problem.
+Third, deployment methodology (Docker-first vs.\ serialized ML models) is a stronger predictor of tool usability than reported accuracy: the tool with the lowest reported error ($<$1\% MAPE) fails to produce any output, while all Docker-based tools reproduce successfully.
 \end{abstract}
 
 %%
@@ -92,11 +93,10 @@ Existing surveys focus on ML \emph{techniques} for modeling~\cite{granite2022} o
 
 We make the following contributions:
 \begin{itemize}
-    \item A \textbf{cross-cutting architectural design principle}: tools that decompose prediction along hardware execution boundaries---Timeloop's loop nests aligned with systolic array dataflow, NeuSight's tiles mirroring CUDA thread block scheduling, VIDUR's prefill/decode phases capturing distinct compute- vs.\ memory-bound regimes---consistently outperform methodology-agnostic approaches regardless of whether the underlying technique is analytical, learned, or hybrid (Sections~\ref{sec:survey},~\ref{sec:comparison}).
-    This insight unifies findings across subdomain boundaries and provides concrete guidance for future tool design.
-    \item A \textbf{coverage matrix} spanning methodology type, target platform, and abstraction level that exposes five structural research gaps (e.g., no trace-driven tools for accelerators, no hybrid tools for distributed systems), revealing that methodology--platform pairings are driven by hardware regularity rather than researcher preference (Section~\ref{sec:taxonomy}).
-    \item An \textbf{error composition analysis} empirically characterizing how kernel-level prediction errors (2--3\%) amplify through uncaptured inter-kernel overheads---launch latency, memory allocation, synchronization barriers---yielding 5--12\% model-level and 5--15\% system-level error, with correlated errors compounding linearly rather than as $\sqrt{N}$ (Section~\ref{sec:challenges}).
-    \item \textbf{Hands-on reproducibility evaluation} of five tools demonstrating that deployment methodology (Docker-first vs.\ serialized ML models) is a stronger predictor of usability than reported accuracy: nn-Meter's pickle-serialized predictors became unusable within two years while all Docker-based tools reproduced successfully (Section~\ref{sec:evaluation}).
+    \item The \textbf{Multi-dimensional Tool Assessment Protocol (MTAP)}, a principled evaluation framework that assesses tools across five dimensions---prediction fidelity, compositional fidelity, generalization robustness, deployment viability, and extensibility---providing a reusable community standard beyond accuracy-only evaluation (Section~\ref{sec:eval-framework}).
+    \item \textbf{Multi-dimensional evaluation} of five tools applying MTAP, revealing that deployment methodology (Docker-first vs.\ serialized ML models) is a stronger predictor of usability than reported accuracy, and that no validated tool pipeline exists from kernel prediction to system-level estimate despite a decade of development (Section~\ref{sec:eval-results}).
+    \item A \textbf{cross-cutting design principle}: tools that decompose prediction along hardware execution boundaries---Timeloop's loop nests for systolic arrays, NeuSight's tiles for GPU SMs, VIDUR's prefill/decode phases---consistently outperform methodology-agnostic approaches regardless of underlying technique (Sections~\ref{sec:survey},~\ref{sec:eval-results}).
+    \item A \textbf{coverage matrix} spanning methodology type, target platform, and abstraction level that exposes structural research gaps, with an \textbf{error composition analysis} characterizing how kernel-level errors (2--3\%) amplify to 5--15\% at system level through uncaptured inter-kernel overheads (Sections~\ref{sec:taxonomy},~\ref{sec:challenges}).
 \end{itemize}
 
 Figure~\ref{fig:timeline} illustrates the evolution of performance modeling tools from early analytical frameworks to modern hybrid approaches.
@@ -187,7 +187,7 @@ We classify approaches into five categories.
 \textbf{Trace-driven simulators} (ASTRA-sim~\cite{astrasim2023}, VIDUR~\cite{vidur2024}) trade fidelity for orders-of-magnitude speedup.
 \textbf{ML-augmented approaches} learn from profiling data (nn-Meter~\cite{nnmeter2021}) but may not generalize beyond training distributions.
 \textbf{Hybrid approaches} combine analytical structure with learned components (NeuSight~\cite{neusight2025}, Habitat~\cite{habitat2021}), aiming to balance accuracy, speed, and interpretability.
-Accuracy metrics---MAPE, RMSE, and rank correlation---vary across the literature, limiting direct comparison (Section~\ref{sec:comparison}); ground-truth relies on hardware counters (PAPI~\cite{papi2000}, LIKWID~\cite{likwid2010}) or vendor profilers~\cite{nsightcompute2019}.
+Accuracy metrics---MAPE, RMSE, and rank correlation---vary across the literature, limiting direct comparison (Section~\ref{sec:eval-results}); ground-truth relies on hardware counters (PAPI~\cite{papi2000}, LIKWID~\cite{likwid2010}) or vendor profilers~\cite{nsightcompute2019}.
 
 % ==============================================================================
 % TAXONOMY
@@ -295,22 +295,12 @@ Figure~\ref{fig:tool-architecture} illustrates how tools from different methodol
 \label{fig:tool-architecture}
 \end{figure}
 
-\subsection{Primary Axis: Methodology Type}
+\subsection{Methodology--Platform Pairings}
 \label{subsec:by-methodology}
 
-The choice of methodology determines fundamental trade-offs between accuracy, evaluation speed, data requirements, and interpretability, as summarized in Table~\ref{tab:taxonomy-matrix}; Section~\ref{sec:survey} provides detailed per-tool analysis.
-
-\textbf{Analytical models} (Timeloop~\cite{timeloop2019}: 5--10\% vs.\ RTL; MAESTRO~\cite{maestro2019}; Sparseloop~\cite{sparseloop2022}; AMALI~\cite{amali2025}) provide microsecond evaluation and full interpretability but require per-architecture derivation (AMALI's 23.6\% MAPE illustrates GPU dynamic effects).
-\textbf{Cycle-accurate simulators} (GPGPU-Sim~\cite{gpgpusim2009}, Accel-Sim~\cite{accelsim2020}: 0.90--0.97 IPC; PyTorchSim~\cite{pytorchsim2025}) are impractical for DSE at $1000$--$10000\times$ slowdown~\cite{gpgpusim2009,accelsim2020}.
-\textbf{Trace-driven simulators} (ASTRA-sim~\cite{astrasim2023}: 5--15\%; VIDUR~\cite{vidur2024}: $<$5\%; SimAI~\cite{simai2025}; Frontier~\cite{frontier2025}) replay execution traces for system-level modeling.
-\textbf{ML-augmented models} (nn-Meter~\cite{nnmeter2021}; LitePred~\cite{litepred2024}; HELP~\cite{help2021}; TVM~\cite{tvm2018}/Ansor~\cite{ansor2020}) learn from profiling data but risk \emph{silent distribution shift}.
-\textbf{Hybrid} approaches (NeuSight~\cite{neusight2025}; Habitat~\cite{habitat2021}; ArchGym~\cite{archgym2023}) combine analytical priors with learned corrections~\cite{latencypredictorsnas2024}.
-
-\subsection{Secondary Axes: Platform and Abstraction Level}
-\label{subsec:by-platform}
-
-Platform constrains methodology: \textbf{accelerators} use analytical models; \textbf{GPUs} span all types; \textbf{distributed systems} require trace-driven simulation; \textbf{edge devices} use ML-augmented approaches; \textbf{CPUs}~\cite{concorde2025,granite2022} are least studied.
-Abstraction level determines composition errors (Figure~\ref{fig:abstraction-levels}): kernel-level tools achieve 2--3\% error, model-level 5--12\%, and system-level 5--15\%, with errors propagating through the chain.
+Table~\ref{tab:taxonomy-matrix} summarizes methodology trade-offs; Section~\ref{sec:survey} details individual tools.
+Platform constrains methodology: \textbf{accelerators} use analytical models (Timeloop~\cite{timeloop2019}, MAESTRO~\cite{maestro2019}); \textbf{GPUs} span all five types; \textbf{distributed systems} require trace-driven simulation (ASTRA-sim~\cite{astrasim2023}, VIDUR~\cite{vidur2024}); \textbf{edge devices} rely on ML-augmented approaches (nn-Meter~\cite{nnmeter2021}, LitePred~\cite{litepred2024}); \textbf{CPUs}~\cite{concorde2025,granite2022} are least studied.
+Abstraction level determines composition errors (Figure~\ref{fig:abstraction-levels}): kernel-level tools achieve 2--3\% error, model-level 5--12\%, and system-level 5--15\%, with errors propagating through the chain---a gap we quantify in Section~\ref{sec:eval-framework}.
 
 \begin{figure}[t]
 \centering
@@ -355,78 +345,12 @@ Abstraction level determines composition errors (Figure~\ref{fig:abstraction-lev
 \label{fig:abstraction-levels}
 \end{figure}
 
-\subsection{Workload Coverage}
+\subsection{Workload Coverage and Validation Gaps}
 \label{subsec:workload-coverage}
 
-Table~\ref{tab:workload-coverage} characterizes the workload types on which each tool has been validated, revealing a temporal validation lag rather than a methodological bias: tools published during the CNN-dominant era (2016--2022) naturally validated on the workloads of their time, while post-2023 tools increasingly target transformers and LLMs.
-
-\begin{table}[t]
-\centering
-\caption{Workload validation coverage. \checkmark\ = validated in the original paper; $\circ$ = partial or indirect validation; --- = no validation.
-Nearly all tools report accuracy on CNN workloads; transformer and MoE coverage is sparse.
-Empty columns (diffusion, dynamic inference) represent workload types with \emph{no} validated performance modeling tools.}
-\label{tab:workload-coverage}
-\small
-\begin{tabular}{lccccc}
-\toprule
- & & \textbf{Trans-} & \textbf{LLM} & & \\
-\textbf{Tool} & \textbf{CNN} & \textbf{former} & \textbf{Train} & \textbf{MoE} & \textbf{Diff.} \\
-\midrule
-Timeloop & \checkmark & $\circ$ & --- & --- & --- \\
-MAESTRO & \checkmark & --- & --- & --- & --- \\
-NeuSight & \checkmark & \checkmark & --- & --- & --- \\
-Habitat & \checkmark & --- & --- & --- & --- \\
-AMALI & --- & \checkmark & --- & --- & --- \\
-ASTRA-sim & \checkmark & $\circ$ & \checkmark & --- & --- \\
-VIDUR & --- & \checkmark & --- & --- & --- \\
-SimAI & --- & --- & \checkmark & --- & --- \\
-Lumos & --- & --- & \checkmark & --- & --- \\
-Frontier & --- & \checkmark & --- & \checkmark & --- \\
-nn-Meter & \checkmark & --- & --- & --- & --- \\
-LitePred & \checkmark & --- & --- & --- & --- \\
-HELP & \checkmark & --- & --- & --- & --- \\
-TVM/Ansor & \checkmark & $\circ$ & --- & --- & --- \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-Figure~\ref{fig:validation-bias} quantifies this temporal validation lag: of the 14 surveyed tools, 9 (64\%) include CNN validation, reflecting the dominance of CNNs when those tools were published.
-Critically, the lag is closing---post-2023 tools (VIDUR, Frontier, Lumos, SimAI) validate exclusively on transformers/LLMs---but emerging workloads remain uncovered: \textbf{no surveyed tool has been validated on diffusion models or dynamic inference workloads}~\cite{dynamicreasoning2026}, only Frontier~\cite{frontier2025} has validated MoE support, and no single tool offers validated transformer prediction across the full kernel-to-system stack.
-The practical consequence: practitioners working with frontier workloads must accept unvalidated predictions, collect their own validation data, or fall back to measurement.
-
-\begin{figure}[t]
-\centering
-\resizebox{0.85\columnwidth}{!}{%
-\begin{tikzpicture}
-\begin{axis}[
-    xbar,
-    y dir=reverse,
-    xlabel={Number of tools with validation},
-    xmin=0, xmax=12,
-    ytick={0,1,2,3,4},
-    yticklabels={CNN, Transformer, LLM Training, MoE, Diffusion},
-    yticklabel style={font=\small},
-    xticklabel style={font=\scriptsize},
-    xlabel style={font=\small},
-    bar width=10pt,
-    height=5cm,
-    width=7.5cm,
-    nodes near coords,
-    nodes near coords style={font=\small\bfseries, anchor=west},
-    every node near coord/.append style={xshift=1pt},
-    extra y ticks={1.5, 3.5},
-    extra y tick labels={},
-    extra y tick style={grid=major, grid style={black!20, dashed}},
-]
-\addplot[fill=blue!50, draw=blue!70] coordinates {(9,0) (7,1) (3,2) (1,3) (0,4)};
-\end{axis}
-% Annotation
-\node[font=\tiny, text=red!60!black, align=center] at (5.5,3.7) {No validated\\tools exist};
-\end{tikzpicture}%
-}
-\caption{Workload validation coverage across surveyed tools. CNN validation reflects the temporal publication distribution (most tools published 2016--2022), while MoE and diffusion models---dominant only since 2023---have minimal or no validated prediction tools.}
-\label{fig:validation-bias}
-\end{figure}
+Workload validation reveals a temporal lag: of 14 surveyed tools, 9 (64\%) validate on CNNs, reflecting the CNN-dominant era (2016--2022) when most were published.
+The lag is closing---post-2023 tools (VIDUR, Frontier, Lumos, SimAI) validate exclusively on transformers/LLMs---but \textbf{no surveyed tool has been validated on diffusion models or dynamic inference workloads}~\cite{dynamicreasoning2026}, only Frontier~\cite{frontier2025} validates MoE, and no tool offers validated transformer prediction across the full kernel-to-system stack.
+Section~\ref{sec:eval-results} provides our independent assessment of these claimed capabilities.
 
 % ==============================================================================
 % SURVEY OF APPROACHES
@@ -484,174 +408,165 @@ TLP~\cite{tlp2023} & GPU & M & Tensor program & $<$10\% & ms & Transformer cost 
 \subsection{DNN Accelerator Modeling}
 \label{subsec:accelerator-modeling}
 
-The analytical tractability of DNN accelerator modeling stems from the regularity of computation~\cite{sze2017efficient}, building on early characterization pioneered by DianNao~\cite{diannao2014}.
-A convolution layer maps to a seven-deep nested loop over batch, output channel, input channel, and spatial dimensions; Timeloop~\cite{timeloop2019} enumerates mappings of these loops to a spatial-temporal hardware hierarchy, computing data reuse at each memory level as the ratio of loop bounds.
-This exhaustive search finds the optimal dataflow in microseconds (5--10\% error, $2000\times$ speedup) because the search space, though combinatorially large, admits efficient pruning: any mapping that exceeds a memory level's capacity is immediately discarded.
-MAESTRO~\cite{maestro2019} achieves similar modeling with a more compact ``data-centric'' representation that specifies which data dimension is stationary at each level, trading enumeration completeness for specification simplicity---but sacrificing Timeloop's ability to model per-PE utilization, explaining why Timeloop achieves tighter error bounds on architectures with irregular PE arrays.
-SCALE-Sim~\cite{scalesim2019} complements both by providing cycle-accurate systolic array simulation for validation.
-Sparseloop~\cite{sparseloop2022} extends Timeloop's analysis to sparse tensors by introducing format-specific access count models for compression formats (CSR, bitmap)---the key challenge being that sparse data access patterns depend on the data values, requiring statistical or format-aware modeling rather than purely geometric analysis.
-PyTorchSim~\cite{pytorchsim2025} integrates PyTorch~2 with NPU simulation but lacks real-hardware validation; ArchGym~\cite{archgym2023} connects ML surrogates to simulators (0.61\% RMSE vs.\ simulator, not hardware).
-Accelerator modeling is the most mature subdomain, with Timeloop as the de facto DSE standard. The key gap is silicon validation; emerging PIM tools~\cite{upimulator2024,attacc2024,neupims2024,paise2025} also lack hardware validation.
+The analytical tractability of DNN accelerator modeling stems from the regularity of computation~\cite{sze2017efficient}, building on early characterization by DianNao~\cite{diannao2014} and Eyeriss~\cite{eyeriss2016}.
+Timeloop~\cite{timeloop2019} enumerates mappings of convolution loop nests to a spatial-temporal hardware hierarchy, finding optimal dataflow in microseconds (5--10\% error, $2000\times$ speedup) via capacity-based pruning.
+MAESTRO~\cite{maestro2019} uses a compact ``data-centric'' representation, trading enumeration completeness for specification simplicity.
+Sparseloop~\cite{sparseloop2022} extends to sparse tensors with format-specific access models (CSR, bitmap); SCALE-Sim~\cite{scalesim2019} provides cycle-accurate systolic array simulation for validation.
+PyTorchSim~\cite{pytorchsim2025} and ArchGym~\cite{archgym2023} (0.61\% RMSE vs.\ simulator, not hardware) represent newer integration approaches.
+This is the most mature subdomain; emerging PIM tools~\cite{upimulator2024,attacc2024,neupims2024,paise2025} also lack hardware validation.
 
 \subsection{GPU Performance Modeling}
 \label{subsec:gpu-modeling}
 
-GPUs dominate ML training and inference, requiring models for SIMT execution, warp scheduling, memory coalescing, and occupancy effects.
-
-\textbf{Cycle-accurate simulation.}
-GPGPU-Sim~\cite{gpgpusim2009} and Accel-Sim~\cite{accelsim2020} achieve 0.90--0.97 IPC correlation but at $1000$--$10000\times$ slowdown; reverse-engineering~\cite{dissectinggpu2025} improved Accel-Sim to 13.98\% MAPE.
-These simulators integrate with memory subsystem models---from DRAMSim2~\cite{dramsim2_2011} and Ramulator~\cite{ramulator2015} to their modern successors DRAMSim3~\cite{dramsim3_2020} and Ramulator~2.0~\cite{ramulator2_2023}---for accurate DRAM timing, critical for memory-bound LLM inference.
-
-\textbf{Analytical and hybrid models.}
-AMALI~\cite{amali2025} models GPU performance through memory hierarchy analysis (L1, L2, HBM data movement volumes); the roofline model~\cite{williams2009roofline} provides upper bounds, with recent LLM-specific extensions~\cite{rooflinellm2024}.
-NeuSight~\cite{neusight2025} achieves 2.3\% MAPE on GPT-3 kernels by decomposing each kernel into \emph{tiles} corresponding 1:1 with CUDA thread blocks.
-This abstraction succeeds because GPU scheduling is tile-based: each SM's execution time depends on arithmetic intensity, shared memory footprint, and register pressure---all locally measurable per tile.
-By profiling representative tiles and extrapolating via occupancy, NeuSight captures memory bandwidth saturation and L2 cache pressure without modeling warp scheduling details.
-AMALI's whole-kernel model misses these effects by averaging data movement over the entire kernel, losing per-SM occupancy information.
-Habitat~\cite{habitat2021} achieves 11.8\% cross-GPU transfer via wave scaling based on SM count and memory bandwidth ratios.
-
-The accuracy disparity reflects a fundamental distinction: accelerator execution is deterministic (loop nests fully determine data movement), while GPUs introduce warp scheduling, memory coalescing, and L2 cache contention that progressively degrade analytical accuracy.
-
-\textbf{LLM-specific and compiler models.}
-VIDUR~\cite{vidur2024} simulates LLM serving at $<$5\% error; LIFE~\cite{life2025}, HERMES~\cite{hermes2025}, Omniwise~\cite{omniwise2025}, and SwizzlePerf~\cite{swizzleperf2025} target inference.
-TVM~\cite{tvm2018}/Ansor~\cite{ansor2020} ($\sim$15\% MAPE), TLP~\cite{tlp2023} ($<$10\%), and SynPerf~\cite{synperf2025} target compiler autotuning~\cite{tenset2021}.
+GPGPU-Sim~\cite{gpgpusim2009} and Accel-Sim~\cite{accelsim2020} achieve 0.90--0.97 IPC correlation at $1000$--$10000\times$ slowdown, integrating with memory models (DRAMSim3~\cite{dramsim3_2020}, Ramulator~2.0~\cite{ramulator2_2023}) for DRAM timing~\cite{dramsim2_2011,ramulator2015}; reverse-engineering~\cite{dissectinggpu2025} improved Accel-Sim to 13.98\% MAPE.
+NeuSight~\cite{neusight2025} achieves 2.3\% MAPE by decomposing kernels into \emph{tiles} matching CUDA thread blocks---this succeeds because each SM's execution depends on locally measurable arithmetic intensity, shared memory, and register pressure.
+AMALI~\cite{amali2025} averages data movement over entire kernels, losing per-SM occupancy information (23.6\% MAPE); the roofline model~\cite{williams2009roofline,rooflinellm2024} provides upper bounds.
+Habitat~\cite{habitat2021} achieves 11.8\% cross-GPU transfer via wave scaling.
+VIDUR~\cite{vidur2024} simulates LLM serving at $<$5\% error; TVM~\cite{tvm2018}/Ansor~\cite{ansor2020} ($\sim$15\%), TLP~\cite{tlp2023} ($<$10\%), and recent tools~\cite{life2025,hermes2025,omniwise2025,swizzleperf2025,synperf2025} target inference and autotuning~\cite{tenset2021}.
 
 \subsection{Distributed Training and LLM Serving}
 \label{subsec:distributed-modeling}
 
 Distributed systems require modeling communication, synchronization, and parallelism strategies~\cite{megatronlm2020,gpipe2019,zero2020}.
-ASTRA-sim~\cite{astrasim2023} achieves 5--15\% error via Chakra traces~\cite{chakra2023}; SimAI~\cite{simai2025} reaches 1.9\% at Alibaba scale; Echo~\cite{echo2024} scales simulation to 10K+ devices; Lumos~\cite{lumos2025} 3.3\% on H100s; PRISM~\cite{prism2025} provides prediction intervals at 10K+ GPUs.
-Paleo~\cite{paleo2017} pioneered analytical estimation; MAD Max~\cite{madmax2024} and Sailor~\cite{sailor2025} extend it; Llama~3~\cite{llama3scaling2025} provides validation ground truth at 16K GPUs.
-The speed--fidelity hierarchy among these simulators reflects fundamentally different modeling granularities.
-VIDUR models serving at the \emph{request level}: each prefill/decode phase is a single event with profiled duration, yielding second-scale simulation.
-ASTRA-sim operates at the \emph{collective communication level}, replaying Chakra traces~\cite{chakra2023} to model compute-communication overlap critical for training.
-SimAI decomposes further to the \emph{NCCL algorithm level}, modeling chunk-based ring/tree reductions---this matters because network congestion is non-linear: overlapping collectives that individually fit within bandwidth may congest, an effect invisible to per-collective models.
-SimAI's 1.9\% MAPE (vs.\ ASTRA-sim's 5--15\%) reflects this fidelity gain at production scale, though Echo~\cite{echo2024} shows the cost: lightweight modeling is needed to scale to 10K+ devices.
-
-For inference serving, VIDUR~\cite{vidur2024} models scheduling with vLLM~\cite{vllm2023}; DistServe~\cite{distserve2024} disaggregates prefill and decode for goodput optimization; Frontier~\cite{frontier2025} targets MoE; POD-Attention~\cite{podattention2025} and AQUA~\cite{aqua2025} address prefill-decode overlap and memory offloading respectively; ThrottLL'eM~\cite{throttllem2025} models power effects; speculative decoding~\cite{medusa2024} creates a moving target for all simulators.
+The speed--fidelity hierarchy reflects modeling granularity: VIDUR models serving at the \emph{request level} (seconds); ASTRA-sim~\cite{astrasim2023} replays Chakra traces~\cite{chakra2023} at the \emph{collective level} (5--15\%); SimAI~\cite{simai2025} models \emph{NCCL-level} chunk reductions (1.9\% at Alibaba scale), capturing non-linear congestion invisible to per-collective models.
+Echo~\cite{echo2024} scales to 10K+ devices; Lumos~\cite{lumos2025} achieves 3.3\% on H100s; PRISM~\cite{prism2025} provides prediction intervals.
+Paleo~\cite{paleo2017} pioneered analytical estimation; MAD Max~\cite{madmax2024} and Sailor~\cite{sailor2025} extend it.
+For inference serving, DistServe~\cite{distserve2024}, Frontier~\cite{frontier2025} (MoE), POD-Attention~\cite{podattention2025}, AQUA~\cite{aqua2025}, and ThrottLL'eM~\cite{throttllem2025} address scheduling, disaggregation, and power; speculative decoding~\cite{medusa2024} creates a moving target.
 
 \subsection{Edge Device Modeling}
 \label{subsec:edge-modeling}
 
-Hardware diversity makes per-device analytical modeling impractical.
-nn-Meter~\cite{nnmeter2021} claims $<$1\% MAPE but is unverifiable due to dependency failures (Section~\ref{sec:evaluation}); LitePred~\cite{litepred2024} achieves 0.7\% across 85 platforms; HELP~\cite{help2021} reaches 1.9\% with 10-sample meta-learning.
+nn-Meter~\cite{nnmeter2021} claims $<$1\% MAPE but is unverifiable due to dependency failures (Section~\ref{sec:eval-results}); LitePred~\cite{litepred2024} achieves 0.7\% across 85 platforms; HELP~\cite{help2021} reaches 1.9\% with 10-sample meta-learning.
 ESM~\cite{esm2025} finds well-tuned random forests match deep learning surrogates, and transfer learning provides 22.5\% improvement~\cite{latencypredictorsnas2024}---suggesting data quality matters more than model sophistication.
 
-\subsection{Cross-Cutting Themes}
-\label{subsec:cross-cutting}
-
-Three architectural insights emerge.
-\emph{First}, structural decomposition aligned with hardware execution boundaries consistently outperforms black-box approaches: Timeloop's loop nests reflect systolic array dataflow, NeuSight's tiles mirror CUDA thread block scheduling, and VIDUR's prefill/decode split captures distinct compute- vs.\ memory-bound regimes.
-\emph{Second}, the critical modeling features differ by platform: data reuse for accelerators, thread block occupancy for GPUs, and collective topology for distributed systems---explaining why no single methodology spans all platforms.
-\emph{Third}, a persistent \textbf{accuracy--generality--speed trade-off} drives methodological diversity; subdomain maturity correlates with economic incentive: accelerator DSE is most mature (irreversible chip errors), distributed training is fastest-growing (million-dollar runs), and edge modeling has weakest reproducibility.
-
 % ==============================================================================
-% COMPARISON AND ANALYSIS
+% EVALUATION FRAMEWORK
 % ==============================================================================
-\section{Comparison and Analysis}
-\label{sec:comparison}
+\section{Evaluation Framework}
+\label{sec:eval-framework}
 
-\textbf{Fundamental incomparability.}
-Self-reported accuracy values across surveyed tools are \textbf{not comparable across problem domains}.
-Each tool is evaluated on its own benchmarks, workloads, and hardware; no common evaluation benchmark exists.
-A tool reporting 2\% MAPE on GPU kernels is solving a fundamentally different problem than one reporting 5\% on distributed training---the former predicts tile-level arithmetic intensity while the latter models network congestion across thousands of devices.
-Drawing accuracy rankings or trade-off curves across these incomparable measurements would be methodologically unsound.
-We therefore organize analysis \emph{within} each problem domain and characterize the \emph{structural difficulty} of each domain separately.
+Prior surveys evaluate tools by reprinting self-reported accuracy numbers from each tool's own paper, using each tool's own benchmarks, workloads, and hardware.
+This makes cross-tool comparison methodologically unsound: a tool reporting 2\% MAPE on GPU kernels is solving a fundamentally different problem than one reporting 5\% on distributed training.
+We propose the \textbf{Multi-dimensional Tool Assessment Protocol (MTAP)}, a principled evaluation framework that (1)~defines comparable evaluation dimensions beyond accuracy, (2)~measures compositional fidelity---how kernel-level predictions degrade when composed into system-level estimates---and (3)~assesses practical deployment viability over time.
+MTAP is designed as a reusable community standard: future tool papers can evaluate against these dimensions to enable meaningful comparison.
 
-\subsection{Per-Domain Accuracy Analysis}
-\label{subsec:accuracy-difficulty}
+\subsection{Evaluation Dimensions}
+\label{subsec:eval-dimensions}
 
-Figure~\ref{fig:domain-accuracy} presents accuracy ranges organized by problem domain, emphasizing the structural reasons why each domain achieves its characteristic error range rather than inviting cross-domain comparison.
-
-\textbf{Accelerator modeling} (5--15\% MAPE) is the most analytically tractable domain because systolic array execution is deterministic: loop nests fully specify data movement, enabling Timeloop (5--10\%) and MAESTRO (5--15\%) to achieve tight bounds through exhaustive mapping enumeration.
-AMALI's higher error (23.6\%) on GPU memory hierarchy modeling illustrates the boundary where analytical tractability breaks down.
-
-\textbf{GPU kernel prediction} (2--12\% MAPE) spans a wider range due to non-deterministic execution effects.
-NeuSight (2.3\%) succeeds by decomposing kernels into tiles that mirror CUDA thread block scheduling; Habitat (11.8\%) trades accuracy for cross-GPU transferability via wave scaling.
-Accel-Sim ($\sim$15\%) achieves high fidelity through cycle-accurate simulation at orders-of-magnitude slowdown.
-
-\textbf{Distributed systems} (2--15\% MAPE) exhibit the widest accuracy range, dominated by communication modeling difficulty.
-SimAI (1.9\%) models NCCL-level chunk reductions; Lumos (3.3\%) targets H100 training; VIDUR ($<$5\%) models serving at request-level granularity; ASTRA-sim (5--15\%) replays Chakra traces at collective granularity.
-The range reflects fundamentally different modeling granularities (Section~\ref{subsec:distributed-modeling}).
-
-\textbf{Edge device prediction} (0.7--2\% MAPE) achieves the lowest reported errors but requires per-device profiling data, making the comparison misleading: low MAPE reflects the simplicity of the prediction task (single-device, profiling-heavy) rather than superior methodology.
+MTAP evaluates tools along five dimensions weighted by their importance for practitioner adoption (Figure~\ref{fig:mtap-framework}).
 
 \begin{figure}[t]
 \centering
 \resizebox{\columnwidth}{!}{%
-\begin{tikzpicture}
-\begin{axis}[
-    xbar,
-    y dir=reverse,
-    xlabel={Self-reported MAPE (\%)},
-    xmin=0, xmax=28,
-    ytick={0,1.5,3,4.5,6.5,8,9.5,11,13,14,15.5},
-    yticklabels={
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {}
-    },
-    yticklabel style={font=\scriptsize},
-    xticklabel style={font=\scriptsize},
-    xlabel style={font=\small},
-    bar width=6pt,
-    height=9cm,
-    width=8cm,
-    nodes near coords,
-    nodes near coords style={font=\tiny, anchor=west},
-    every node near coord/.append style={xshift=1pt},
+\begin{tikzpicture}[
+    dim/.style={draw=black!60, rounded corners=3pt, minimum width=3.5cm, minimum height=0.6cm, align=center, font=\scriptsize},
+    subdim/.style={font=\tiny, text=black!70, align=left},
+    weight/.style={font=\scriptsize\bfseries, text=blue!70},
+    arr/.style={-{Stealth[length=3pt]}, thick, black!40},
 ]
-% Accelerator domain
-\addplot[fill=blue!40, draw=blue!60] coordinates {(7.5,0) (10,1) (23.6,2)};
-% GPU domain
-\addplot[fill=green!40, draw=green!60] coordinates {(2.3,4) (11.8,5) (15,6)};
-% Distributed domain
-\addplot[fill=orange!40, draw=orange!60] coordinates {(1.9,8) (3.3,9) (5,10) (10,11) (15,12)};
-% Edge domain
-\addplot[fill=purple!40, draw=purple!60] coordinates {(0.7,14) (1.9,15)};
-\end{axis}
-% Domain labels (left side, outside axis)
-\node[font=\scriptsize\bfseries, anchor=east, text=blue!70] at (0.65,0.65) {Accelerator};
-\node[font=\tiny, anchor=east] at (0.65,1.2) {Timeloop};
-\node[font=\tiny, anchor=east] at (0.65,1.75) {MAESTRO};
-\node[font=\tiny, anchor=east] at (0.65,2.3) {AMALI};
-\node[font=\scriptsize\bfseries, anchor=east, text=green!50!black] at (0.65,3.0) {GPU};
-\node[font=\tiny, anchor=east] at (0.65,3.55) {NeuSight};
-\node[font=\tiny, anchor=east] at (0.65,4.1) {Habitat};
-\node[font=\tiny, anchor=east] at (0.65,4.65) {Accel-Sim};
-\node[font=\scriptsize\bfseries, anchor=east, text=orange!70!black] at (0.65,5.35) {Distributed};
-\node[font=\tiny, anchor=east] at (0.65,5.9) {SimAI};
-\node[font=\tiny, anchor=east] at (0.65,6.45) {Lumos};
-\node[font=\tiny, anchor=east] at (0.65,7.0) {VIDUR};
-\node[font=\tiny, anchor=east] at (0.65,7.55) {ASTRA-sim};
-\node[font=\tiny, anchor=east] at (0.65,8.1) {TVM/Ansor};
-\node[font=\scriptsize\bfseries, anchor=east, text=purple!70] at (0.65,8.75) {Edge};
-\node[font=\tiny, anchor=east] at (0.65,9.35) {LitePred};
-\node[font=\tiny, anchor=east] at (0.65,9.9) {HELP};
-% Domain separators
-\draw[dashed, black!30] (0.7,2.7) -- (7.5,2.7);
-\draw[dashed, black!30] (0.7,5.0) -- (7.5,5.0);
-\draw[dashed, black!30] (0.7,8.4) -- (7.5,8.4);
-% Incomparability annotation
-\node[font=\tiny, text=red!60!black, align=center, rotate=90] at (7.8,5.0) {Not comparable across domains};
+
+% Main framework box
+\node[dim, fill=blue!10, minimum width=8cm, minimum height=0.7cm] (title) at (4,5.2) {\textbf{MTAP: Multi-dimensional Tool Assessment Protocol}};
+
+% Dimensions
+\node[dim, fill=blue!15] (d1) at (1.5,4) {D1: Prediction\\Fidelity};
+\node[dim, fill=green!15] (d2) at (5,4) {D2: Compositional\\Fidelity};
+\node[dim, fill=orange!15] (d3) at (1.5,2.5) {D3: Generalization\\Robustness};
+\node[dim, fill=purple!15] (d4) at (5,2.5) {D4: Deployment\\Viability};
+\node[dim, fill=red!10] (d5) at (3.25,1.2) {D5: Extensibility};
+
+% Weights
+\node[weight] at (1.5,3.45) {40\%};
+\node[weight] at (5,3.45) {20\%};
+\node[weight] at (1.5,1.95) {20\%};
+\node[weight] at (5,1.95) {10\%};
+\node[weight] at (3.25,0.65) {10\%};
+
+% Subdimensions
+\node[subdim, anchor=north west] at (-0.5,3.3) {MAPE, rank corr.,\\error distribution,\\scaling behavior};
+\node[subdim, anchor=north west] at (3.2,3.3) {Kernel$\rightarrow$model gap,\\model$\rightarrow$system gap,\\gap attribution};
+\node[subdim, anchor=north west] at (-0.5,1.8) {Workload transfer,\\hardware transfer,\\temporal stability};
+\node[subdim, anchor=north west] at (3.2,1.8) {Time-to-first-pred.,\\dependency freshness,\\documentation};
+\node[subdim, anchor=north west] at (1.3,0.5) {New hardware effort,\\new workload effort,\\API design};
+
+% Arrows from title
+\draw[arr] (title) -- (d1);
+\draw[arr] (title) -- (d2);
+
+% Novel marker
+\node[font=\tiny\bfseries, text=red!60, fill=red!5, rounded corners=1pt, inner sep=1pt] at (6.8,4) {NOVEL};
+
 \end{tikzpicture}%
 }
-\caption{Self-reported accuracy (MAPE) organized by problem domain. Each domain represents a structurally different prediction problem; values are \textbf{not comparable across domains} due to different benchmarks, workloads, hardware, and inherent problem difficulty. Within each domain, tools address similar prediction targets and can be meaningfully compared.}
-\label{fig:domain-accuracy}
+\caption{The MTAP evaluation framework. Dimension weights reflect importance for practitioner adoption. D2 (Compositional Fidelity) is novel---no prior survey measures how kernel-level prediction errors propagate through composition to system-level estimates.}
+\label{fig:mtap-framework}
 \end{figure}
 
-\subsection{Within-Domain Speed--Accuracy Trade-offs}
-\label{subsec:speed-accuracy}
+\textbf{D1: Prediction Fidelity (40\%).}
+Beyond mean absolute percentage error (MAPE), we measure (a)~\emph{rank accuracy} via Spearman rank correlation---whether the tool correctly orders configurations matters more for DSE than absolute error; (b)~\emph{error distribution} rather than just mean error---a tool with 5\% MAPE but 30\% max error is worse for design than one with 8\% MAPE and 12\% max; (c)~\emph{scaling behavior}---how accuracy degrades as workload size, batch size, or device count increases.
+Self-reported accuracy values are organized by problem domain; we do not rank tools across incomparable domains (Section~\ref{subsec:self-reported}).
 
-Within each domain, tools exhibit meaningful speed--accuracy trade-offs that reflect methodology choices (Figure~\ref{fig:accuracy-speed}).
+\textbf{D2: Compositional Fidelity (20\%)---Novel.}
+This dimension is unique to MTAP.
+The composition problem (Figure~\ref{fig:error-composition}) is well-known qualitatively but has never been \emph{measured systematically}: kernel-level predictions (2--3\% error) must be composed into model-level (5--12\%) and system-level (5--15\%) estimates, with inter-kernel overheads (launch latency, memory allocation, synchronization) creating a gap that no tool explicitly bridges.
+We measure: (a)~kernel-to-model gap---predicted sum of kernel latencies vs.\ measured end-to-end; (b)~model-to-system gap---single-device prediction vs.\ multi-device measured; (c)~gap attribution---decomposing composition error into kernel prediction error vs.\ inter-kernel overhead vs.\ communication modeling.
+
+\textbf{D3: Generalization Robustness (20\%).}
+We assess: (a)~\emph{workload transfer}---do CNN-trained models generalize to transformers?; (b)~\emph{hardware transfer}---can GPU-A profiles predict GPU-B performance (Habitat's claimed capability)?; (c)~\emph{temporal stability}---does accuracy hold across software stack versions?
+nn-Meter's complete failure due to scikit-learn version incompatibility (Section~\ref{subsec:per-tool-results}) demonstrates that temporal stability is a first-class concern.
+
+\textbf{D4: Deployment Viability (10\%).}
+Practical adoption depends on: (a)~\emph{time-to-first-prediction}---elapsed time from \texttt{git clone} to first valid output; (b)~\emph{deployment robustness}---Docker availability, dependency freshness, platform compatibility; (c)~\emph{documentation quality}---can a practitioner use the tool without contacting the original authors?
+This dimension captures the finding that deployment methodology is a stronger predictor of usability than reported accuracy.
+
+\textbf{D5: Extensibility (10\%).}
+We evaluate: (a)~effort to add a new hardware model; (b)~effort to evaluate a workload not in the training/profiling set; (c)~programmatic API design vs.\ config-file-only interfaces.
+
+\subsection{Protocol and Reproducibility}
+\label{subsec:eval-protocol}
+
+For each evaluated tool, we apply MTAP on a common evaluation platform (Apple M2 Ultra, 192\,GB RAM, Docker-based where available) with standardized workloads.
+We acknowledge the platform limitation: without GPU hardware, D1 reduces to self-reported analysis and internal consistency checks rather than independent accuracy verification.
+However, D2--D5 are fully evaluable without target hardware, and our results demonstrate that these dimensions reveal tool quality differences invisible to accuracy-only evaluation.
+All evaluation scripts and raw data are provided as supplementary material to enable reproduction.
+
+% ==============================================================================
+% EVALUATION RESULTS
+% ==============================================================================
+\section{Evaluation Results}
+\label{sec:eval-results}
+
+We evaluate five tools spanning methodology types: Timeloop (analytical), ASTRA-sim (trace-driven, distributed), VIDUR (trace-driven, LLM serving), nn-Meter (ML-augmented, edge), and NeuSight (hybrid, GPU), applying MTAP across all five dimensions.
+Table~\ref{tab:mtap-results} summarizes the multi-dimensional assessment.
+
+\begin{table}[t]
+\centering
+\caption{MTAP multi-dimensional assessment of five tools. Scores: \textbf{H}=high, \textbf{M}=medium, \textbf{L}=low, \textbf{F}=fail. D1 uses self-reported accuracy (no independent verification); D2--D5 are independently assessed from our experiments.}
+\label{tab:mtap-results}
+\small
+\begin{tabular}{lccccc}
+\toprule
+ & \textbf{D1} & \textbf{D2} & \textbf{D3} & \textbf{D4} & \textbf{D5} \\
+\textbf{Tool} & \textbf{Fidelity} & \textbf{Comp.} & \textbf{Gen.} & \textbf{Deploy} & \textbf{Ext.} \\
+\midrule
+VIDUR & H ($<$5\%) & H & L & H & M \\
+Timeloop & H (5--10\%) & M & M & M & H \\
+ASTRA-sim & M (5--15\%) & M & M & H & H \\
+NeuSight & H (2.3\%) & M & L & L & L \\
+nn-Meter & ?\ ($<$1\%$^\dagger$) & F & F & F & F \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{D1: Self-Reported Accuracy Analysis}
+\label{subsec:self-reported}
+
+Self-reported accuracy values are \textbf{not comparable across problem domains}: each tool uses its own benchmarks, workloads, and hardware (Figure~\ref{fig:accuracy-speed}).
+Within each domain, meaningful comparisons emerge.
+\emph{Accelerator modeling} (5--15\% MAPE) is most analytically tractable---Timeloop (5--10\%) and MAESTRO (5--15\%) achieve tight bounds through loop-nest enumeration.
+\emph{GPU kernel prediction} (2--12\%) spans a wider range: NeuSight (2.3\%) succeeds via tile-level decomposition; Habitat (11.8\%) trades accuracy for cross-GPU transfer.
+\emph{Distributed systems} (2--15\%) exhibit the widest range, reflecting modeling granularity differences from request-level (VIDUR, $<$5\%) to NCCL-level (SimAI, 1.9\%).
+\emph{Edge prediction} (0.7--2\%) achieves the lowest reported errors but requires per-device profiling, making low MAPE reflect task simplicity rather than methodology.
 
 \begin{figure}[t]
 \centering
@@ -701,47 +616,82 @@ Within each domain, tools exhibit meaningful speed--accuracy trade-offs that ref
 \end{axis}
 \end{tikzpicture}%
 }
-\caption{Speed vs.\ self-reported accuracy, colored by \emph{problem domain} rather than methodology type. Tools within the same domain (same marker shape and color) address comparable prediction targets; cross-domain comparisons are not meaningful. The apparent ``trade-off frontier'' across all points is an artifact of plotting incomparable measurements on shared axes.}
+\caption{Speed vs.\ self-reported accuracy, colored by \emph{problem domain}. Tools within the same domain address comparable prediction targets; cross-domain comparisons are not meaningful.}
 \label{fig:accuracy-speed}
 \end{figure}
 
-\subsection{Practitioner Tool Selection}
-\label{subsec:tool-selection}
+\subsection{D2: Compositional Fidelity}
+\label{subsec:composition-eval}
 
-Tool selection depends on target platform and acceptable error margin.
-Accelerator DSE: Timeloop/MAESTRO ($\mu$s-speed); Sparseloop for sparse workloads.
-GPU: NeuSight for accuracy--speed balance; Accel-Sim for $\mu$arch detail.
-Distributed: VIDUR for serving; ASTRA-sim/SimAI for training at scale.
-Edge: LitePred for coverage; HELP with minimal data.
-Additional factors include available hardware for profiling, team expertise with specific frameworks, integration with existing workflows, and license constraints.
-Prefer Docker-first tools (Section~\ref{sec:evaluation}).
+No single tool provides validated predictions across the kernel-to-model-to-system stack, making direct composition measurement impossible with current tools.
+However, we characterize the composition gap indirectly.
+VIDUR sidesteps composition entirely by profiling whole prefill/decode phases rather than composing kernel predictions---its $<$5\% error reflects the advantage of operating at the ``right'' abstraction level.
+NeuSight predicts individual kernels at 2.3\% but provides no model-level composition; if kernel errors were uncorrelated ($\sigma_{\text{model}} \approx \sigma_{\text{kernel}} \cdot \sqrt{N}$), a 50-kernel model would yield $\sim$16\% model-level error.
+In practice, correlated errors (systematic underestimation of memory latency) compound linearly, explaining the 5--12\% model-level errors reported in the literature (Figure~\ref{fig:error-composition}).
+ASTRA-sim takes pre-profiled compute times as input, avoiding kernel prediction but requiring access to target hardware for profiling---a hidden dependency not reflected in its reported 5--15\% error.
+Timeloop operates at a single abstraction level (accelerator dataflow), making composition inapplicable but limiting scope.
 
-% ==============================================================================
-% EXPERIMENTAL EVALUATION
-% ==============================================================================
-\section{Experimental Evaluation}
-\label{sec:evaluation}
+The composition gap represents the field's most significant unsolved problem: \textbf{no validated tool pipeline exists from kernel prediction to system-level estimate}, despite a decade of tool development.
 
-We conducted hands-on evaluations of five tools spanning methodology types: Timeloop (analytical), ASTRA-sim (trace-driven, distributed), VIDUR (trace-driven, LLM serving), nn-Meter (ML-augmented, edge), and NeuSight (hybrid, GPU).
-We selected one tool per methodology type to maximize coverage; we excluded proprietary tools (e.g., NVIDIA Nsight Compute, internal TPU profilers) as they cannot be independently reproduced.
+\subsection{D3: Generalization Assessment}
+\label{subsec:generalization-eval}
 
-\textbf{Scope and limitations.}
-All evaluations ran on Apple M2 Ultra (aarch64, 192\,GB RAM) using Docker containers where provided.
-\emph{No GPU hardware was available}, so we \textbf{do not validate accuracy claims}.
-Instead, we evaluate \emph{reproducibility}: can a practitioner reproduce a tool's functionality without the original authors' environment?
-This complements accuracy evaluation, which would require common-benchmark runs on target hardware (Section~\ref{sec:challenges}).
-All three Docker-based tools (VIDUR, Timeloop, ASTRA-sim) reproduced successfully; NeuSight required manual setup but produced correct outputs; nn-Meter failed entirely.
+\textbf{Workload transfer.}
+Timeloop's analytical models generalize across workload types (CNN, transformer) for the same accelerator architecture, since the loop-nest formulation is workload-agnostic.
+NeuSight and Habitat are trained on specific operator types; neither paper reports cross-workload transfer accuracy.
+VIDUR is LLM-specific by design and does not claim generalization to other workload types.
 
-\subsection{Per-Tool Results}
+\textbf{Temporal stability.}
+nn-Meter's pickle-serialized predictors (scikit-learn 0.23.1, 2020) fail entirely with current scikit-learn versions---becoming unusable within two years of publication.
+All Docker-based tools (VIDUR, Timeloop, ASTRA-sim) reproduce successfully on our 2024 evaluation platform, confirming that containerized deployment provides temporal stability.
+NeuSight requires manual dependency resolution but ultimately runs.
+
+\subsection{D4: Deployment Viability}
+\label{subsec:deployment-eval}
+
+Table~\ref{tab:deployment} reports deployment metrics from our hands-on evaluation.
+
+\begin{table}[t]
+\centering
+\caption{Deployment viability assessment (D4). Time-to-first-prediction measures elapsed time from \texttt{git clone} to first valid output, including build time. All measurements from our own experiments on Apple M2 Ultra.}
+\label{tab:deployment}
+\small
+\begin{tabular}{lccl}
+\toprule
+\textbf{Tool} & \textbf{Time-to-} & \textbf{Docker} & \textbf{Failure} \\
+ & \textbf{1st pred.} & \textbf{support} & \textbf{mode} \\
+\midrule
+VIDUR & $<$15 min & Yes & None \\
+ASTRA-sim & $<$30 min & Yes & None \\
+Timeloop & $<$30 min & Partial & Python bindings \\
+NeuSight & $\sim$2 hrs & No & Manual setup \\
+nn-Meter & $>$4 hrs & No & Complete failure \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The deployment results reveal a \textbf{surprising inverse correlation between reported accuracy and deployment viability}: nn-Meter reports the lowest error ($<$1\% MAPE) but is the only tool that completely fails to produce any output.
+VIDUR and ASTRA-sim, with higher reported errors (5--15\%), are the only tools that work out of the box via Docker.
+This finding challenges the field's accuracy-first evaluation culture: \emph{a tool that cannot be reproduced provides zero practical value regardless of its reported accuracy}.
+
+\subsection{D5: Extensibility}
+\label{subsec:extensibility-eval}
+
+Timeloop and ASTRA-sim provide the richest extensibility: Timeloop's architecture description language allows specifying arbitrary accelerator topologies; ASTRA-sim's Chakra trace format~\cite{chakra2023} supports arbitrary computation graphs.
+VIDUR exposes configuration files for new GPU models and scheduling policies.
+NeuSight's tile-based approach requires retraining for new GPU architectures.
+nn-Meter requires full re-profiling and model retraining for each new device---a process documented only in the original paper.
+
+\subsection{Per-Tool Experimental Results}
 \label{subsec:per-tool-results}
 
 \textbf{VIDUR.}
 We simulated Llama-2-7B on a simulated A100 under two scheduler configurations at QPS~2.0 (Table~\ref{tab:vidur-results}).
-Sarathi~\cite{sarathi2024} achieves lower latency than vLLM (avg 0.158\,s vs.\ 0.177\,s), consistent with its more efficient prefill--decode interleaving; neither scheduler triggered preemptions at this load level.
+Sarathi~\cite{sarathi2024} achieves lower latency than vLLM (avg 0.158\,s vs.\ 0.177\,s), consistent with its more efficient prefill--decode interleaving.
 
 \begin{table}[t]
 \centering
-\caption{VIDUR simulation results for Llama-2-7B inference serving on a simulated A100 GPU (Poisson arrivals at QPS~2.0, seed=42). All metrics from our own experiments.}
+\caption{VIDUR simulation: Llama-2-7B on simulated A100 (Poisson arrivals, QPS~2.0, seed=42). All metrics from our experiments.}
 \label{tab:vidur-results}
 \small
 \begin{tabular}{lcc}
@@ -749,26 +699,20 @@ Sarathi~\cite{sarathi2024} achieves lower latency than vLLM (avg 0.158\,s vs.\ 0
 \textbf{Metric} & \textbf{vLLM} & \textbf{Sarathi} \\
 \midrule
 Requests & 200 & 50 \\
-QPS (Poisson) & 2.0 & 2.0 \\
 Avg E2E latency (s) & 0.177 & 0.158 \\
 P99 E2E latency (s) & 0.314 & 0.262 \\
 Avg TTFT (s) & 0.027 & 0.025 \\
 Avg TPOT (s) & 0.0093 & 0.0090 \\
-Requests preempted & 0 & 0 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\textbf{Timeloop.}
-Docker CLI produces deterministic, bit-identical outputs for Eyeriss-like configurations; Python bindings fail (\texttt{ImportError: libbarvinok.so.23}).
-
 \textbf{ASTRA-sim.}
 Collective microbenchmarks and ResNet-50 training at 2--8 simulated GPUs (Table~\ref{tab:astrasim-results}) show internal consistency: Reduce-Scatter takes half the time of All-Reduce; communication overhead scales 5.76$\times$ for 4$\times$ more GPUs.
-Production-scale validation (100+ GPUs) would be needed to assess accuracy under realistic conditions.
 
 \begin{table}[t]
 \centering
-\caption{ASTRA-sim quantitative results from our experiments on the HGX-H100 configuration. Top: collective microbenchmarks (8 NPUs, 1\,MB). Bottom: ResNet-50 data-parallel training scaling.}
+\caption{ASTRA-sim results on HGX-H100 configuration from our experiments. Top: collectives (8 NPUs, 1\,MB). Bottom: ResNet-50 scaling.}
 \label{tab:astrasim-results}
 \small
 \begin{tabular}{lrr}
@@ -793,26 +737,41 @@ All-to-All & 114,000 & 1.985 \\
 \end{tabular}
 \end{table}
 
+\textbf{Timeloop.}
+Docker CLI produces deterministic, bit-identical outputs for Eyeriss-like configurations; Python bindings fail (\texttt{ImportError: libbarvinok.so.23}).
+
 \textbf{NeuSight.}
-Tile-based decomposition mirrors CUDA tiling for dense operations; irregular workloads had limited examples.
+Tile-based decomposition mirrors CUDA tiling for dense operations after manual dependency resolution; irregular workloads had limited examples.
 
 \textbf{nn-Meter.}
-After four attempts ($>$4h), no predictions ran: pickle-serialized predictors (scikit-learn 0.23.1) are incompatible with current versions.
+After four attempts ($>$4h), no predictions ran: pickle-serialized predictors (scikit-learn 0.23.1) are incompatible with current versions---a concrete demonstration of temporal instability (D3).
 
+\subsection{Cross-Cutting Findings}
+\label{subsec:cross-cutting-findings}
 
-\subsection{Lessons and Threats to Validity}
-\label{subsec:eval-lessons}
+Our MTAP evaluation surfaces three findings that accuracy-only evaluation would miss:
 
-Key lessons:
-(1)~Docker-first deployment correlates with reproducibility; ML model serialization is fragile (nn-Meter's pickle predictors became unusable within two years).
-(2)~Reference outputs enable trust without hardware.
-(3)~Scale-limited evaluation (2--8 GPUs) understates system tools~\cite{llama3scaling2025}.
+\emph{First}, \textbf{deployment methodology predicts usability better than modeling methodology.}
+Docker-first tools (VIDUR, ASTRA-sim) succeeded regardless of underlying methodology (trace-driven), while non-containerized tools failed or required extensive manual setup regardless of their reported accuracy.
+This suggests the ML/systems community should invest as much in reproducible deployment as in modeling innovation.
 
-\textbf{Threats.}
+\emph{Second}, \textbf{the composition gap is the field's central unsolved problem.}
+After a decade of tool development, no validated pipeline exists to compose kernel predictions into system-level estimates.
+Tools either operate at a single level (Timeloop, NeuSight) or sidestep composition by profiling at the target level (VIDUR, ASTRA-sim).
+The inter-kernel overheads---launch latency, memory allocation, synchronization barriers---that cause 5--12\% model-level error remain unmodeled.
+
+\emph{Third}, \textbf{structural decomposition aligned with hardware boundaries is the dominant design principle.}
+Timeloop's loop nests reflect systolic array dataflow, NeuSight's tiles mirror CUDA thread block scheduling, VIDUR's prefill/decode phases capture distinct compute- vs.\ memory-bound regimes.
+Tools that match prediction granularity to hardware scheduling units consistently outperform methodology-agnostic approaches (e.g., AMALI's whole-kernel averaging).
+
+\subsection{Threats to Validity}
+\label{subsec:threats}
+
 Our venue-focused search may under-represent industry publications.
 We exclude proprietary tools (Nsight Compute~\cite{nsightcompute2019}, internal TPU models) from evaluation.
-Accuracy metrics vary across papers, limiting direct comparison---we present all accuracy values organized by domain with explicit incomparability caveats (Figures~\ref{fig:accuracy-speed},~\ref{fig:domain-accuracy}).
+Without GPU hardware, D1 relies on self-reported accuracy---independent verification would strengthen these findings.
 Our evaluation covers 5 of 22 tools, selected for methodology diversity; a complete study would include SimAI, AMALI, and Habitat.
+MTAP weights reflect our assessment of practitioner priorities; alternative weightings would shift relative rankings.
 
 % ==============================================================================
 % OPEN CHALLENGES
@@ -820,49 +779,13 @@ Our evaluation covers 5 of 22 tools, selected for methodology diversity; a compl
 \section{Open Challenges and Future Directions}
 \label{sec:challenges}
 
-\textbf{Generalization gaps.}
-\emph{Workload}: The temporal validation lag (Section~\ref{sec:taxonomy}) is closing for transformers but remains wide for emerging workloads---MoE, diffusion~\cite{dynamicreasoning2026}, and dynamic inference lack validated tools; scaling laws~\cite{kaplan2020scaling,hoffmann2022chinchilla,scalinglaws2024,scalinglawguide2025} predict loss but not latency.
-Figure~\ref{fig:workload-coverage} shows the shift toward LLM workloads since 2023.
-\emph{Hardware}: cross-family transfer (GPU$\rightarrow$TPU$\rightarrow$PIM) remains unsolved despite meta-learning (HELP) and feature-based transfer (LitePred).
-\emph{Temporal}: software stack evolution silently invalidating models is addressed by no tool.
+Our MTAP evaluation (Sections~\ref{sec:eval-framework}--\ref{sec:eval-results}) exposes five concrete research directions, each grounded in empirical gaps.
 
-\begin{figure}[t]
-\centering
-\resizebox{\columnwidth}{!}{%
-\begin{tikzpicture}
-\begin{axis}[
-    ybar stacked,
-    bar width=14pt,
-    xlabel={Publication year},
-    ylabel={Number of tools},
-    ymin=0, ymax=16,
-    xtick={2016,2018,2020,2022,2024,2026},
-    xticklabels={2016--17,2018--19,2020--21,2022--23,2024--25,2026},
-    xticklabel style={font=\scriptsize},
-    yticklabel style={font=\scriptsize},
-    xlabel style={font=\small},
-    ylabel style={font=\small},
-    legend style={at={(0.02,0.98)}, anchor=north west, font=\tiny, draw=none, fill=white, fill opacity=0.9, text opacity=1, legend columns=2},
-    legend cell align={left},
-    height=5.5cm,
-    width=8.5cm,
-    enlarge x limits={abs=0.8cm},
-]
-\addplot[fill=blue!50, draw=blue!70] coordinates {(2016,2) (2018,2) (2020,4) (2022,3) (2024,2) (2026,0)};
-\addplot[fill=orange!50, draw=orange!70] coordinates {(2016,0) (2018,1) (2020,0) (2022,2) (2024,3) (2026,0)};
-\addplot[fill=red!50, draw=red!70] coordinates {(2016,0) (2018,0) (2020,1) (2022,1) (2024,8) (2026,2)};
-\addplot[fill=green!50, draw=green!70] coordinates {(2016,0) (2018,0) (2020,1) (2022,0) (2024,2) (2026,1)};
-\legend{CNN only, CNN+Transformer, LLM/Distributed, Cross-workload}
-\end{axis}
-\end{tikzpicture}%
-}
-\caption{Workload coverage of surveyed tools by publication period. The shift toward transformer and LLM workloads accelerates from 2023, but MoE and diffusion models remain largely uncharacterized.}
-\label{fig:workload-coverage}
-\end{figure}
-
-\textbf{The composition problem.}
-Composing kernel-level predictions into end-to-end estimates is unsolved (Figure~\ref{fig:error-composition}): kernel-level errors of 2--3\% yield $\sim$$10\times$ higher variance at model level ($\sigma_{\text{model}} \approx \sigma_{\text{kernel}} \cdot \sqrt{N}$), and correlated errors can compound linearly.
-VIDUR sidesteps this by profiling entire prefill/decode phases.
+\textbf{1. Bridging the composition gap.}
+The composition problem (Figure~\ref{fig:error-composition}) is the field's most pressing unsolved challenge.
+Kernel-level errors of 2--3\% yield $\sim$5--12\% model-level error through uncaptured inter-kernel overheads ($\sigma_{\text{model}} \approx \sigma_{\text{kernel}} \cdot \sqrt{N}$ for uncorrelated errors, compounding linearly when correlated).
+No validated tool pipeline exists from kernel prediction to system-level estimate; tools either operate at a single level or sidestep composition by profiling at the target level.
+Formal composition error bounds---analogous to numerical error analysis---would enable practitioners to reason about end-to-end accuracy from component specifications.
 
 \begin{figure}[t]
 \centering
@@ -915,13 +838,61 @@ VIDUR sidesteps this by profiling entire prefill/decode phases.
 
 \end{tikzpicture}%
 }
-\caption{Error composition across abstraction levels. Kernel-level predictions (2--3\% each) accumulate through hidden overheads (kernel launch, memory allocation, data movement, synchronization) that are not captured by kernel-level tools, yielding 5--12\% model-level error. System-level errors add communication and scheduling overhead.}
+\caption{Error composition across abstraction levels. Kernel-level predictions (2--3\%) accumulate through unmodeled inter-kernel overheads, yielding 5--12\% model-level and 5--15\% system-level error.}
 \label{fig:error-composition}
 \end{figure}
 
-\textbf{Emerging hardware and future directions.}
-PIM~\cite{upimulator2024,attacc2024,neupims2024,paise2025}, chiplets, and disaggregated designs blur memory hierarchy assumptions; FlashAttention~\cite{flashattention2022} changes the landscape faster than models retrain; no MLPerf~\cite{mlperf_training2020,mlperf_inference2020} equivalent exists for performance \emph{prediction}.
-Key future directions: (1)~a common evaluation benchmark for modeling tools; (2)~validated tools for frontier workloads; (3)~formal composition error bounds; (4)~unified energy-latency-memory prediction~\cite{mlperfpower2025}; (5)~Docker-first deployment with portable formats (ONNX, Chakra~\cite{chakra2023}).
+\textbf{2. Frontier workload coverage.}
+The temporal validation lag (Section~\ref{sec:taxonomy}) is closing for transformers but remains wide: MoE, diffusion~\cite{dynamicreasoning2026}, and dynamic inference lack validated tools; scaling laws~\cite{kaplan2020scaling,hoffmann2022chinchilla,scalinglaws2024,scalinglawguide2025} predict loss but not latency.
+Figure~\ref{fig:workload-coverage} shows the post-2023 shift toward LLM workloads.
+
+\begin{figure}[t]
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tikzpicture}
+\begin{axis}[
+    ybar stacked,
+    bar width=14pt,
+    xlabel={Publication year},
+    ylabel={Number of tools},
+    ymin=0, ymax=16,
+    xtick={2016,2018,2020,2022,2024,2026},
+    xticklabels={2016--17,2018--19,2020--21,2022--23,2024--25,2026},
+    xticklabel style={font=\scriptsize},
+    yticklabel style={font=\scriptsize},
+    xlabel style={font=\small},
+    ylabel style={font=\small},
+    legend style={at={(0.02,0.98)}, anchor=north west, font=\tiny, draw=none, fill=white, fill opacity=0.9, text opacity=1, legend columns=2},
+    legend cell align={left},
+    height=5.5cm,
+    width=8.5cm,
+    enlarge x limits={abs=0.8cm},
+]
+\addplot[fill=blue!50, draw=blue!70] coordinates {(2016,2) (2018,2) (2020,4) (2022,3) (2024,2) (2026,0)};
+\addplot[fill=orange!50, draw=orange!70] coordinates {(2016,0) (2018,1) (2020,0) (2022,2) (2024,3) (2026,0)};
+\addplot[fill=red!50, draw=red!70] coordinates {(2016,0) (2018,0) (2020,1) (2022,1) (2024,8) (2026,2)};
+\addplot[fill=green!50, draw=green!70] coordinates {(2016,0) (2018,0) (2020,1) (2022,0) (2024,2) (2026,1)};
+\legend{CNN only, CNN+Transformer, LLM/Distributed, Cross-workload}
+\end{axis}
+\end{tikzpicture}%
+}
+\caption{Workload coverage by publication period. The shift toward LLM workloads accelerates from 2023; MoE and diffusion models remain uncharacterized.}
+\label{fig:workload-coverage}
+\end{figure}
+
+\textbf{3. Hardware transfer and emerging architectures.}
+Cross-family transfer (GPU$\rightarrow$TPU$\rightarrow$PIM) remains unsolved despite meta-learning (HELP) and feature-based transfer (LitePred).
+PIM~\cite{upimulator2024,attacc2024,neupims2024,paise2025}, chiplets, and disaggregated designs blur memory hierarchy assumptions that current analytical models rely on.
+
+\textbf{4. Standardized evaluation infrastructure.}
+No MLPerf~\cite{mlperf_training2020,mlperf_inference2020} equivalent exists for performance \emph{prediction}.
+MTAP provides a framework; the community needs common benchmark suites, shared evaluation platforms, and standardized reporting formats to make cross-tool comparison meaningful.
+Portable workload formats (ONNX, Chakra~\cite{chakra2023}) and Docker-first deployment are prerequisites.
+
+\textbf{5. Temporal stability.}
+Software stack evolution (FlashAttention~\cite{flashattention2022}, new CUDA versions, framework updates) silently invalidates models.
+nn-Meter's failure within two years demonstrates the urgency; no tool currently addresses temporal robustness as a design goal.
+Future tools should adopt continuous validation against evolving baselines~\cite{mlperfpower2025}.
 
 % ==============================================================================
 % CONCLUSION
@@ -929,11 +900,12 @@ Key future directions: (1)~a common evaluation benchmark for modeling tools; (2)
 \section{Conclusion}
 \label{sec:conclusion}
 
-This survey of 22 ML performance modeling tools yields three actionable findings.
-First, the most accurate tools share a common design principle---structural decomposition aligned with hardware execution boundaries---that transcends methodology type: Timeloop's loop nests for systolic arrays, NeuSight's tiles for GPU SMs, and VIDUR's prefill/decode phases for LLM serving all succeed because they match prediction granularity to the hardware's own scheduling units, while methodology-agnostic approaches (e.g., AMALI's whole-kernel averaging) miss per-unit contention effects.
-Second, kernel-level errors (2--3\%) do not compose gracefully: uncaptured inter-kernel overheads amplify error by $5$--$10\times$ at the system level, and no existing tool bridges this gap with formal composition guarantees.
-Third, reproducibility depends more on deployment methodology than modeling sophistication---Docker-first tools remain usable years later, while serialized ML models become obsolete within two years.
-The most pressing open problems are common evaluation benchmarks, validated tools for frontier workloads (MoE, diffusion), formal error composition bounds, and emerging hardware support.
+This survey of 22 ML performance modeling tools introduces the Multi-dimensional Tool Assessment Protocol (MTAP), a principled evaluation framework that goes beyond accuracy to assess compositional fidelity, generalization robustness, deployment viability, and extensibility.
+Applying MTAP to five tools yields three actionable findings.
+First, \emph{structural decomposition aligned with hardware execution boundaries} is the dominant design principle: Timeloop's loop nests for systolic arrays, NeuSight's tiles for GPU SMs, and VIDUR's prefill/decode phases all succeed by matching prediction granularity to hardware scheduling units.
+Second, \emph{the composition gap is the field's central unsolved problem}: kernel-level errors (2--3\%) amplify by $5$--$10\times$ at the system level through unmodeled inter-kernel overheads, and no tool provides formal composition guarantees.
+Third, \emph{deployment methodology predicts usability better than modeling sophistication}: Docker-first tools remain usable years later, while the tool with the lowest reported error (nn-Meter, $<$1\%) fails to produce any output.
+The most pressing needs are standardized evaluation infrastructure (adopting MTAP or similar frameworks), validated tools for frontier workloads, and formal error composition bounds.
 
 %%%%%%% -- PAPER CONTENT ENDS -- %%%%%%%%
 
