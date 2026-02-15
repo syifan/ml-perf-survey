@@ -550,14 +550,107 @@ Three architectural insights emerge.
 \section{Comparison and Analysis}
 \label{sec:comparison}
 
-We analyze trade-offs across methodology types along accuracy and speed dimensions (see Table~\ref{tab:survey-summary} for per-tool details); generalization and interpretability challenges are deferred to Section~\ref{sec:challenges}.
-Figure~\ref{fig:accuracy-speed} visualizes the accuracy--speed trade-off space.
+\textbf{Fundamental incomparability.}
+Self-reported accuracy values across surveyed tools are \textbf{not comparable across problem domains}.
+Each tool is evaluated on its own benchmarks, workloads, and hardware; no common evaluation benchmark exists.
+A tool reporting 2\% MAPE on GPU kernels is solving a fundamentally different problem than one reporting 5\% on distributed training---the former predicts tile-level arithmetic intensity while the latter models network congestion across thousands of devices.
+Drawing accuracy rankings or trade-off curves across these incomparable measurements would be methodologically unsound.
+We therefore organize analysis \emph{within} each problem domain and characterize the \emph{structural difficulty} of each domain separately.
 
-\textbf{Caveat.}
-The accuracy values in Figures~\ref{fig:accuracy-speed} and~\ref{fig:accuracy-comparison} are \emph{self-reported} on each tool's own benchmarks and hardware.
-No common evaluation benchmark exists for performance modeling tools, so these numbers are \textbf{not directly comparable across platforms or workload types}.
-We include them to illustrate \emph{within-domain} trade-offs and identify difficult problem domains, not to rank tools against each other.
-A common-benchmark comparison is a key future direction (Section~\ref{sec:challenges}).
+\subsection{Per-Domain Accuracy Analysis}
+\label{subsec:accuracy-difficulty}
+
+Figure~\ref{fig:domain-accuracy} presents accuracy ranges organized by problem domain, emphasizing the structural reasons why each domain achieves its characteristic error range rather than inviting cross-domain comparison.
+
+\textbf{Accelerator modeling} (5--15\% MAPE) is the most analytically tractable domain because systolic array execution is deterministic: loop nests fully specify data movement, enabling Timeloop (5--10\%) and MAESTRO (5--15\%) to achieve tight bounds through exhaustive mapping enumeration.
+AMALI's higher error (23.6\%) on GPU memory hierarchy modeling illustrates the boundary where analytical tractability breaks down.
+
+\textbf{GPU kernel prediction} (2--12\% MAPE) spans a wider range due to non-deterministic execution effects.
+NeuSight (2.3\%) succeeds by decomposing kernels into tiles that mirror CUDA thread block scheduling; Habitat (11.8\%) trades accuracy for cross-GPU transferability via wave scaling.
+Accel-Sim ($\sim$15\%) achieves high fidelity through cycle-accurate simulation at orders-of-magnitude slowdown.
+
+\textbf{Distributed systems} (2--15\% MAPE) exhibit the widest accuracy range, dominated by communication modeling difficulty.
+SimAI (1.9\%) models NCCL-level chunk reductions; Lumos (3.3\%) targets H100 training; VIDUR ($<$5\%) models serving at request-level granularity; ASTRA-sim (5--15\%) replays Chakra traces at collective granularity.
+The range reflects fundamentally different modeling granularities (Section~\ref{subsec:distributed-modeling}).
+
+\textbf{Edge device prediction} (0.7--2\% MAPE) achieves the lowest reported errors but requires per-device profiling data, making the comparison misleading: low MAPE reflects the simplicity of the prediction task (single-device, profiling-heavy) rather than superior methodology.
+
+\begin{figure}[t]
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tikzpicture}
+\begin{axis}[
+    xbar,
+    y dir=reverse,
+    xlabel={Self-reported MAPE (\%)},
+    xmin=0, xmax=28,
+    ytick={0,1.5,3,4.5,6.5,8,9.5,11,13,14,15.5},
+    yticklabels={
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {}
+    },
+    yticklabel style={font=\scriptsize},
+    xticklabel style={font=\scriptsize},
+    xlabel style={font=\small},
+    bar width=6pt,
+    height=9cm,
+    width=8cm,
+    nodes near coords,
+    nodes near coords style={font=\tiny, anchor=west},
+    every node near coord/.append style={xshift=1pt},
+]
+% Accelerator domain
+\addplot[fill=blue!40, draw=blue!60] coordinates {(7.5,0) (10,1) (23.6,2)};
+% GPU domain
+\addplot[fill=green!40, draw=green!60] coordinates {(2.3,4) (11.8,5) (15,6)};
+% Distributed domain
+\addplot[fill=orange!40, draw=orange!60] coordinates {(1.9,8) (3.3,9) (5,10) (10,11) (15,12)};
+% Edge domain
+\addplot[fill=purple!40, draw=purple!60] coordinates {(0.7,14) (1.9,15)};
+\end{axis}
+% Domain labels (left side, outside axis)
+\node[font=\scriptsize\bfseries, anchor=east, text=blue!70] at (0.65,0.65) {Accelerator};
+\node[font=\tiny, anchor=east] at (0.65,1.2) {Timeloop};
+\node[font=\tiny, anchor=east] at (0.65,1.75) {MAESTRO};
+\node[font=\tiny, anchor=east] at (0.65,2.3) {AMALI};
+\node[font=\scriptsize\bfseries, anchor=east, text=green!50!black] at (0.65,3.0) {GPU};
+\node[font=\tiny, anchor=east] at (0.65,3.55) {NeuSight};
+\node[font=\tiny, anchor=east] at (0.65,4.1) {Habitat};
+\node[font=\tiny, anchor=east] at (0.65,4.65) {Accel-Sim};
+\node[font=\scriptsize\bfseries, anchor=east, text=orange!70!black] at (0.65,5.35) {Distributed};
+\node[font=\tiny, anchor=east] at (0.65,5.9) {SimAI};
+\node[font=\tiny, anchor=east] at (0.65,6.45) {Lumos};
+\node[font=\tiny, anchor=east] at (0.65,7.0) {VIDUR};
+\node[font=\tiny, anchor=east] at (0.65,7.55) {ASTRA-sim};
+\node[font=\tiny, anchor=east] at (0.65,8.1) {TVM/Ansor};
+\node[font=\scriptsize\bfseries, anchor=east, text=purple!70] at (0.65,8.75) {Edge};
+\node[font=\tiny, anchor=east] at (0.65,9.35) {LitePred};
+\node[font=\tiny, anchor=east] at (0.65,9.9) {HELP};
+% Domain separators
+\draw[dashed, black!30] (0.7,2.7) -- (7.5,2.7);
+\draw[dashed, black!30] (0.7,5.0) -- (7.5,5.0);
+\draw[dashed, black!30] (0.7,8.4) -- (7.5,8.4);
+% Incomparability annotation
+\node[font=\tiny, text=red!60!black, align=center, rotate=90] at (7.8,5.0) {Not comparable across domains};
+\end{tikzpicture}%
+}
+\caption{Self-reported accuracy (MAPE) organized by problem domain. Each domain represents a structurally different prediction problem; values are \textbf{not comparable across domains} due to different benchmarks, workloads, hardware, and inherent problem difficulty. Within each domain, tools address similar prediction targets and can be meaningfully compared.}
+\label{fig:domain-accuracy}
+\end{figure}
+
+\subsection{Within-Domain Speed--Accuracy Trade-offs}
+\label{subsec:speed-accuracy}
+
+Within each domain, tools exhibit meaningful speed--accuracy trade-offs that reflect methodology choices (Figure~\ref{fig:accuracy-speed}).
 
 \begin{figure}[t]
 \centering
@@ -581,15 +674,13 @@ A common-benchmark comparison is a key future direction (Section~\ref{sec:challe
     legend style={at={(0.02,0.98)}, anchor=north west, font=\tiny, draw=gray!50, fill=white, fill opacity=0.9, text opacity=1},
     legend cell align={left},
 ]
-% Analytical (blue circles)
+% Accelerator domain (blue)
 \addplot[only marks, mark=*, mark size=3pt, blue!70, thick] coordinates {(0,7.5) (0,10) (1,23.6)};
-% Simulation (red squares)
-\addplot[only marks, mark=square*, mark size=3pt, red!70, thick] coordinates {(4,15)};
-% Hybrid (green diamonds)
-\addplot[only marks, mark=diamond*, mark size=3.5pt, green!60!black, thick] coordinates {(1,2.3) (1,11.8)};
-% Trace-driven (orange triangles)
+% GPU domain (green)
+\addplot[only marks, mark=diamond*, mark size=3.5pt, green!60!black, thick] coordinates {(1,2.3) (1,11.8) (4,15)};
+% Distributed domain (orange)
 \addplot[only marks, mark=triangle*, mark size=3.5pt, orange!80!black, thick] coordinates {(2,5) (3,1.9) (3,3.3) (3,10)};
-% ML-augmented (purple pentagons)
+% Edge domain (purple)
 \addplot[only marks, mark=pentagon*, mark size=3pt, purple!70, thick] coordinates {(1,0.7) (1,1.9) (1,15)};
 % Labels
 \node[font=\tiny, anchor=west] at (0.1,7.5) {Timeloop};
@@ -605,77 +696,12 @@ A common-benchmark comparison is a key future direction (Section~\ref{sec:challe
 \node[font=\tiny, anchor=south east] at (0.9,0.7) {LitePred};
 \node[font=\tiny, anchor=north west] at (1.1,1.9) {HELP};
 \node[font=\tiny, anchor=south west] at (1.1,15) {TVM};
-\legend{Analytical, Simulation, Hybrid, Trace-driven, ML-augmented}
+\legend{Accelerator, GPU, Distributed, Edge}
 \end{axis}
 \end{tikzpicture}%
 }
-\caption{Self-reported accuracy vs.\ evaluation speed across surveyed tools. Each point represents a tool's MAPE on its \emph{own} benchmarks and hardware---values are not directly comparable across tools targeting different platforms.}
+\caption{Speed vs.\ self-reported accuracy, colored by \emph{problem domain} rather than methodology type. Tools within the same domain (same marker shape and color) address comparable prediction targets; cross-domain comparisons are not meaningful. The apparent ``trade-off frontier'' across all points is an artifact of plotting incomparable measurements on shared axes.}
 \label{fig:accuracy-speed}
-\end{figure}
-
-\subsection{Accuracy by Problem Difficulty}
-\label{subsec:accuracy-difficulty}
-
-We organize accuracy results by inherent problem difficulty rather than comparing across incompatible benchmarks (Figure~\ref{fig:accuracy-comparison}).
-Accelerator modeling is most tractable (5--10\%) due to deterministic data movement; GPU kernel prediction achieves 2--12\% via hybrid methods; distributed systems reach 2--15\% where communication modeling dominates error; edge prediction achieves 0.7--2\% but requires per-device profiling.
-The architectural reasons for these difficulty tiers are analyzed in Sections~\ref{subsec:gpu-modeling} and~\ref{subsec:distributed-modeling}.
-
-\begin{figure}[t]
-\centering
-\resizebox{\columnwidth}{!}{%
-\begin{tikzpicture}
-\begin{axis}[
-    xbar,
-    y dir=reverse,
-    xlabel={Reported MAPE (\%)},
-    xmin=0, xmax=28,
-    ytick={0,1,2,3,4,5,6,7,8,9,10,11,12},
-    yticklabels={
-        Timeloop,
-        MAESTRO,
-        AMALI,
-        Accel-Sim,
-        NeuSight,
-        Habitat,
-        SimAI,
-        Lumos,
-        VIDUR,
-        ASTRA-sim,
-        LitePred,
-        HELP,
-        TVM/Ansor
-    },
-    yticklabel style={font=\scriptsize},
-    xticklabel style={font=\scriptsize},
-    xlabel style={font=\small},
-    bar width=6pt,
-    height=7.5cm,
-    width=8cm,
-    nodes near coords,
-    nodes near coords style={font=\tiny, anchor=west},
-    every node near coord/.append style={xshift=1pt},
-    legend style={at={(0.97,0.03)}, anchor=south east, font=\tiny, draw=none, fill=white, fill opacity=0.8, text opacity=1},
-    legend cell align={left},
-    extra y ticks={2.5, 5.5, 9.5},
-    extra y tick labels={},
-    extra y tick style={grid=major, grid style={black!30, dashed}},
-]
-% Analytical (blue)
-\addplot[fill=blue!50, draw=blue!70] coordinates {(7.5,0) (10,1) (23.6,2)};
-% Simulation (red)
-\addplot[fill=red!50, draw=red!70] coordinates {(15,3)};
-% Hybrid (green)
-\addplot[fill=green!50, draw=green!70] coordinates {(2.3,4) (11.8,5)};
-% Trace-driven (orange)
-\addplot[fill=orange!50, draw=orange!70] coordinates {(1.9,6) (3.3,7) (5,8) (10,9)};
-% ML-augmented (purple)
-\addplot[fill=purple!50, draw=purple!70] coordinates {(0.7,10) (1.9,11) (15,12)};
-\legend{Analytical, Simulation, Hybrid, Trace-driven, ML-augmented}
-\end{axis}
-\end{tikzpicture}%
-}
-\caption{Self-reported accuracy (MAPE) of surveyed tools, grouped by methodology type. Range midpoints used where ranges are reported. \textbf{Values are not directly comparable} across tools: each was measured on different benchmarks, workloads, and hardware. Horizontal groupings by dashed lines separate distinct problem domains (accelerator, GPU, distributed, edge).}
-\label{fig:accuracy-comparison}
 \end{figure}
 
 \subsection{Practitioner Tool Selection}
@@ -784,7 +810,7 @@ Key lessons:
 \textbf{Threats.}
 Our venue-focused search may under-represent industry publications.
 We exclude proprietary tools (Nsight Compute~\cite{nsightcompute2019}, internal TPU models) from evaluation.
-Accuracy metrics vary across papers, limiting direct comparison---we caveat all cross-tool comparisons (Figures~\ref{fig:accuracy-speed},~\ref{fig:accuracy-comparison}).
+Accuracy metrics vary across papers, limiting direct comparison---we present all accuracy values organized by domain with explicit incomparability caveats (Figures~\ref{fig:accuracy-speed},~\ref{fig:domain-accuracy}).
 Our evaluation covers 5 of 22 tools, selected for methodology diversity; a complete study would include SimAI, AMALI, and Habitat.
 
 % ==============================================================================
