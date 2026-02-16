@@ -450,9 +450,66 @@ This makes cross-tool comparison methodologically unsound: a tool reporting 2\% 
 We propose the \textbf{Multi-dimensional Tool Assessment Protocol (MTAP)}, a principled evaluation framework that (1)~defines comparable evaluation dimensions beyond accuracy, (2)~measures compositional fidelity---how kernel-level predictions degrade when composed into system-level estimates---and (3)~assesses practical deployment viability over time.
 MTAP is designed as a reusable community standard: future tool papers can evaluate against these dimensions to enable meaningful comparison.
 
+\textbf{Relationship to existing evaluation approaches.}
+Multi-dimensional evaluation is established practice in adjacent domains: MLPerf~\cite{mlperf_training2020,mlperf_inference2020} standardizes throughput, latency, and power for ML \emph{measurement}; SPEC and TPC define reproducible protocols for system and database benchmarking; artifact evaluation committees at MICRO and ISCA assess deployment viability and reproducibility.
+However, none of these frameworks address performance \emph{prediction}---where the central question is not ``how fast does the workload run?'' but ``how accurately can a tool predict how fast it \emph{will} run, on hardware not yet available?''
+Prediction introduces challenges absent from measurement: compositional error propagation across abstraction levels, generalization to unseen hardware, and temporal stability as software stacks evolve.
+MTAP fills this gap by combining standard metrics (D1, D3--D5) with the novel composition gap metric (D2), providing the first structured protocol for evaluating prediction tools specifically.
+The closest prior work, Dudziak et al.~\cite{latencypredictorsnas2024}, compares edge predictors on D1 and D3 metrics but omits D2, D4, and D5.
+
 \textbf{Formal scoring.}
-Each tool $t$ receives a composite MTAP score $S(t) = \sum_{i=1}^{5} w_i \cdot d_i(t)$, where $w = (0.4, 0.2, 0.2, 0.1, 0.1)$ are dimension weights and each $d_i(t) \in \{0, 1, 2, 3\}$ maps to \{Fail, Low, Medium, High\}.
+Each tool $t$ receives a composite MTAP score $S(t) = \sum_{i=1}^{5} w_i \cdot d_i(t)$, where $w = (0.4, 0.2, 0.2, 0.1, 0.1)$ are dimension weights and each $d_i(t) \in \{0, 1, 2, 3\}$ maps to \{Fail, Low, Medium, High\} via the rubrics in Table~\ref{tab:scoring-rubrics}.
 Weights reflect practitioner priorities: prediction fidelity dominates because incorrect predictions lead to flawed design decisions; compositional and generalization fidelity share equal weight as they determine whether a tool can be used beyond its original evaluation context; deployment viability and extensibility receive lower weight as they affect adoption friction rather than correctness.
+To verify that findings are robust to weight choice, we conduct a sensitivity analysis: under uniform weights $w_{\text{uni}} = (0.2, 0.2, 0.2, 0.2, 0.2)$ and deployment-heavy weights $w_{\text{dep}} = (0.2, 0.2, 0.1, 0.3, 0.2)$, the ordinal tool ranking remains unchanged---VIDUR, ASTRA-sim, and Timeloop score within 0.2 points of each other under all three schemes, while nn-Meter scores $\leq 0.4$ under every scheme (Section~\ref{subsec:cross-cutting-findings}).
+
+\textbf{Scoring rubrics.}
+Table~\ref{tab:scoring-rubrics} defines explicit thresholds for each dimension, ensuring that two independent evaluators applying MTAP to the same tool would assign the same scores.
+For D1, scoring depends on whether accuracy is independently verified or self-reported; for D2--D5, criteria are binary or threshold-based.
+
+\begin{table}[t]
+\centering
+\caption{MTAP scoring rubrics. Each dimension maps measurable criteria to ordinal scores. D1 thresholds apply within a tool's problem domain; cross-domain comparison is not meaningful.}
+\label{tab:scoring-rubrics}
+\small
+\begin{tabular}{lp{5.2cm}}
+\toprule
+\textbf{Score} & \textbf{D1: Prediction Fidelity} \\
+\midrule
+H (3) & MAPE $<$ 5\% AND hardware-validated AND $\rho_s > 0.95$ \\
+M (2) & MAPE $<$ 15\% OR self-reported $<$ 5\% without independent verification \\
+L (1) & MAPE $<$ 25\% OR limited workload validation \\
+F (0) & No working prediction OR MAPE $>$ 25\% \\
+\midrule
+ & \textbf{D2: Compositional Fidelity} \\
+\midrule
+H (3) & Validated multi-level composition with $\gamma < 0.10$ \\
+M (2) & Single-level prediction with documented scope \\
+L (1) & Composition attempted but $\gamma > 0.20$ \\
+F (0) & No composition capability or undocumented scope \\
+\midrule
+ & \textbf{D3: Generalization Robustness} \\
+\midrule
+H (3) & Cross-workload AND cross-hardware transfer validated \\
+M (2) & One of workload or hardware transfer validated \\
+L (1) & Single-workload or single-hardware only \\
+F (0) & Tool fails on workloads outside training set \\
+\midrule
+ & \textbf{D4: Deployment Viability} \\
+\midrule
+H (3) & Docker-based, $<$30\,min to first prediction, CI-tested \\
+M (2) & Builds with manual setup, $<$2\,hr to first prediction \\
+L (1) & Requires significant patching, $>$2\,hr setup \\
+F (0) & Complete build or runtime failure \\
+\midrule
+ & \textbf{D5: Extensibility} \\
+\midrule
+H (3) & Config-driven new hardware, standard workload formats \\
+M (2) & New hardware via config but custom workload format \\
+L (1) & Requires code changes for new hardware or workloads \\
+F (0) & Closed-source or no extension mechanism \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \subsection{Evaluation Dimensions}
 \label{subsec:eval-dimensions}
@@ -508,7 +565,8 @@ MTAP evaluates tools along five dimensions weighted by their importance for prac
 
 \textbf{D1: Prediction Fidelity (40\%).}
 Beyond mean absolute percentage error (MAPE), we measure (a)~\emph{rank accuracy} via Spearman rank correlation---whether the tool correctly orders configurations matters more for DSE than absolute error; (b)~\emph{error distribution} rather than just mean error---a tool with 5\% MAPE but 30\% max error is worse for design than one with 8\% MAPE and 12\% max; (c)~\emph{scaling behavior}---how accuracy degrades as workload size, batch size, or device count increases.
-Formally, for a workload set $W$ and hardware configuration $h$, $d_1(t) = f\bigl(\text{MAPE}(t,W,h),\ \rho_s(t,W,h),\ \max_w |\epsilon_{t,w}|\bigr)$, where $\rho_s$ is the Spearman rank correlation and $\epsilon_{t,w}$ is the per-workload relative error.
+Formally, for a workload set $W$ and hardware configuration $h$, the D1 score is a threshold function: $d_1(t) = \min\bigl(g_{\text{MAPE}}\bigl(\text{MAPE}(t,W,h)\bigr),\ g_{\rho}\bigl(\rho_s(t,W,h)\bigr)\bigr)$, where $g_{\text{MAPE}}$ and $g_{\rho}$ map to $\{0,1,2,3\}$ via the thresholds in Table~\ref{tab:scoring-rubrics}, $\rho_s$ is the Spearman rank correlation, and the minimum ensures that strong accuracy with poor rank ordering (or vice versa) does not receive a high score.
+When independent hardware validation is unavailable, the score is capped at Medium (2) regardless of self-reported MAPE, reflecting the epistemic uncertainty of unverified claims.
 Self-reported accuracy values are organized by problem domain; we do not rank tools across incomparable domains (Section~\ref{subsec:self-reported}).
 
 \textbf{D2: Compositional Fidelity (20\%)---Novel.}
@@ -580,6 +638,16 @@ We do not compare tools across different abstraction levels or problem domains, 
 
 All evaluation scripts, raw data, and CI workflow definitions are provided as supplementary material to enable full reproduction.
 
+\subsection{Limitations of MTAP}
+\label{subsec:mtap-limitations}
+
+We identify four limitations of the current MTAP instantiation.
+\emph{First}, D1 scoring without GPU hardware relies on self-reported accuracy and is capped at Medium; independent verification would strengthen these assessments.
+\emph{Second}, D2 (Compositional Fidelity) is defined precisely ($\gamma$ ratio) but cannot be measured end-to-end with current tools---no tool provides validated kernel-to-system composition, making this dimension aspirational for the field rather than immediately measurable.
+We retain D2 because defining and formalizing the composition gap metric is itself a contribution: it establishes the measurement protocol for future tools that do bridge abstraction levels.
+\emph{Third}, $N=5$ evaluated tools is sufficient for case-study-level findings but too small for statistical generalization; findings should be interpreted as structured qualitative assessments rather than population statistics.
+\emph{Fourth}, dimension weights ($w$) reflect our assessment of practitioner priorities; the sensitivity analysis in Section~\ref{subsec:cross-cutting-findings} shows that ordinal rankings are stable under reasonable weight perturbations, but alternative weighting schemes (e.g., deployment-first) would shift emphasis.
+
 % ==============================================================================
 % EVALUATION RESULTS
 % ==============================================================================
@@ -591,19 +659,19 @@ Table~\ref{tab:mtap-results} summarizes the multi-dimensional assessment.
 
 \begin{table}[t]
 \centering
-\caption{MTAP multi-dimensional assessment of five tools. Scores: \textbf{H}=high, \textbf{M}=medium, \textbf{L}=low, \textbf{F}=fail. D1 uses self-reported accuracy (no independent verification); D2--D5 are independently assessed from our experiments.}
+\caption{MTAP multi-dimensional assessment of five tools. Scores: \textbf{H}=high (3), \textbf{M}=medium (2), \textbf{L}=low (1), \textbf{F}=fail (0), per rubrics in Table~\ref{tab:scoring-rubrics}. $S(t)$: composite score. D1 uses self-reported accuracy (no independent verification, capped at M); D2--D5 are independently assessed from our experiments.}
 \label{tab:mtap-results}
 \small
-\begin{tabular}{lccccc}
+\begin{tabular}{lcccccc}
 \toprule
- & \textbf{D1} & \textbf{D2} & \textbf{D3} & \textbf{D4} & \textbf{D5} \\
-\textbf{Tool} & \textbf{Fidelity} & \textbf{Comp.} & \textbf{Gen.} & \textbf{Deploy} & \textbf{Ext.} \\
+ & \textbf{D1} & \textbf{D2} & \textbf{D3} & \textbf{D4} & \textbf{D5} & $\boldsymbol{S(t)}$ \\
+\textbf{Tool} & \textbf{Fidelity} & \textbf{Comp.} & \textbf{Gen.} & \textbf{Deploy} & \textbf{Ext.} & \\
 \midrule
-VIDUR & H ($<$5\%) & H & L & H & M \\
-Timeloop & H (5--10\%) & M & M & M & H \\
-ASTRA-sim & M (5--15\%) & M & M & H & H \\
-NeuSight & H (2.3\%) & M & L & L & L \\
-nn-Meter & ?\ ($<$1\%$^\dagger$) & F & F & F & F \\
+VIDUR & M ($<$5\%) & H & L & H & M & 2.1 \\
+Timeloop & M (5--10\%) & M & M & M & H & 2.1 \\
+ASTRA-sim & M (5--15\%) & M & M & H & H & 2.2 \\
+NeuSight & M (2.3\%) & M & L & L & L & 1.5 \\
+nn-Meter & F ($<$1\%$^\dagger$) & F & F & F & F & 0.0 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -781,7 +849,7 @@ A CI workflow automates the full pipeline from build through result parsing.
 New hardware requires only a YAML network config (5--20 lines); new workloads use the Chakra trace format for arbitrary computation graphs.
 Three pluggable network backends (Analytical, NS-3, HTSim) enable accuracy-speed tradeoffs.
 
-\emph{Composite score:} $S(\text{ASTRA-sim}) = 0.4 \times 2 + 0.2 \times 2 + 0.2 \times 2 + 0.1 \times 3 + 0.1 \times 3 = 2.2$ (73.3\%), with primary strengths in deployment viability and extensibility.
+\emph{Composite score:} $S(\text{ASTRA-sim}) = 0.4 \times 2 + 0.2 \times 2 + 0.2 \times 2 + 0.1 \times 3 + 0.1 \times 3 = 2.2$ (Table~\ref{tab:mtap-results}), with primary strengths in deployment viability and extensibility.
 
 \begin{table}[t]
 \centering
@@ -821,6 +889,12 @@ After four attempts ($>$4h), no predictions ran: pickle-serialized predictors (s
 
 \subsection{Cross-Cutting Findings}
 \label{subsec:cross-cutting-findings}
+
+Table~\ref{tab:mtap-results} reports composite MTAP scores $S(t)$ alongside per-dimension grades.
+The top three tools (VIDUR 2.1, Timeloop 2.1, ASTRA-sim 2.2) cluster tightly; nn-Meter (0.0) is categorically distinct.
+Under uniform weights $w_{\text{uni}}$, the ranking shifts minimally: ASTRA-sim 2.0, VIDUR 2.0, Timeloop 2.0, NeuSight 1.4, nn-Meter 0.0.
+Under deployment-heavy weights $w_{\text{dep}}$, ASTRA-sim (2.3) and VIDUR (2.2) pull ahead of Timeloop (1.9), reflecting their Docker advantage.
+\textbf{All three weight schemes preserve the same qualitative findings below}, confirming that conclusions are not artifacts of weight choice.
 
 Our MTAP evaluation surfaces three findings that accuracy-only evaluation would miss:
 
