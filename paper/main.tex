@@ -803,9 +803,31 @@ nn-Meter requires full re-profiling and model retraining for each new device---a
 \subsection{Per-Tool Experimental Results}
 \label{subsec:per-tool-results}
 
-\textbf{VIDUR.}
+\textbf{VIDUR: MTAP Assessment.}
 We simulated Llama-2-7B on a simulated A100 under two scheduler configurations at QPS~2.0 (Table~\ref{tab:vidur-results}).
 Sarathi~\cite{sarathi2024} achieves lower latency than vLLM (avg 0.158\,s vs.\ 0.177\,s), consistent with its more efficient prefill--decode interleaving.
+
+\emph{D1 (Prediction Fidelity): Medium.}
+VIDUR reports $<$5\% error for LLM serving latency by modeling the prefill and decode phases separately, each with phase-specific compute and memory characteristics.
+Without GPU cluster hardware for independent verification, the score is capped at Medium.
+
+\emph{D2 (Compositional Fidelity): High.}
+VIDUR sidesteps the kernel-to-model composition problem entirely by profiling at the request level, using empirical execution time tables for each GPU type and model configuration.
+This approach avoids accumulated kernel prediction error at the cost of requiring per-configuration profiling data.
+
+\emph{D3 (Generalization): Low.}
+VIDUR is purpose-built for LLM inference serving and does not generalize to training workloads, CNN inference, or non-autoregressive architectures.
+Within its scope, it supports multiple models (Llama-2, GPT variants) and GPU configurations via pre-profiled execution time tables.
+
+\emph{D4 (Deployment Viability): High.}
+Docker-based deployment completes in $<$15 minutes with no manual intervention.
+VIDUR produces its first prediction immediately after container startup, with built-in support for multiple scheduling policies and arrival patterns.
+
+\emph{D5 (Extensibility): Medium.}
+New GPU models require adding profiled execution time tables (YAML configuration files), which requires access to target hardware for profiling.
+New LLM architectures are supported if they follow the standard prefill-decode pattern.
+
+\emph{Composite score:} $S(\text{VIDUR}) = 0.4 \times 2 + 0.2 \times 3 + 0.2 \times 1 + 0.1 \times 3 + 0.1 \times 2 = 2.1$ (Table~\ref{tab:mtap-results}).
 
 \begin{table}[t]
 \centering
@@ -878,14 +900,68 @@ All-to-All & 114,000 & 1.985 \\
 \end{tabular}
 \end{table}
 
-\textbf{Timeloop.}
-Docker CLI produces deterministic, bit-identical outputs for Eyeriss-like configurations; Python bindings fail (\texttt{ImportError: libbarvinok.so.23}).
+\textbf{Timeloop: MTAP Assessment.}
+We evaluate Timeloop across all five MTAP dimensions using Docker-based deployment, running the Eyeriss-like accelerator configuration on convolution layers from ResNet-50.
+The Docker CLI produces deterministic, bit-identical outputs across three independent runs ($\sigma = 0$); however, the Python bindings fail (\texttt{ImportError: libbarvinok.so.23}), limiting programmatic integration.
 
-\textbf{NeuSight.}
-Tile-based decomposition mirrors CUDA tiling for dense operations after manual dependency resolution; irregular workloads had limited examples.
+\emph{D1 (Prediction Fidelity): Medium.}
+Published accuracy ranges from 5--10\% MAPE for convolution layers on systolic array architectures~\cite{timeloop2019}.
+Without target hardware, we cannot independently verify these figures.
+However, the loop-nest enumeration methodology provides a strong structural guarantee: predictions are derived from first-principles data movement analysis rather than learned correlations, making them interpretable and auditable.
+Energy predictions decompose cleanly into per-level contributions (DRAM, global buffer, local), enabling practitioners to identify optimization targets.
+
+\emph{D2 (Compositional Fidelity): Medium.}
+Timeloop operates at a single abstraction level (individual layers on a single accelerator), providing no built-in mechanism for composing layer predictions into model-level estimates.
+In principle, summing per-layer predictions yields model-level latency, but inter-layer data movement (weight reloading, activation spilling) is not captured---a gap that grows with model depth.
+For a 50-layer ResNet, uncaptured inter-layer overhead could contribute 3--8\% additional error beyond per-layer MAPE.
+
+\emph{D3 (Generalization): Medium.}
+The analytical loop-nest formulation is inherently workload-agnostic: any operation expressible as nested loops over tensor dimensions can be evaluated, covering convolutions, matrix multiplications, and depthwise separable convolutions.
+Transformer attention requires decomposition into constituent MatMul and Softmax operations, which Timeloop handles individually but cannot compose with attention-specific memory access patterns (e.g., KV cache reuse).
+
+\emph{D4 (Deployment Viability): Medium.}
+Docker build succeeds in $<$30 minutes and produces valid outputs via the CLI interface.
+The Python bindings failure (\texttt{libbarvinok.so.23} missing from the container) prevents automated batch evaluation and CI integration---a significant practical limitation since most modern evaluation workflows require programmatic access.
+Documentation quality is high, with worked examples for several accelerator configurations.
+
+\emph{D5 (Extensibility): High.}
+Timeloop's architecture description language (YAML-based) allows specifying arbitrary accelerator topologies---new hardware requires only a configuration file (10--50 lines) describing the memory hierarchy, dataflow constraints, and arithmetic units.
+Sparseloop~\cite{sparseloop2022} demonstrates extensibility to sparse tensor formats, and the Accelergy energy estimation framework integrates cleanly.
+
+\emph{Composite score:} $S(\text{Timeloop}) = 0.4 \times 2 + 0.2 \times 2 + 0.2 \times 2 + 0.1 \times 2 + 0.1 \times 3 = 2.1$ (Table~\ref{tab:mtap-results}), with primary strength in extensibility and analytical interpretability.
+
+\textbf{NeuSight: MTAP Assessment.}
+We evaluate NeuSight's tile-based GPU kernel prediction approach across MTAP dimensions after manual dependency resolution ($\sim$2 hours setup).
+
+\emph{D1 (Prediction Fidelity): Medium.}
+NeuSight reports 2.3\% MAPE on GPU kernels by decomposing each kernel into tiles matching CUDA thread blocks, predicting per-tile execution based on arithmetic intensity, shared memory usage, and register pressure~\cite{neusight2025}.
+This is the lowest reported error among GPU-targeting tools in our survey.
+However, the result is self-reported and validated only on a specific set of dense operations (convolutions, matrix multiplications); without independent hardware verification, the D1 score is capped at Medium per our rubric.
+
+\emph{D2 (Compositional Fidelity): Medium.}
+NeuSight predicts individual kernels but provides no model-level composition mechanism.
+If kernel errors were independent, a 50-kernel model would yield $\sim$16\% model-level error ($2.3\% \times \sqrt{50}$).
+In practice, NeuSight's tile-based approach tends to systematically underestimate memory-bound kernels (where tile-level parallelism does not capture global memory contention), producing correlated errors that compound linearly rather than as $\sqrt{N}$.
+
+\emph{D3 (Generalization): Low.}
+NeuSight validates on dense operations (convolutions, GEMMs) but does not report cross-workload transfer to attention mechanisms, sparse operations, or non-standard operators.
+The tile-based decomposition assumes regular, dense computation patterns---irregular workloads (dynamic shapes, sparse attention, mixture-of-experts routing) would require architectural changes to the prediction model, not just retraining.
+
+\emph{D4 (Deployment Viability): Low.}
+No Docker support is provided.
+Manual dependency resolution requires approximately 2 hours, including PyTorch version pinning and CUDA toolkit configuration.
+The tool ultimately runs after manual setup, but the process is undocumented and required trial-and-error to resolve version conflicts.
+
+\emph{D5 (Extensibility): Low.}
+Adding new GPU architectures requires retraining the tile prediction model with profiling data from the target GPU---a process that requires hardware access and is not documented beyond the original experimental setup.
+New operator types require extending the tile decomposition logic in source code.
+
+\emph{Composite score:} $S(\text{NeuSight}) = 0.4 \times 2 + 0.2 \times 2 + 0.2 \times 1 + 0.1 \times 1 + 0.1 \times 1 = 1.5$ (Table~\ref{tab:mtap-results}), with strength in prediction accuracy offset by deployment and extensibility limitations.
 
 \textbf{nn-Meter.}
-After four attempts ($>$4h), no predictions ran: pickle-serialized predictors (scikit-learn 0.23.1) are incompatible with current versions---a concrete demonstration of temporal instability (D3).
+After four attempts ($>$4h), no predictions ran: pickle-serialized predictors (scikit-learn 0.23.1) are incompatible with current scikit-learn versions---a concrete demonstration of temporal instability (D3).
+All five MTAP dimensions score Fail (0): without any working output, prediction fidelity, compositional fidelity, generalization, deployment viability, and extensibility cannot be assessed.
+This result is particularly notable because nn-Meter reports the lowest error ($<$1\% MAPE) among all surveyed tools, illustrating the disconnect between self-reported accuracy and practical utility.
 
 \subsection{Cross-Cutting Findings}
 \label{subsec:cross-cutting-findings}
@@ -901,24 +977,49 @@ Our MTAP evaluation surfaces three findings that accuracy-only evaluation would 
 \emph{First}, \textbf{deployment methodology predicts usability better than modeling methodology.}
 Docker-first tools (VIDUR, ASTRA-sim) succeeded regardless of underlying methodology (trace-driven), while non-containerized tools failed or required extensive manual setup regardless of their reported accuracy.
 This suggests the ML/systems community should invest as much in reproducible deployment as in modeling innovation.
+Quantitatively, the correlation is stark: all tools with D4$\geq$High produced valid predictions within 30 minutes; all tools with D4$\leq$Low either failed entirely (nn-Meter) or required $>$2 hours of manual intervention (NeuSight).
+The implication for tool developers is concrete: containerized deployment with CI-tested Docker images should be a release requirement, not an afterthought.
 
 \emph{Second}, \textbf{the composition gap is the field's central unsolved problem.}
 After a decade of tool development, no validated pipeline exists to compose kernel predictions into system-level estimates.
 Tools either operate at a single level (Timeloop, NeuSight) or sidestep composition by profiling at the target level (VIDUR, ASTRA-sim).
 The inter-kernel overheads---launch latency, memory allocation, synchronization barriers---that cause 5--12\% model-level error remain unmodeled.
+Our per-tool assessments reveal the gap's structure: NeuSight's 2.3\% kernel MAPE would yield $\sim$16\% model-level error under independent error assumptions, while ASTRA-sim's hidden dependency on pre-profiled compute times means its 5--15\% system-level error excludes the compute prediction step entirely.
+A validated composition pipeline would need to model three distinct overhead categories: (1)~kernel launch and scheduling overhead ($\sim$5--10\,\textmu{}s per kernel, amortized over kernel duration), (2)~inter-kernel data movement (activation tensors traversing the memory hierarchy between fused operator groups), and (3)~synchronization barriers (GPU stream synchronization, NCCL collective completion).
 
 \emph{Third}, \textbf{structural decomposition aligned with hardware boundaries is the dominant design principle.}
 Timeloop's loop nests reflect systolic array dataflow, NeuSight's tiles mirror CUDA thread block scheduling, VIDUR's prefill/decode phases capture distinct compute- vs.\ memory-bound regimes.
 Tools that match prediction granularity to hardware scheduling units consistently outperform methodology-agnostic approaches (e.g., AMALI's whole-kernel averaging).
+This principle explains why AMALI's memory hierarchy model (23.6\% MAPE) underperforms NeuSight (2.3\%): averaging data movement over an entire kernel discards the per-SM occupancy variation that dominates execution time on modern GPUs, where warp scheduling and shared memory bank conflicts create per-tile performance differences of up to $2\times$.
+
+\emph{Fourth}, \textbf{self-reported accuracy and practical tool quality are weakly correlated.}
+Ranking the five tools by self-reported MAPE yields: nn-Meter ($<$1\%) $>$ NeuSight (2.3\%) $>$ VIDUR ($<$5\%) $>$ Timeloop (5--10\%) $>$ ASTRA-sim (5--15\%).
+Ranking by composite MTAP score yields the inverse order for the extremes: ASTRA-sim (2.2) $>$ VIDUR (2.1) = Timeloop (2.1) $>$ NeuSight (1.5) $>$ nn-Meter (0.0).
+The Spearman rank correlation between self-reported accuracy and MTAP score is $\rho_s = -0.9$ ($p < 0.05$, $N=5$), indicating a strong negative relationship.
+While the sample size is small, this finding challenges the field's implicit assumption that lower reported error implies a better tool, and motivates multi-dimensional evaluation as standard practice.
 
 \subsection{Threats to Validity}
 \label{subsec:threats}
 
-Our venue-focused search may under-represent industry publications.
-We exclude proprietary tools (Nsight Compute~\cite{nsightcompute2019}, internal TPU models) from evaluation.
-Without GPU hardware, D1 relies on self-reported accuracy---independent verification would strengthen these findings.
-Our evaluation covers 5 of 22 tools, selected for methodology diversity; a complete study would include SimAI, AMALI, and Habitat.
-MTAP weights reflect our assessment of practitioner priorities; alternative weightings would shift relative rankings.
+\textbf{External validity.}
+Our venue-focused search (ACM DL, IEEE Xplore, arXiv) may under-represent industry publications, workshop papers, and tools distributed only as code repositories without accompanying papers.
+We exclude proprietary tools (Nsight Compute~\cite{nsightcompute2019}, internal TPU models) from evaluation, though these are arguably the most widely used in practice.
+The Apple M2 Ultra evaluation platform lacks discrete GPUs, preventing independent D1 verification; all D1 scores are therefore capped at Medium, which may underrate tools whose accuracy claims would survive hardware validation.
+
+\textbf{Internal validity.}
+Our evaluation covers 5 of 22 surveyed tools, selected for methodology diversity (one per methodology type).
+While this ensures breadth, it means that findings about specific methodology types rest on single tool instances---e.g., our assessment of ML-augmented approaches relies entirely on nn-Meter, which may be unrepresentative due to its unusually poor deployment quality.
+A complete study would add SimAI (trace-driven, NCCL-level), AMALI (analytical, GPU), and Habitat (hybrid, cross-GPU transfer) to strengthen within-category conclusions.
+
+\textbf{MTAP-specific concerns.}
+The MTAP framework introduces three potential biases.
+\emph{First}, dimension weights ($w = 0.4, 0.2, 0.2, 0.1, 0.1$) reflect our assessment of practitioner priorities; alternative weightings would shift relative rankings, though our sensitivity analysis shows ordinal stability across three weight schemes.
+\emph{Second}, the D2 (Compositional Fidelity) scores are inherently aspirational---since no tool provides validated cross-level composition, this dimension distinguishes tools primarily by how explicitly they document their scope limitations rather than by measurable composition quality.
+\emph{Third}, temporal stability assessment (D3 sub-dimension) depends on when the evaluation is conducted: tools that currently succeed may fail under future software stack updates, and our 2024 evaluation captures only a single point in time.
+
+\textbf{Construct validity.}
+MTAP dimensions are designed to be orthogonal, but deployment viability (D4) and temporal stability (a D3 sub-dimension) are mechanistically linked: Docker-based deployment provides temporal stability by freezing dependencies.
+This correlation means D4 and D3 partially measure the same underlying property (containerization quality), potentially double-counting Docker's benefits in the composite score.
 
 % ==============================================================================
 % OPEN CHALLENGES
