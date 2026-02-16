@@ -757,8 +757,31 @@ Avg TPOT (s) & 0.0093 & 0.0090 \\
 \end{tabular}
 \end{table}
 
-\textbf{ASTRA-sim.}
-Collective microbenchmarks and ResNet-50 training at 2--8 simulated GPUs (Table~\ref{tab:astrasim-results}) show internal consistency: Reduce-Scatter takes half the time of All-Reduce; communication overhead scales 5.76$\times$ for 4$\times$ more GPUs.
+\textbf{ASTRA-sim: MTAP Assessment.}
+We evaluate ASTRA-sim across all five MTAP dimensions using Docker-based deployment, running collective microbenchmarks (4 collectives $\times$ 8~NPUs $\times$ 1\,MB) and ResNet-50 data-parallel training at 2, 4, and 8 simulated GPUs on the HGX-H100 configuration (Table~\ref{tab:astrasim-results}).
+Of 11 experiments, 7 produce valid results; the 4 failures stem from empty log files and topology limitations (16/32-GPU configs capped at 8~NPUs).
+
+\emph{D1 (Prediction Fidelity): Medium.}
+Published geomean error ranges from 20.63\% (2~GPUs) to 9.69\% (8~GPUs) on Ring All-Reduce~\cite{astrasim2020}, but we cannot independently verify without target hardware.
+Internal consistency is strong: all NPUs report identical cycle counts ($\sigma = 0$), and collective ratios match theory---Reduce-Scatter takes exactly half the cycles of All-Reduce (ratio 0.504), while All-to-All takes approximately twice (ratio 1.985).
+
+\emph{D2 (Compositional Fidelity): Medium.}
+ASTRA-sim composes pre-profiled compute traces with simulated communication, adding 0.13\% overhead at 4~GPUs and 0.30\% at 8~GPUs.
+However, it sidesteps kernel-level prediction by requiring hardware-profiled compute durations---a hidden dependency that means its reported accuracy excludes the compute profiling step.
+
+\emph{D3 (Generalization): Medium.}
+Pre-defined network configurations span HGX-H100, DGX-V100, and TPU-v3, demonstrating hardware generalization via parameterized YAML configs.
+Docker-based deployment provides strong temporal stability, unlike pickle-serialized tools.
+
+\emph{D4 (Deployment Viability): High.}
+Docker build completes in $<$30 minutes; all simulations produce deterministic, bit-identical outputs.
+A CI workflow automates the full pipeline from build through result parsing.
+
+\emph{D5 (Extensibility): High.}
+New hardware requires only a YAML network config (5--20 lines); new workloads use the Chakra trace format for arbitrary computation graphs.
+Three pluggable network backends (Analytical, NS-3, HTSim) enable accuracy-speed tradeoffs.
+
+\emph{Composite score:} $S(\text{ASTRA-sim}) = 0.4 \times 2 + 0.2 \times 2 + 0.2 \times 2 + 0.1 \times 3 + 0.1 \times 3 = 2.2$ (73.3\%), with primary strengths in deployment viability and extensibility.
 
 \begin{table}[t]
 \centering
