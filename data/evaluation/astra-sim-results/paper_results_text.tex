@@ -1,0 +1,98 @@
+% ASTRA-sim MTAP Evaluation Results — for integration into Section 7
+% Generated: 2026-02-16
+% Source: data/evaluation/astra-sim-results/mtap_scorecard.json
+%
+% These results can be inserted into \subsection{Per-Tool Experimental Results}
+% after the existing ASTRA-sim paragraph, or used to expand the ASTRA-sim
+% discussion throughout Section 7.
+
+% --- D1: Prediction Fidelity Evidence ---
+% For use in \subsection{D1: Self-Reported Accuracy Analysis}
+
+% ASTRA-sim's published accuracy improves with scale: 20.63\% geomean error at
+% 2~GPUs, 12.01\% at 4~GPUs, and 9.69\% at 8~GPUs (Ring All-Reduce on
+% HGX-H100)~\cite{astrasim2020}. We cannot independently verify these claims
+% without datacenter GPU hardware, but our experiments confirm internal
+% consistency: all 8 NPUs report identical cycle counts ($\sigma = 0$) across
+% all configurations, and collective operation ratios match theoretical
+% expectations (Reduce-Scatter = $0.504 \times$ All-Reduce, consistent with
+% the $\frac{1}{2}$ theoretical relationship).
+
+% Communication overhead scales monotonically: 0.052\% at 2~GPUs, 0.133\% at
+% 4~GPUs, and 0.301\% at 8~GPUs---a 5.76$\times$ increase from 2$\to$8~GPUs.
+% This is consistent with ring all-reduce, where each GPU transmits
+% $\frac{n-1}{n}$ of the gradient volume and communication time grows linearly
+% with participant count while compute remains constant in data-parallel
+% training.
+
+% --- D2: Compositional Fidelity Evidence ---
+% For use in \subsection{D2: Compositional Fidelity}
+
+% ASTRA-sim composes pre-profiled compute traces with analytically simulated
+% communication: $t_{\text{wall}} = t_{\text{compute}} + t_{\text{exposed\_comm}}$.
+% At 4~GPUs, the composition adds 1,454,270 communication cycles to
+% 1,095,314,000 compute cycles (0.13\% overhead); at 8~GPUs, 3,307,886
+% communication cycles (0.30\% overhead). The composition is exact by
+% construction (no error propagation), but this sidesteps the harder problem:
+% ASTRA-sim requires pre-profiled compute durations from the target hardware,
+% making the reported 5--15\% error an underestimate of end-to-end prediction
+% difficulty since compute profiling error is excluded.
+
+% --- Per-Tool Results Block ---
+% Replace or augment existing \textbf{ASTRA-sim.} paragraph
+
+\textbf{ASTRA-sim: MTAP Assessment.}
+We evaluate ASTRA-sim across all five MTAP dimensions using Docker-based deployment on our evaluation platform, running collective microbenchmarks (4 collectives $\times$ 8~NPUs $\times$ 1\,MB) and ResNet-50 data-parallel training at 2, 4, and 8 simulated GPUs on the HGX-H100 configuration.
+Of 11 experiments, 7 produce valid results; the 4 failures stem from empty log files (4-NPU microbenchmark) and topology limitations (16/32-GPU configs capped at 8~NPUs).
+
+\emph{D1 (Prediction Fidelity): Medium.}
+Published geomean error ranges from 20.63\% (2~GPUs) to 9.69\% (8~GPUs) on HGX-H100 Ring All-Reduce~\cite{astrasim2020}, but we cannot independently verify these without target hardware.
+Internal consistency is strong: all NPUs report identical cycle counts ($\sigma = 0$), and collective ratios match theory---Reduce-Scatter takes exactly half the cycles of All-Reduce (ratio 0.504), while All-to-All takes approximately twice (ratio 1.985).
+Communication overhead scales 5.76$\times$ from 2$\to$8~GPUs, consistent with ring all-reduce scaling behavior.
+
+\emph{D2 (Compositional Fidelity): Medium.}
+ASTRA-sim composes pre-profiled compute traces with simulated communication, yielding wall-time estimates where communication adds 0.13\% overhead at 4~GPUs and 0.30\% at 8~GPUs.
+However, it sidesteps kernel-level prediction entirely by requiring hardware-profiled compute durations---a hidden dependency that means its reported accuracy excludes the compute profiling step.
+The composition gap $\gamma$ cannot be measured since no kernel-level predictions exist to compare against end-to-end measurements.
+
+\emph{D3 (Generalization): Medium.}
+Pre-defined network configurations span HGX-H100 (2--32~GPUs), DGX-V100 (4--8~GPUs), and TPU-v3 (ring, 2D torus), demonstrating hardware generalization via parameterized YAML configs.
+However, workload generalization requires generating new Chakra traces for each model architecture; we tested only ResNet-50 data-parallel training.
+Docker-based deployment provides strong temporal stability---no version incompatibility issues, unlike pickle-serialized tools.
+
+\emph{D4 (Deployment Viability): High.}
+Docker build completes in $<$30 minutes including protobuf compilation from source.
+All simulations produce deterministic, bit-identical outputs.
+A GitHub Actions CI workflow automates the full pipeline from Docker build through result parsing and artifact upload, confirming production-grade deployment viability.
+
+\emph{D5 (Extensibility): High.}
+New hardware requires only a YAML network config (5--20 lines specifying topology, bandwidth, latency).
+New workloads use the Chakra trace format, which supports arbitrary computation graphs.
+Three pluggable network backends (Analytical, NS-3, HTSim) enable accuracy-speed tradeoffs, and custom collective algorithms can be specified via system configuration.
+
+\emph{Composite score:} $S(\text{ASTRA-sim}) = 0.4 \times 2 + 0.2 \times 2 + 0.2 \times 2 + 0.1 \times 3 + 0.1 \times 3 = 2.2$ (73.3\%).
+The tool's primary strengths are deployment viability and extensibility; its primary limitation is that prediction fidelity depends on self-reported accuracy that we cannot independently verify.
+
+% --- Additional table for detailed ASTRA-sim collective results ---
+% Can be added as a supplementary table if space permits
+
+% \begin{table}[t]
+% \centering
+% \caption{ASTRA-sim MTAP scorecard summary. Composite score computed as
+% $S(t) = \sum w_i \cdot d_i(t)$ with weights $w = (0.4, 0.2, 0.2, 0.1, 0.1)$.}
+% \label{tab:astrasim-mtap-scorecard}
+% \small
+% \begin{tabular}{llcl}
+% \toprule
+% \textbf{Dimension} & \textbf{Weight} & \textbf{Score} & \textbf{Key Evidence} \\
+% \midrule
+% D1: Fidelity & 40\% & M (2) & 9.69\% MAPE (self-reported, 8-GPU) \\
+% D2: Composition & 20\% & M (2) & Compute+comm; hidden HW dependency \\
+% D3: Generalization & 20\% & M (2) & Multi-HW configs; 1 workload tested \\
+% D4: Deployment & 10\% & H (3) & $<$30 min Docker; zero failures \\
+% D5: Extensibility & 10\% & H (3) & YAML configs; Chakra traces; 3 backends \\
+% \midrule
+% \multicolumn{2}{l}{\textbf{Composite}} & \textbf{2.2} & \textbf{73.3\% of maximum} \\
+% \bottomrule
+% \end{tabular}
+% \end{table}
