@@ -195,20 +195,13 @@ Accuracy metrics---MAPE, RMSE, and rank correlation---vary across the literature
 \section{Taxonomy}
 \label{sec:taxonomy}
 
-We organize the literature along three dimensions.
-The \emph{primary axis} is methodology type---how a tool predicts performance---because methodology determines the fundamental trade-offs between accuracy, speed, interpretability, and data requirements.
-The \emph{secondary axes} are target platform and abstraction level, which together determine the scope and applicability of each tool.
-We additionally characterize tools by workload coverage, identifying a temporal validation lag: tools published during the CNN era naturally validated on CNN workloads, while post-2023 tools increasingly target transformers and LLMs.
+We organize the literature along three dimensions: \emph{methodology type} (primary axis, determining accuracy--speed--interpretability trade-offs), \emph{target platform}, and \emph{abstraction level}.
+We additionally identify a temporal validation lag: pre-2023 tools validated on CNNs, while post-2023 tools increasingly target transformers and LLMs.
+Table~\ref{tab:taxonomy-matrix} provides a unified coverage matrix with trade-off profiles; the dominant pairings are analytical models for accelerators, cycle-accurate simulation for GPUs/CPUs, trace-driven simulation for distributed systems, and ML-augmented approaches for edge devices.
 
-Table~\ref{tab:taxonomy-matrix} provides a unified view combining the coverage matrix (number of surveyed tools per methodology--platform cell) with trade-off profiles, with empty cells highlighting research gaps.
-The dominant pairings are: analytical models for accelerators, cycle-accurate simulation for GPUs/CPUs, trace-driven simulation for distributed systems, and ML-augmented approaches for edge devices.
-
-% --- Unified Taxonomy Table (merged from Tables 1+2, issue #192) ---
 \begin{table*}[t]
 \centering
-\caption{Methodology taxonomy: coverage matrix and trade-off profile.
-Platform columns show the number of surveyed tools per cell; \textbf{0} indicates an explicit research gap.
-Speed, data requirements, and interpretability determine practical applicability; the failure mode column identifies the primary condition under which each methodology breaks down.}
+\caption{Methodology taxonomy: coverage matrix and trade-off profile. \textbf{0} indicates a research gap. The failure mode column identifies when each methodology breaks down.}
 \label{tab:taxonomy-matrix}
 \small
 \begin{tabular}{l|ccccc|cccc}
@@ -225,10 +218,9 @@ Hybrid           & 1 & 2 & \textbf{0} & \textbf{0} & 1 & ms & Mixed & Med. & Tra
 \end{tabular}
 \end{table*}
 
-Table~\ref{tab:taxonomy-matrix} reveals three structural gaps: (1)~trace-driven \emph{execution replay} simulation (as distinct from instruction-trace-driven cycle-accurate simulation such as Accel-Sim) is used exclusively for distributed systems; (2)~edge devices are served only by ML-augmented approaches, lacking hybrid alternatives; (3)~no ML-augmented tool targets distributed systems directly.
-Methodologies cluster into two speed regimes: sub-millisecond (analytical, ML-augmented, hybrid) for DSE, and minutes-to-hours (simulation, trace-driven) for validation.
-
-Figure~\ref{fig:tool-architecture} illustrates how tools from different methodology types compose: analytical engines provide fast base estimates, ML components learn residual corrections, and trace-driven simulators orchestrate system-level execution.
+Three structural gaps emerge: (1)~trace-driven execution replay is used exclusively for distributed systems; (2)~edge devices lack hybrid alternatives; (3)~no ML-augmented tool targets distributed systems.
+Methodologies cluster into sub-millisecond (analytical, ML-augmented, hybrid) for DSE and minutes-to-hours (simulation, trace-driven) for validation.
+Figure~\ref{fig:tool-architecture} illustrates how methodology types compose.
 
 \begin{figure}[t]
 \centering
@@ -291,16 +283,15 @@ Figure~\ref{fig:tool-architecture} illustrates how tools from different methodol
 
 \end{tikzpicture}%
 }
-\caption{Unified architecture showing how tool methodologies compose. Analytical engines and ML cost models feed into hybrid approaches, while system-level orchestrators (trace-driven) assemble component predictions into end-to-end estimates. Cycle-accurate simulators primarily serve as validation oracles.}
+\caption{Unified architecture showing how tool methodologies compose. Cycle-accurate simulators primarily serve as validation oracles.}
 \label{fig:tool-architecture}
 \end{figure}
 
 \subsection{Methodology--Platform Pairings}
 \label{subsec:by-methodology}
 
-Table~\ref{tab:taxonomy-matrix} summarizes methodology trade-offs; Section~\ref{sec:survey} details individual tools.
-Platform constrains methodology: \textbf{accelerators} use analytical models (Timeloop~\cite{timeloop2019}, MAESTRO~\cite{maestro2019}); \textbf{GPUs} span all five types; \textbf{distributed systems} require trace-driven simulation (ASTRA-sim~\cite{astrasim2023}, VIDUR~\cite{vidur2024}); \textbf{edge devices} rely on ML-augmented approaches (nn-Meter~\cite{nnmeter2021}, LitePred~\cite{litepred2024}); \textbf{CPUs}~\cite{concorde2025,granite2022} are least studied.
-Abstraction level determines composition errors (Figure~\ref{fig:abstraction-levels}): kernel-level tools achieve 2--3\% error, model-level 5--12\%, and system-level 5--15\%, with errors propagating through the chain---a gap we quantify in Section~\ref{sec:eval-framework}.
+Platform constrains methodology (Table~\ref{tab:taxonomy-matrix}; Section~\ref{sec:survey} details individual tools): \textbf{accelerators} use analytical models~\cite{timeloop2019,maestro2019}; \textbf{GPUs} span all five types; \textbf{distributed systems} require trace-driven simulation~\cite{astrasim2023,vidur2024}; \textbf{edge devices} rely on ML-augmented approaches~\cite{nnmeter2021,litepred2024}; \textbf{CPUs}~\cite{concorde2025,granite2022} are least studied.
+Abstraction level determines composition errors (Figure~\ref{fig:abstraction-levels}): kernel-level tools achieve 2--3\% error, model-level 5--12\%, and system-level 5--15\%, with errors propagating through the chain (Section~\ref{sec:eval-framework}).
 
 \begin{figure}[t]
 \centering
@@ -341,16 +332,15 @@ Abstraction level determines composition errors (Figure~\ref{fig:abstraction-lev
 
 \end{tikzpicture}%
 }
-\caption{Abstraction level hierarchy and the composition problem. Tools operate at one of three levels; composing predictions across levels accumulates error. Error ranges are representative values from surveyed papers.}
+\caption{Abstraction level hierarchy. Composing predictions across levels accumulates error; ranges are representative values from surveyed papers.}
 \label{fig:abstraction-levels}
 \end{figure}
 
 \subsection{Workload Coverage and Validation Gaps}
 \label{subsec:workload-coverage}
 
-Workload validation reveals a temporal lag: of 14 surveyed tools, 9 (64\%) validate on CNNs, reflecting the CNN-dominant era (2016--2022) when most were published.
-The lag is closing---post-2023 tools (VIDUR, Frontier, Lumos, SimAI) validate exclusively on transformers/LLMs---but \textbf{no surveyed tool has been validated on diffusion models or dynamic inference workloads}~\cite{dynamicreasoning2026}, only Frontier~\cite{frontier2025} validates MoE, and no tool offers validated transformer prediction across the full kernel-to-system stack.
-Section~\ref{sec:eval-results} provides our independent assessment of these claimed capabilities.
+Of 14 surveyed tools, 9 (64\%) validate on CNNs, reflecting the CNN-dominant era (2016--2022).
+The lag is closing---post-2023 tools (VIDUR, Frontier, Lumos, SimAI) validate exclusively on transformers/LLMs---but \textbf{no tool validates on diffusion models or dynamic inference}~\cite{dynamicreasoning2026}, only Frontier~\cite{frontier2025} validates MoE, and no tool offers validated transformer prediction across the full kernel-to-system stack (Section~\ref{sec:eval-results}).
 
 % ==============================================================================
 % SURVEY OF APPROACHES
