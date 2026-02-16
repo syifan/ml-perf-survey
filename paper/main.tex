@@ -450,6 +450,10 @@ This makes cross-tool comparison methodologically unsound: a tool reporting 2\% 
 We propose the \textbf{Multi-dimensional Tool Assessment Protocol (MTAP)}, a principled evaluation framework that (1)~defines comparable evaluation dimensions beyond accuracy, (2)~measures compositional fidelity---how kernel-level predictions degrade when composed into system-level estimates---and (3)~assesses practical deployment viability over time.
 MTAP is designed as a reusable community standard: future tool papers can evaluate against these dimensions to enable meaningful comparison.
 
+\textbf{Formal scoring.}
+Each tool $t$ receives a composite MTAP score $S(t) = \sum_{i=1}^{5} w_i \cdot d_i(t)$, where $w = (0.4, 0.2, 0.2, 0.1, 0.1)$ are dimension weights and each $d_i(t) \in \{0, 1, 2, 3\}$ maps to \{Fail, Low, Medium, High\}.
+Weights reflect practitioner priorities: prediction fidelity dominates because incorrect predictions lead to flawed design decisions; compositional and generalization fidelity share equal weight as they determine whether a tool can be used beyond its original evaluation context; deployment viability and extensibility receive lower weight as they affect adoption friction rather than correctness.
+
 \subsection{Evaluation Dimensions}
 \label{subsec:eval-dimensions}
 
@@ -504,12 +508,14 @@ MTAP evaluates tools along five dimensions weighted by their importance for prac
 
 \textbf{D1: Prediction Fidelity (40\%).}
 Beyond mean absolute percentage error (MAPE), we measure (a)~\emph{rank accuracy} via Spearman rank correlation---whether the tool correctly orders configurations matters more for DSE than absolute error; (b)~\emph{error distribution} rather than just mean error---a tool with 5\% MAPE but 30\% max error is worse for design than one with 8\% MAPE and 12\% max; (c)~\emph{scaling behavior}---how accuracy degrades as workload size, batch size, or device count increases.
+Formally, for a workload set $W$ and hardware configuration $h$, $d_1(t) = f\bigl(\text{MAPE}(t,W,h),\ \rho_s(t,W,h),\ \max_w |\epsilon_{t,w}|\bigr)$, where $\rho_s$ is the Spearman rank correlation and $\epsilon_{t,w}$ is the per-workload relative error.
 Self-reported accuracy values are organized by problem domain; we do not rank tools across incomparable domains (Section~\ref{subsec:self-reported}).
 
 \textbf{D2: Compositional Fidelity (20\%)---Novel.}
 This dimension is unique to MTAP.
 The composition problem (Figure~\ref{fig:error-composition}) is well-known qualitatively but has never been \emph{measured systematically}: kernel-level predictions (2--3\% error) must be composed into model-level (5--12\%) and system-level (5--15\%) estimates, with inter-kernel overheads (launch latency, memory allocation, synchronization) creating a gap that no tool explicitly bridges.
-We measure: (a)~kernel-to-model gap---predicted sum of kernel latencies vs.\ measured end-to-end; (b)~model-to-system gap---single-device prediction vs.\ multi-device measured; (c)~gap attribution---decomposing composition error into kernel prediction error vs.\ inter-kernel overhead vs.\ communication modeling.
+We define the \emph{composition gap ratio} $\gamma = |\hat{T}_{\text{model}} - \sum_k \hat{T}_k| / \sum_k \hat{T}_k$, where $\hat{T}_k$ are predicted kernel latencies and $\hat{T}_{\text{model}}$ is measured end-to-end latency; $\gamma > 0$ indicates unmodeled inter-kernel overhead.
+We measure: (a)~kernel-to-model gap $\gamma_{\text{K}\to\text{M}}$; (b)~model-to-system gap $\gamma_{\text{M}\to\text{S}}$---single-device prediction vs.\ multi-device measured; (c)~gap attribution---decomposing $\gamma$ into kernel prediction error vs.\ inter-kernel overhead vs.\ communication modeling error.
 
 \textbf{D3: Generalization Robustness (20\%).}
 We assess: (a)~\emph{workload transfer}---do CNN-trained models generalize to transformers?; (b)~\emph{hardware transfer}---can GPU-A profiles predict GPU-B performance (Habitat's claimed capability)?; (c)~\emph{temporal stability}---does accuracy hold across software stack versions?
@@ -522,13 +528,57 @@ This dimension captures the finding that deployment methodology is a stronger pr
 \textbf{D5: Extensibility (10\%).}
 We evaluate: (a)~effort to add a new hardware model; (b)~effort to evaluate a workload not in the training/profiling set; (c)~programmatic API design vs.\ config-file-only interfaces.
 
+\subsection{Experimental Design}
+\label{subsec:experimental-design}
+
+We apply MTAP using a systematic tools $\times$ workloads $\times$ metrics design (Table~\ref{tab:experiment-matrix}).
+Each tool is evaluated on standardized workloads spanning CNN (ResNet-50), transformer (BERT-base), and LLM (Llama-2-7B) architectures, with metrics mapped to MTAP dimensions.
+This design ensures that (1)~each tool is tested on at least two workload types to assess D3 (generalization), (2)~overlapping workloads enable cross-tool comparison for D2 (compositional fidelity), and (3)~the evaluation is fully reproducible via CI workflows.
+
+\begin{table}[t]
+\centering
+\caption{MTAP experimental design matrix. Each cell indicates the MTAP dimension(s) assessed. Dashes indicate inapplicable tool--workload pairings.}
+\label{tab:experiment-matrix}
+\small
+\begin{tabular}{lccc}
+\toprule
+ & \textbf{ResNet-50} & \textbf{BERT} & \textbf{Llama-2} \\
+\textbf{Tool} & (Conv+FC) & (Attention) & (Serving) \\
+\midrule
+Timeloop & D1,D2 & --- & --- \\
+ASTRA-sim & D1,D2,D3 & --- & --- \\
+VIDUR & --- & --- & D1,D3,D4 \\
+NeuSight & D1,D2 & D1,D3 & --- \\
+nn-Meter & D1,D4 & D1,D3 & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Failure mode taxonomy.}
+We classify tool evaluation failures into four categories to distinguish fundamental limitations from engineering issues:
+\emph{(F1)~Build failure}---the tool cannot compile or install on the evaluation platform (nn-Meter's scikit-learn incompatibility);
+\emph{(F2)~Runtime failure}---the tool builds but crashes or hangs on target workloads;
+\emph{(F3)~Silent inaccuracy}---the tool produces output that disagrees with known baselines by $>$50\%, indicating a configuration or modeling error rather than expected prediction error;
+\emph{(F4)~Scope mismatch}---the tool is applied outside its designed scope (e.g., using an accelerator-specific tool for GPU prediction).
+Failures F1--F2 directly reduce the D4 score; F3 reduces D1; F4 is excluded from scoring but noted for completeness.
+
 \subsection{Protocol and Reproducibility}
 \label{subsec:eval-protocol}
 
 For each evaluated tool, we apply MTAP on a common evaluation platform (Apple M2 Ultra, 192\,GB RAM, Docker-based where available) with standardized workloads.
 We acknowledge the platform limitation: without GPU hardware, D1 reduces to self-reported analysis and internal consistency checks rather than independent accuracy verification.
 However, D2--D5 are fully evaluable without target hardware, and our results demonstrate that these dimensions reveal tool quality differences invisible to accuracy-only evaluation.
-All evaluation scripts and raw data are provided as supplementary material to enable reproduction.
+
+\textbf{Statistical validation.}
+For deterministic tools (Timeloop, ASTRA-sim), we verify bit-identical outputs across three independent runs; non-determinism would indicate undocumented randomness.
+For stochastic tools (VIDUR with Poisson arrivals), we report mean and P99 latency across fixed random seeds and verify that inter-run variance is below 1\% of mean---confirming that seed control provides reproducible evaluation.
+
+\textbf{Cross-tool comparison protocol.}
+Where tool scopes overlap (e.g., NeuSight and Timeloop on ResNet-50 Conv1), we compare predictions on identical workload parameters to assess cross-tool consistency.
+Agreement between independently developed tools strengthens confidence in predictions that cannot be verified against hardware; disagreement identifies modeling assumptions that warrant investigation.
+We do not compare tools across different abstraction levels or problem domains, as such comparisons are methodologically unsound (Section~\ref{subsec:self-reported}).
+
+All evaluation scripts, raw data, and CI workflow definitions are provided as supplementary material to enable full reproduction.
 
 % ==============================================================================
 % EVALUATION RESULTS
