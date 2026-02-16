@@ -99,7 +99,7 @@ The paper now makes a credible case that MTAP is a novel evaluation framework co
 
 **P1.1: VIDUR D2 scoring inconsistency.** VIDUR receives H (3) on D2 but does not perform multi-level composition. Per the paper's own rubric (Table `scoring-rubrics`), H requires "Validated multi-level composition with γ < 0.10." VIDUR profiles at the phase level, which §7.2 describes as "sidestepping composition." This should be M (2) at most ("Single-level prediction with documented scope"), or a new rubric row should be added for "validated single-level prediction that avoids composition entirely." This inconsistency would be caught by any attentive reviewer.
 
-**Impact:** If VIDUR D2 drops from H (3) to M (2), S(VIDUR) = 0.4×2 + 0.2×2 + 0.2×1 + 0.1×3 + 0.1×2 = 1.9 (down from 2.1). This changes the tool ranking: ASTRA-sim (2.2) > Timeloop (2.1) > VIDUR (1.9) > NeuSight (1.5). The sensitivity analysis must be re-run.
+**Impact:** If VIDUR D2 drops from H (3) to M (2), S(VIDUR) = 0.4×2 + 0.2×2 + 0.2×1 + 0.1×3 + 0.1×2 = 1.9 (down from 2.1). This changes the tool ranking: ASTRA-sim (2.2) > Timeloop (2.1) > VIDUR (1.9) > NeuSight (1.6). The sensitivity analysis must be re-run.
 
 **P1.2: D1 rubric OR/AND ambiguity.** The M (2) row uses OR in a way that conflates two different situations. Suggest restructuring as:
 - M (2): "MAPE < 15% with independent verification, OR self-reported MAPE < 5% without independent verification (capped at M)"

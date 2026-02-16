@@ -660,7 +660,7 @@ Table~\ref{tab:mtap-results} summarizes the multi-dimensional assessment.
 VIDUR & M ($<$5\%) & H & L & H & M & 2.1 \\
 Timeloop & M (5--10\%) & M & M & M & H & 2.1 \\
 ASTRA-sim & M (5--15\%) & M & M & H & H & 2.2 \\
-NeuSight & M (2.3\%) & M & L & L & L & 1.5 \\
+NeuSight & M (2.3\%) & M & L & L & L & 1.6 \\
 nn-Meter & F ($<$1\%$^\dagger$) & F & F & F & F & 0.0 \\
 \bottomrule
 \end{tabular}
@@ -946,7 +946,7 @@ The tool ultimately runs after manual setup, but the process is undocumented and
 Adding new GPU architectures requires retraining the tile prediction model with profiling data from the target GPU---a process that requires hardware access and is not documented beyond the original experimental setup.
 New operator types require extending the tile decomposition logic in source code.
 
-\emph{Composite score:} $S(\text{NeuSight}) = 0.4 \times 2 + 0.2 \times 2 + 0.2 \times 1 + 0.1 \times 1 + 0.1 \times 1 = 1.5$ (Table~\ref{tab:mtap-results}), with strength in prediction accuracy offset by deployment and extensibility limitations.
+\emph{Composite score:} $S(\text{NeuSight}) = 0.4 \times 2 + 0.2 \times 2 + 0.2 \times 1 + 0.1 \times 1 + 0.1 \times 1 = 1.6$ (Table~\ref{tab:mtap-results}), with strength in prediction accuracy offset by deployment and extensibility limitations.
 
 \textbf{nn-Meter.}
 After four attempts ($>$4h), no predictions ran: pickle-serialized predictors (scikit-learn 0.23.1) are incompatible with current scikit-learn versions---a concrete demonstration of temporal instability (D3).
@@ -984,7 +984,7 @@ This principle explains why AMALI's memory hierarchy model (23.6\% MAPE) underpe
 
 \emph{Fourth}, \textbf{self-reported accuracy and practical tool quality are weakly correlated.}
 Ranking the five tools by self-reported MAPE yields: nn-Meter ($<$1\%) $>$ NeuSight (2.3\%) $>$ VIDUR ($<$5\%) $>$ Timeloop (5--10\%) $>$ ASTRA-sim (5--15\%).
-Ranking by composite MTAP score yields the inverse order for the extremes: ASTRA-sim (2.2) $>$ VIDUR (2.1) = Timeloop (2.1) $>$ NeuSight (1.5) $>$ nn-Meter (0.0).
+Ranking by composite MTAP score yields the inverse order for the extremes: ASTRA-sim (2.2) $>$ VIDUR (2.1) = Timeloop (2.1) $>$ NeuSight (1.6) $>$ nn-Meter (0.0).
 The Spearman rank correlation between self-reported accuracy and MTAP score is $\rho_s = -0.9$ ($p < 0.05$, $N=5$), indicating a strong negative relationship.
 While the sample size is small, this finding challenges the field's implicit assumption that lower reported error implies a better tool, and motivates multi-dimensional evaluation as standard practice.
 
