@@ -583,6 +583,17 @@ We apply MTAP using a systematic tools $\times$ workloads $\times$ metrics desig
 Each tool is evaluated on standardized workloads spanning CNN (ResNet-50), transformer (BERT-base), and LLM (Llama-2-7B) architectures, with metrics mapped to MTAP dimensions.
 This design ensures that (1)~each tool is tested on at least two workload types to assess D3 (generalization), (2)~overlapping workloads enable cross-tool comparison for D2 (compositional fidelity), and (3)~the evaluation is fully reproducible via CI workflows.
 
+\textbf{Tool selection criteria.}
+From the 22 surveyed tools, we select 5 for hands-on evaluation using three criteria: (1)~\emph{methodology coverage}---at least one tool per methodology type (analytical, trace-driven, ML-augmented, hybrid) to assess whether MTAP dimensions differentiate across methodologies; (2)~\emph{artifact availability}---open-source code with documented build instructions, since MTAP requires hands-on deployment; and (3)~\emph{scope diversity}---tools targeting different hardware (accelerators, GPUs, clusters, edge) and workload types (training, inference, serving) to exercise all five dimensions.
+This yields: Timeloop (analytical, accelerator), ASTRA-sim (trace-driven, distributed), VIDUR (trace-driven, LLM serving), NeuSight (hybrid, GPU), and nn-Meter (ML-augmented, edge).
+We deliberately include nn-Meter despite known deployment issues because failure cases are as informative as successes for validating MTAP's discriminative power.
+
+\textbf{Workload rationale.}
+ResNet-50 represents compute-bound CNN inference with regular convolution patterns, exercising tools' ability to model data reuse and spatial locality.
+BERT-base introduces attention mechanisms with quadratic memory scaling, testing generalization beyond convolution-dominated workloads.
+Llama-2-7B adds autoregressive decoding with distinct prefill (compute-bound) and decode (memory-bound) phases, plus multi-tenant serving dynamics.
+Together, these workloads span three compute regimes (regular dense, attention-dominated, serving-constrained) and three architectural paradigms (CNN, encoder-only transformer, decoder-only LLM), providing sufficient diversity to assess D3 while remaining tractable for a five-tool evaluation.
+
 \begin{table}[t]
 \centering
 \caption{MTAP experimental design matrix. Each cell indicates the MTAP dimension(s) assessed. Dashes indicate inapplicable tool--workload pairings.}
@@ -988,6 +999,12 @@ Ranking by composite MTAP score yields the inverse order for the extremes: ASTRA
 The Spearman rank correlation between self-reported accuracy and MTAP score is $\rho_s = -0.9$ ($p < 0.05$, $N=5$), indicating a strong negative relationship.
 While the sample size is small, this finding challenges the field's implicit assumption that lower reported error implies a better tool, and motivates multi-dimensional evaluation as standard practice.
 
+\emph{Fifth}, \textbf{tool maturity follows a predictable lifecycle that MTAP dimensions capture at different stages.}
+Early-stage tools (nn-Meter, published 2021) invest in modeling innovation (low MAPE) but neglect deployment engineering, resulting in high D1 claims but low D4 scores.
+Mature tools (VIDUR, ASTRA-sim) have undergone community adoption pressure that forces Docker support, CI integration, and dependency management---reflected in high D4 and D5 scores.
+Timeloop occupies a middle position: strong extensibility (D5: High) from years of architecture-description-language refinement, but incomplete containerization (D4: Medium) due to broken Python bindings.
+This lifecycle pattern suggests that MTAP scores are partially predictable from tool age and community size, and that the field's evaluation culture should weight deployment maturity as a proxy for overall tool quality---a conclusion consistent with MLPerf's experience that standardized benchmarking infrastructure is as important as the benchmarks themselves~\cite{mlperf_training2020}.
+
 \subsection{Threats to Validity}
 \label{subsec:threats}
 
@@ -1010,6 +1027,12 @@ The MTAP framework introduces three potential biases.
 \textbf{Construct validity.}
 MTAP dimensions are designed to be orthogonal, but deployment viability (D4) and temporal stability (a D3 sub-dimension) are mechanistically linked: Docker-based deployment provides temporal stability by freezing dependencies.
 This correlation means D4 and D3 partially measure the same underlying property (containerization quality), potentially double-counting Docker's benefits in the composite score.
+
+\textbf{Measurement validity.}
+Our evaluation platform (Apple M2 Ultra) lacks discrete GPUs, which restricts D1 assessment to self-reported accuracy analysis.
+This limitation is partially mitigated by three factors: (1)~D2--D5 are fully measurable without target hardware and account for 60\% of the composite score; (2)~our D1 analysis focuses on structural properties (rank accuracy, error distribution shape, scaling behavior) rather than absolute MAPE, providing insight even without ground-truth measurements; and (3)~the M-cap on unverified D1 scores explicitly encodes the epistemic uncertainty, preventing overconfident conclusions.
+However, a GPU-equipped evaluation would strengthen D1 assessments by enabling independent verification of claimed accuracy figures---potentially changing individual tool scores by up to one grade level (e.g., Medium to High for tools whose claims survive hardware validation, or Medium to Low for tools whose self-reported numbers prove optimistic).
+We estimate that D1 re-scoring with hardware verification would not change the qualitative finding that deployment methodology dominates accuracy in determining practical utility, since this conclusion rests primarily on D4 and D5 scores, which are hardware-independent.
 
 % ==============================================================================
 % OPEN CHALLENGES
