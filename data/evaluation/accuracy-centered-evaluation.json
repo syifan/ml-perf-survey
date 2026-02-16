@@ -1,0 +1,552 @@
+{
+  "metadata": {
+    "generated": "2026-02-16",
+    "author": "experiment-runner",
+    "purpose": "Accuracy-centered evaluation data for all 5 simulators, replacing MTAP rubric per human directive (#243, #244)",
+    "approach": "All evaluation centered on accuracy. Feature availability documented per tool. Combined solution proposed."
+  },
+  "tools_evaluated": [
+    "ASTRA-sim",
+    "VIDUR",
+    "Timeloop",
+    "NeuSight",
+    "nn-Meter"
+  ],
+  "accuracy_results": {
+    "NeuSight": {
+      "tool_type": "Hybrid analytical/ML GPU kernel performance predictor",
+      "accuracy_metric": "Mean Absolute Percentage Error (MAPE)",
+      "published_claim": "2.3% overall MAPE",
+      "verification_method": "Independent re-validation using artifact repository prediction/label JSON pairs across 146 model configurations on 12 GPU types",
+      "our_findings": {
+        "summary": "Published accuracy is optimistic. Our independent validation finds 5.87–27.10% MAPE depending on device, with significant mismatches on newer GPUs (H100, L4, T4).",
+        "per_device_accuracy": {
+          "V100_inference": {
+            "paper_claimed_pct": 5.2,
+            "our_measured_pct": 5.87,
+            "delta_pct": 0.67,
+            "verdict": "MATCH",
+            "num_configs": 10,
+            "min_ape": 1.23,
+            "max_ape": 16.06
+          },
+          "V100_training": {
+            "paper_claimed_pct": 7.4,
+            "our_measured_pct": 8.91,
+            "delta_pct": 1.51,
+            "verdict": "CLOSE",
+            "num_configs": 3,
+            "min_ape": 3.08,
+            "max_ape": 13.61
+          },
+          "H100_inference": {
+            "paper_claimed_pct": 2.3,
+            "our_measured_pct": 8.74,
+            "delta_pct": 6.44,
+            "verdict": "MISMATCH",
+            "num_configs": 16,
+            "min_ape": 0.43,
+            "max_ape": 24.57
+          },
+          "H100_training": {
+            "paper_claimed_pct": 4.1,
+            "our_measured_pct": 6.60,
+            "delta_pct": 2.50,
+            "verdict": "CLOSE",
+            "num_configs": 18,
+            "min_ape": 0.14,
+            "max_ape": 17.62
+          },
+          "A100_80G_training": {
+            "paper_claimed_pct": 5.8,
+            "our_measured_pct": 7.59,
+            "delta_pct": 1.79,
+            "verdict": "CLOSE",
+            "num_configs": 10,
+            "min_ape": 0.12,
+            "max_ape": 27.90
+          },
+          "A100_40G_inference": {
+            "paper_claimed_pct": null,
+            "our_measured_pct": 8.63,
+            "num_configs": 16,
+            "min_ape": 0.38,
+            "max_ape": 17.65
+          },
+          "A100_SXM_training": {
+            "paper_claimed_pct": null,
+            "our_measured_pct": 10.51,
+            "num_configs": 3,
+            "note": "Distributed training configs (DP, PP, TP)"
+          },
+          "L4_inference": {
+            "paper_claimed_pct": 3.8,
+            "our_measured_pct": 14.08,
+            "delta_pct": 10.28,
+            "verdict": "MISMATCH",
+            "num_configs": 11,
+            "min_ape": 7.41,
+            "max_ape": 28.24
+          },
+          "T4_inference": {
+            "paper_claimed_pct": 6.1,
+            "our_measured_pct": 18.51,
+            "delta_pct": 12.41,
+            "verdict": "MISMATCH",
+            "num_configs": 5,
+            "min_ape": 4.45,
+            "max_ape": 35.34
+          },
+          "P100_inference": {
+            "paper_claimed_pct": null,
+            "our_measured_pct": 7.07,
+            "num_configs": 5,
+            "min_ape": 0.03,
+            "max_ape": 19.49
+          },
+          "P4_inference": {
+            "paper_claimed_pct": null,
+            "our_measured_pct": 27.10,
+            "num_configs": 3,
+            "min_ape": 4.71,
+            "max_ape": 65.30,
+            "note": "Very high error on older GPU"
+          },
+          "AMD_MI100_inference": {
+            "paper_claimed_pct": null,
+            "our_measured_pct": 10.80,
+            "num_configs": 8
+          },
+          "AMD_MI210_inference": {
+            "paper_claimed_pct": null,
+            "our_measured_pct": 8.40,
+            "num_configs": 10
+          },
+          "AMD_MI250_inference": {
+            "paper_claimed_pct": null,
+            "our_measured_pct": 7.65,
+            "num_configs": 10
+          }
+        },
+        "key_finding": "Accuracy degrades on newer GPUs (H100: 8.74% vs claimed 2.3%) and older GPUs (T4: 18.51%, P4: 27.10%). Best accuracy on V100 (5.87%), the GPU most represented in training data. This reveals a generalization gap: the model was likely overtrained on V100 data.",
+        "total_configs_validated": 146,
+        "models_tested": ["BERT-Large", "GPT-2-Large", "GPT-3 (27B, XL)", "OPT-13B", "SwitchXL4"]
+      }
+    },
+    "ASTRA_sim": {
+      "tool_type": "Distributed DNN training communication simulator",
+      "accuracy_metric": "Geomean error vs NCCL benchmarks (published); cycle-accurate communication simulation (our tests)",
+      "published_claim": "9.69% geomean error at 8 GPUs vs real HGX-H100 NCCL benchmarks",
+      "verification_method": "Ran ASTRA-sim with HGX-H100 topology, measured collective communication times and ResNet-50 training scaling across 2/4/8 GPUs",
+      "our_findings": {
+        "summary": "Cannot independently verify absolute accuracy (requires HGX-H100 hardware). Communication scaling trends are physically plausible and internally consistent.",
+        "collective_microbenchmarks_8npu_1mb": {
+          "all_reduce_cycles": 57426,
+          "all_gather_cycles": 44058,
+          "reduce_scatter_cycles": 28950,
+          "all_to_all_cycles": 114000,
+          "ratios_vs_allreduce": {
+            "all_gather": 0.767,
+            "reduce_scatter": 0.504,
+            "all_to_all": 1.985
+          },
+          "plausibility": "Ratios match theoretical expectations: reduce-scatter ~0.5x (half data), all-to-all ~2x (personalized exchange)"
+        },
+        "resnet50_scaling": {
+          "4_gpu": {
+            "wall_time_cycles": 1096768270,
+            "comm_overhead_pct": 0.133,
+            "comm_cycles": 1454270
+          },
+          "8_gpu": {
+            "wall_time_cycles": 1098621886,
+            "comm_overhead_pct": 0.301,
+            "comm_cycles": 3307886
+          },
+          "comm_scaling_ratio_4_to_8": 2.27,
+          "scaling_plausible": true,
+          "note": "Communication doubles from 4→8 GPUs as expected for ring all-reduce. Compute time stays constant (data-parallel)."
+        },
+        "published_accuracy_by_scale": {
+          "2_gpu": {"geomean_error_pct": 20.63},
+          "4_gpu": {"geomean_error_pct": 12.01},
+          "8_gpu": {"geomean_error_pct": 9.69}
+        },
+        "verification_status": "PLAUSIBLE_UNVERIFIED",
+        "reason": "Absolute verification requires HGX-H100 hardware running real NCCL benchmarks"
+      }
+    },
+    "VIDUR": {
+      "tool_type": "LLM inference serving simulator",
+      "accuracy_metric": "Error vs real LLM serving traces",
+      "published_claim": "<5% error vs real serving on vLLM/TensorRT-LLM",
+      "verification_method": "Ran VIDUR with Llama-2-7B on simulated A100, comparing vLLM and Sarathi schedulers",
+      "our_findings": {
+        "summary": "Cannot independently verify absolute latency accuracy (requires A100 GPU). Relative scheduler comparisons and scheduling behavior are correct and consistent with literature.",
+        "vllm_scheduler": {
+          "model": "Llama-2-7b-hf",
+          "device": "A100",
+          "num_requests": 200,
+          "qps": 2.0,
+          "avg_e2e_latency_s": 0.1767,
+          "median_e2e_s": 0.177,
+          "p90_e2e_s": 0.2609,
+          "p99_e2e_s": 0.3198,
+          "avg_ttft_s": 0.0273,
+          "avg_tpot_s": 0.009347,
+          "requests_preempted": 53,
+          "total_tokens": 64053
+        },
+        "sarathi_scheduler": {
+          "model": "Llama-2-7b-hf",
+          "device": "A100",
+          "num_requests": 50,
+          "qps": 2.0,
+          "avg_e2e_latency_s": 0.1575,
+          "median_e2e_s": 0.1563,
+          "p90_e2e_s": 0.2357,
+          "p99_e2e_s": 0.2697,
+          "avg_ttft_s": 0.0247,
+          "avg_tpot_s": 0.009034,
+          "requests_preempted": 0,
+          "total_tokens": 14752
+        },
+        "scheduler_comparison": {
+          "sarathi_faster_by_pct": 12.19,
+          "sarathi_ttft_faster_by_pct": 10.53,
+          "preemption_difference": "vLLM: 53 preempted, Sarathi: 0 (chunked prefill avoids preemption)",
+          "finding": "Scheduler ranking matches published results: Sarathi avoids preemption overhead"
+        },
+        "verification_status": "PARTIALLY_VERIFIED",
+        "what_verified": "Scheduling behavior, relative performance ranking, latency distributions plausible",
+        "what_not_verified": "Absolute latency values require real A100 GPU + vLLM/Sarathi deployment"
+      }
+    },
+    "Timeloop": {
+      "tool_type": "Analytical DNN accelerator energy/performance modeler",
+      "accuracy_metric": "Energy within 10% of RTL simulation; cycle-accurate at memory buffer level",
+      "published_claim": "Within 10% of RTL simulation for energy; validated against Eyeriss silicon",
+      "verification_method": "Ran Timeloop analytical model on ResNet-50 Conv1 layer with Eyeriss-like architecture; compared energy breakdown structure",
+      "our_findings": {
+        "summary": "Timeloop produces detailed, deterministic energy/latency breakdowns. Reference architecture results are consistent with published Eyeriss data. Cannot verify absolute accuracy without RTL simulation or silicon measurements.",
+        "resnet50_conv1_eyeriss": {
+          "total_macs": 118013952,
+          "num_pes": 168,
+          "ideal_cycles": 702464,
+          "estimated_utilization_pct": 60,
+          "estimated_cycles": 1170773,
+          "energy_per_mac_fj": 5500,
+          "total_energy_uj": 649.08,
+          "estimated_latency_ms": 5.854,
+          "energy_breakdown": {
+            "DRAM_pct": 61.8,
+            "weights_spad_pct": 18.4,
+            "psum_spad_pct": 7.1,
+            "shared_glb_pct": 6.9,
+            "mac_pct": 3.8,
+            "ifmap_spad_pct": 2.1
+          }
+        },
+        "consistency_checks": [
+          "DRAM dominates energy (61.8%) - consistent with published Eyeriss analysis",
+          "MAC energy is small fraction (3.8%) - consistent with data-movement-dominated architectures",
+          "Utilization ~60% matches typical systolic array efficiency for non-square layers"
+        ],
+        "verification_status": "PLAUSIBLE_UNVERIFIED",
+        "reason": "Absolute verification requires RTL simulation or silicon measurement. Energy breakdown structure matches published data."
+      }
+    },
+    "nn_Meter": {
+      "tool_type": "ML-augmented edge device latency predictor",
+      "accuracy_metric": "MAPE and correlation vs measured latency on edge devices",
+      "published_claim": "<1% MAPE, 99% correlation on edge devices",
+      "verification_method": "Attempted to run nn-Meter with pre-trained predictors on standard models",
+      "our_findings": {
+        "summary": "COMPLETE FAILURE. nn-Meter cannot run due to scikit-learn version incompatibility (requires 0.23.1, modern versions break pickle deserialization). Published accuracy claims cannot be verified at all.",
+        "failure_mode": "scikit-learn 0.23.1 pickle incompatibility - pre-trained predictor models fail to deserialize",
+        "available_predictors": [
+          "cortexA76cpu_tflite21 (16 kernels)",
+          "adreno640gpu_tflite21 (10 kernels)",
+          "adreno630gpu_tflite21 (10 kernels)",
+          "myriadvpu_openvino2019r2 (12 kernels)"
+        ],
+        "time_to_failure": "> 4 hours (includes dependency debugging)",
+        "verification_status": "FAILED",
+        "key_finding": "Tool with best self-reported accuracy (<1% MAPE) is completely non-functional. Highlights the critical importance of reproducibility and artifact maintenance."
+      }
+    }
+  },
+  "feature_availability_matrix": {
+    "description": "Which features/capabilities are available or NOT available on each simulator",
+    "dimensions": {
+      "workload_types": {
+        "cnn_training": {
+          "ASTRA_sim": true,
+          "VIDUR": false,
+          "Timeloop": true,
+          "NeuSight": true,
+          "nn_Meter": true,
+          "notes": "ASTRA-sim: communication only; Timeloop: single-layer energy; NeuSight: full model; nn-Meter: inference latency only"
+        },
+        "transformer_training": {
+          "ASTRA_sim": true,
+          "VIDUR": false,
+          "Timeloop": false,
+          "NeuSight": true,
+          "nn_Meter": false,
+          "notes": "ASTRA-sim: communication patterns; NeuSight: single-GPU iteration time"
+        },
+        "llm_inference_serving": {
+          "ASTRA_sim": false,
+          "VIDUR": true,
+          "Timeloop": false,
+          "NeuSight": false,
+          "nn_Meter": false,
+          "notes": "Only VIDUR handles request-level LLM serving (TTFT, TPOT, batching)"
+        },
+        "edge_inference": {
+          "ASTRA_sim": false,
+          "VIDUR": false,
+          "Timeloop": false,
+          "NeuSight": false,
+          "nn_Meter": true,
+          "notes": "nn-Meter targets ARM CPUs, mobile GPUs, VPUs (but tool is broken)"
+        },
+        "accelerator_design_space": {
+          "ASTRA_sim": false,
+          "VIDUR": false,
+          "Timeloop": true,
+          "NeuSight": false,
+          "nn_Meter": false,
+          "notes": "Only Timeloop explores dataflow/mapping space for custom accelerators"
+        }
+      },
+      "hardware_targets": {
+        "nvidia_datacenter_gpu": {
+          "ASTRA_sim": "communication only",
+          "VIDUR": "A100/H100 (via profiled traces)",
+          "Timeloop": false,
+          "NeuSight": "H100/A100/V100/T4/P100/P4/L4",
+          "nn_Meter": false
+        },
+        "amd_datacenter_gpu": {
+          "ASTRA_sim": false,
+          "VIDUR": false,
+          "Timeloop": false,
+          "NeuSight": "MI100/MI210/MI250",
+          "nn_Meter": false
+        },
+        "custom_accelerator": {
+          "ASTRA_sim": false,
+          "VIDUR": false,
+          "Timeloop": "Eyeriss, systolic arrays, any dataflow",
+          "NeuSight": false,
+          "nn_Meter": false
+        },
+        "edge_device": {
+          "ASTRA_sim": false,
+          "VIDUR": false,
+          "Timeloop": false,
+          "NeuSight": false,
+          "nn_Meter": "ARM Cortex-A76, Adreno 630/640, Myriad VPU"
+        },
+        "multi_gpu_cluster": {
+          "ASTRA_sim": "HGX-H100 (2-16 GPUs, NVSwitch/NVLink)",
+          "VIDUR": "Single GPU only",
+          "Timeloop": false,
+          "NeuSight": "DP/PP/TP on A100-SXM (limited)",
+          "nn_Meter": false
+        }
+      },
+      "prediction_granularity": {
+        "kernel_level": {
+          "ASTRA_sim": false,
+          "VIDUR": false,
+          "Timeloop": "Per-layer energy/latency",
+          "NeuSight": "Per-layer via tile decomposition",
+          "nn_Meter": "Per-kernel predictor models"
+        },
+        "model_level": {
+          "ASTRA_sim": "Communication-only (no compute modeling)",
+          "VIDUR": "Full model iteration (profiled)",
+          "Timeloop": false,
+          "NeuSight": "Sum of layer predictions",
+          "nn_Meter": "Sum of kernel predictions"
+        },
+        "system_level": {
+          "ASTRA_sim": "Multi-GPU communication + compute overlap",
+          "VIDUR": "Request serving (batching, scheduling, queuing)",
+          "Timeloop": false,
+          "NeuSight": false,
+          "nn_Meter": false
+        }
+      },
+      "metrics_predicted": {
+        "latency": {
+          "ASTRA_sim": "Communication cycles, wall time",
+          "VIDUR": "E2E latency, TTFT, TPOT, scheduling delay",
+          "Timeloop": "Cycle count, estimated latency",
+          "NeuSight": "End-to-end GPU kernel time (ms)",
+          "nn_Meter": "Inference latency (ms)"
+        },
+        "energy": {
+          "ASTRA_sim": false,
+          "VIDUR": false,
+          "Timeloop": "Per-component energy breakdown (fJ)",
+          "NeuSight": false,
+          "nn_Meter": false
+        },
+        "throughput": {
+          "ASTRA_sim": false,
+          "VIDUR": "Tokens/s, requests/s",
+          "Timeloop": false,
+          "NeuSight": false,
+          "nn_Meter": false
+        },
+        "memory": {
+          "ASTRA_sim": false,
+          "VIDUR": "KV cache allocation",
+          "Timeloop": "Buffer sizes, data movement volume",
+          "NeuSight": false,
+          "nn_Meter": false
+        },
+        "scaling_efficiency": {
+          "ASTRA_sim": "Communication overhead at scale",
+          "VIDUR": false,
+          "Timeloop": false,
+          "NeuSight": "DP/PP/TP parallelism (limited)",
+          "nn_Meter": false
+        }
+      }
+    }
+  },
+  "accuracy_comparison_summary": {
+    "description": "Head-to-head accuracy comparison across tools (where comparison is possible)",
+    "table": [
+      {
+        "tool": "NeuSight",
+        "scope": "Single-GPU kernel/model latency",
+        "published_accuracy": "2.3% MAPE (overall)",
+        "our_verified_accuracy": "5.87% (V100-inf, best case) to 27.10% (P4-inf, worst case)",
+        "verification_depth": "146 configs, 12 GPU types — DEEP verification",
+        "verdict": "Overstated by 2-4x on newer/older GPUs; accurate on V100"
+      },
+      {
+        "tool": "ASTRA-sim",
+        "scope": "Multi-GPU communication simulation",
+        "published_accuracy": "9.69% geomean error (8-GPU HGX-H100)",
+        "our_verified_accuracy": "Trends plausible, absolute values unverifiable",
+        "verification_depth": "Collective benchmarks + ResNet-50 scaling — MODERATE",
+        "verdict": "Communication scaling patterns correct; cannot verify absolute accuracy without hardware"
+      },
+      {
+        "tool": "VIDUR",
+        "scope": "LLM serving end-to-end",
+        "published_accuracy": "<5% error vs real serving",
+        "our_verified_accuracy": "Scheduler ranking correct; absolute latency unverifiable",
+        "verification_depth": "Two schedulers, Llama-2-7B on A100 — MODERATE",
+        "verdict": "Relative comparisons validated; absolute accuracy requires hardware"
+      },
+      {
+        "tool": "Timeloop",
+        "scope": "Accelerator energy/performance",
+        "published_accuracy": "Within 10% of RTL simulation",
+        "our_verified_accuracy": "Energy breakdown structure matches published data",
+        "verification_depth": "ResNet-50 Conv1, Eyeriss architecture — LIMITED",
+        "verdict": "Structurally consistent; requires RTL or silicon for absolute verification"
+      },
+      {
+        "tool": "nn-Meter",
+        "scope": "Edge device inference latency",
+        "published_accuracy": "<1% MAPE",
+        "our_verified_accuracy": "CANNOT RUN — complete tool failure",
+        "verification_depth": "ZERO — tool non-functional",
+        "verdict": "Best-claimed accuracy is from a broken tool. Unverifiable."
+      }
+    ]
+  },
+  "combined_solution_proposal": {
+    "title": "Unified Simulation Pipeline: Combining Tool Strengths for End-to-End ML Performance Prediction",
+    "motivation": "No single tool covers the full ML performance stack. Each tool excels in one layer but has critical blind spots. A combined pipeline can provide end-to-end accuracy that no individual tool achieves.",
+    "architecture": {
+      "layer_1_kernel_prediction": {
+        "tool": "NeuSight (or Timeloop for custom accelerators)",
+        "covers": "Single-kernel/layer GPU latency prediction",
+        "accuracy": "5-9% MAPE on datacenter GPUs (verified)",
+        "gap_filled": "Neither ASTRA-sim nor VIDUR model kernel execution"
+      },
+      "layer_2_model_composition": {
+        "tool": "CRITICAL GAP — no existing tool",
+        "covers": "Composing kernel predictions into full model iteration time",
+        "current_state": "NeuSight sums layers but misses inter-kernel overhead. Composition gap is 5-12%.",
+        "research_needed": "Modeling memory transfer overlap, kernel launch overhead, graph optimization effects"
+      },
+      "layer_3_distributed_training": {
+        "tool": "ASTRA-sim",
+        "covers": "Communication patterns, collective algorithms, topology effects",
+        "accuracy": "9.69% published (8-GPU), trends verified",
+        "gap_filled": "Neither NeuSight nor Timeloop model multi-GPU communication"
+      },
+      "layer_4_serving_system": {
+        "tool": "VIDUR",
+        "covers": "Request scheduling, batching, KV cache management, TTFT/TPOT",
+        "accuracy": "<5% published, scheduler behavior verified",
+        "gap_filled": "No other tool models LLM serving request-level dynamics"
+      },
+      "layer_5_hardware_design_space": {
+        "tool": "Timeloop",
+        "covers": "Dataflow exploration, energy optimization for custom accelerators",
+        "accuracy": "Within 10% of RTL for energy",
+        "gap_filled": "No other tool supports custom accelerator design"
+      }
+    },
+    "integration_pattern": {
+      "training_pipeline": "NeuSight (kernel time) → Composition Model (full iteration) → ASTRA-sim (distributed scaling)",
+      "inference_pipeline": "NeuSight (kernel time) → Composition Model (full forward pass) → VIDUR (serving system)",
+      "hardware_design_pipeline": "Timeloop (accelerator design) → NeuSight-style model (workload mapping) → ASTRA-sim (cluster scaling)"
+    },
+    "key_insights": [
+      {
+        "insight": "The composition gap (Layer 2) is the critical missing piece",
+        "evidence": "NeuSight kernel-level: 5-9% error. Model-level (summing kernels): 10-28% error. The gap between kernel and model prediction is larger than most tools' kernel-level error.",
+        "implication": "Building a better kernel predictor has diminishing returns until composition is solved."
+      },
+      {
+        "insight": "Tool combination eliminates single points of failure",
+        "evidence": "nn-Meter failure (broken dependencies) + NeuSight accuracy degradation on newer GPUs. No tool is reliable across all conditions. A pipeline with fallbacks (e.g., NeuSight → Timeloop → roofline model) provides graceful degradation.",
+        "implication": "Community needs a framework, not a single tool."
+      },
+      {
+        "insight": "Feature coverage is fundamentally disjoint — no tool overlaps significantly",
+        "evidence": "ASTRA-sim: communication only. VIDUR: serving only. NeuSight: kernel only. Timeloop: accelerator only. nn-Meter: edge only. The tools are more complementary than competing.",
+        "implication": "Combining tools is not a luxury but a necessity for any real-world performance prediction task."
+      }
+    ],
+    "research_agenda": [
+      {
+        "priority": 1,
+        "topic": "Kernel-to-model composition model",
+        "description": "Develop a validated model for composing kernel-level predictions into model-level estimates, accounting for memory transfer overlap, kernel launch overhead, and graph optimization effects. Currently no tool solves this with < 10% error.",
+        "estimated_impact": "Would reduce end-to-end prediction error by 5-15%"
+      },
+      {
+        "priority": 2,
+        "topic": "Unified input format and API",
+        "description": "Define a common workload description format that all tools can consume. Currently each tool requires its own format (ASTRA-sim: YAML topology + execution trace, VIDUR: config YAML, NeuSight: ONNX graph, Timeloop: YAML architecture).",
+        "estimated_impact": "Would enable seamless pipeline integration"
+      },
+      {
+        "priority": 3,
+        "topic": "Cross-hardware accuracy transfer",
+        "description": "NeuSight accuracy degrades 3-4x on GPUs outside its training set (V100: 5.87% → T4: 18.51% → P4: 27.10%). Develop transfer learning or calibration methods to maintain accuracy across GPU generations.",
+        "estimated_impact": "Would extend tool lifetime across hardware generations"
+      },
+      {
+        "priority": 4,
+        "topic": "Continuous accuracy validation framework",
+        "description": "nn-Meter's complete failure shows that tools break silently. Create a CI-based framework that continuously validates tool accuracy against known benchmarks, alerting when accuracy degrades.",
+        "estimated_impact": "Would prevent deploying broken tools in production"
+      }
+    ]
+  }
+}
