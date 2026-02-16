@@ -1,0 +1,60 @@
+% Timeloop MTAP Evaluation Results — for integration into Section 7
+% Generated: 2026-02-16
+% Source: data/evaluation/timeloop-results/mtap_scorecard.json
+%
+% These results can be inserted into \subsection{Per-Tool Experimental Results}
+% as a new \textbf{Timeloop} block, paralleling the ASTRA-sim MTAP assessment.
+
+% --- D1: Prediction Fidelity Evidence ---
+% For use in \subsection{D1: Self-Reported Accuracy Analysis}
+
+% Timeloop claims energy estimates within 10\% of RTL simulation and
+% cycle-accurate latency at the memory buffer level, validated against
+% Eyeriss silicon~\cite{timeloop2019}. Reference outputs from the
+% timeloop-accelergy-exercises confirm expected patterns: DRAM dominates
+% energy at 61.8\% of total (5,469.65\,fJ/compute), consistent with the
+% Eyeriss finding that data movement costs vastly exceed computation.
+
+% --- D2: Compositional Fidelity Evidence ---
+% For use in \subsection{D2: Compositional Fidelity}
+
+% Timeloop operates at single-layer granularity, mapping one DNN layer
+% to a specified accelerator architecture. It does not compose multiple
+% layers into end-to-end inference, nor does it model system-level effects
+% (scheduling, multi-GPU communication, memory management). This structural
+% limitation means the composition gap $\gamma$ is not merely hard to
+% measure---it is absent from the tool's scope entirely.
+
+% --- Per-Tool Results Block ---
+
+\textbf{Timeloop: MTAP Assessment.}
+We evaluate Timeloop across all five MTAP dimensions using its Docker-based deployment and reference outputs from the timeloop-accelergy-exercises repository.
+We analyze ResNet-50 Conv1 on an Eyeriss-like architecture and cross-reference analytical estimates with provided reference outputs.
+
+\emph{D1 (Prediction Fidelity): Medium.}
+Published accuracy claims include energy within 10\% of RTL simulation and cycle-accurate latency at the memory buffer level, validated against Eyeriss silicon~\cite{timeloop2019}.
+Reference outputs show 75\% PE utilization and an energy breakdown where DRAM dominates at 61.8\% of total energy (5,469.65\,fJ/compute)---consistent with the dataflow optimization thesis that data movement costs dominate computation.
+Our analytical estimate of 5,500\,fJ/MAC for ResNet-50 Conv1 aligns with the reference figure, but we did not independently execute Timeloop simulations.
+
+\emph{D2 (Compositional Fidelity): Low.}
+Timeloop models individual DNN layer execution on a specified accelerator, computing energy and cycle counts for a single layer-to-hardware mapping.
+It does not compose multiple layers into end-to-end model inference, nor does it model system-level effects such as scheduling, multi-accelerator communication, or memory management across layers.
+The composition gap $\gamma$ is structurally absent: end-to-end prediction would require external orchestration (e.g., aggregating per-layer results), which Timeloop does not provide.
+
+\emph{D3 (Generalization): Medium.}
+Pre-defined layer shapes span 9+ architectures (AlexNet through GPT-2 and Phi-1.5) with accelerator templates including Eyeriss-like (row stationary), Simba-like (chiplet), and customizable designs.
+Docker images for both arm64 and amd64 provide strong temporal stability.
+However, Timeloop is restricted to spatial DNN accelerators---it cannot model GPUs, the dominant platform for training and inference---limiting its cross-hardware generalization.
+
+\emph{D4 (Deployment Viability): High.}
+Docker deployment completes in $<$15 minutes with pre-built images for arm64 (Apple Silicon) and amd64.
+A Jupyter notebook interface enables interactive exploration, and reference outputs for all exercises allow immediate result verification.
+Native Linux installation takes 1--2 hours; macOS is not supported natively.
+
+\emph{D5 (Extensibility): High.}
+YAML-based specifications for both architectures (memory hierarchy, PE array, dataflow) and workloads (layer dimensions, strides) enable rapid exploration.
+The built-in mapper automates design space search over tiling factors, loop orders, and spatial mappings.
+PyTorch extraction scripts convert trained models to Timeloop layer shapes, and Accelergy integration provides detailed energy modeling with plug-in extensibility.
+
+\emph{Composite score:} $S(\text{Timeloop}) = 0.4 \times 2 + 0.2 \times 1 + 0.2 \times 2 + 0.1 \times 3 + 0.1 \times 3 = 2.0$ (66.7\%).
+Timeloop's primary strengths are deployment viability and extensibility; its primary limitation is the absence of compositional fidelity---it evaluates individual layers, not end-to-end systems.

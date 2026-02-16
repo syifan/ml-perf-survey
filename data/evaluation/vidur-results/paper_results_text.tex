@@ -1,0 +1,58 @@
+% VIDUR MTAP Evaluation Results — for integration into Section 7
+% Generated: 2026-02-16
+% Source: data/evaluation/vidur-results/mtap_scorecard.json
+%
+% These results can be inserted into \subsection{Per-Tool Experimental Results}
+% as a new \textbf{VIDUR} block, paralleling the ASTRA-sim MTAP assessment.
+
+% --- D1: Prediction Fidelity Evidence ---
+% For use in \subsection{D1: Self-Reported Accuracy Analysis}
+
+% VIDUR claims $<$5\% error against real LLM serving traces, validated
+% against vLLM and TensorRT-LLM deployments~\cite{vidur2024}. We simulate
+% Llama-2-7B on a simulated A100 GPU with both vLLM (200 requests) and
+% Sarathi (50 requests) schedulers at QPS\,=\,2.0. Without A100 hardware, we
+% validate through internal consistency: Sarathi achieves 12.19\% lower
+% average E2E latency than vLLM (0.1575\,s vs.\ 0.1767\,s), consistent
+% with chunked prefill avoiding preemption overhead.
+
+% vLLM preempts 53 of 200 requests (26.5\%) while Sarathi preempts none,
+% exactly matching their algorithmic designs: PagedAttention enables
+% preemption, chunked prefill does not. The TPOT difference is only 3.46\%
+% (9.03\,ms vs.\ 9.35\,ms), consistent with decode being
+% scheduler-independent once requests are batched.
+
+% --- Per-Tool Results Block ---
+
+\textbf{VIDUR: MTAP Assessment.}
+We evaluate VIDUR across all five MTAP dimensions, simulating Llama-2-7B inference on a simulated A100 GPU with two scheduling algorithms (vLLM and Sarathi) at QPS\,=\,2.0 using synthetic requests.
+Both experiments complete successfully, producing request-level latency metrics (E2E, TTFT, TPOT), scheduling delay, preemption counts, and throughput.
+
+\emph{D1 (Prediction Fidelity): Medium.}
+Published accuracy is $<$5\% error against real vLLM and TensorRT-LLM serving traces~\cite{vidur2024}, but independent verification requires A100 hardware.
+Internal consistency is strong: Sarathi achieves 12.19\% lower average E2E latency than vLLM (0.1575\,s vs.\ 0.1767\,s), matching the expected benefit of chunked prefill over PagedAttention.
+vLLM preempts 26.5\% of requests while Sarathi preempts none, exactly matching their algorithmic designs.
+The TPOT difference is only 3.46\% (9.03\,ms vs.\ 9.35\,ms), consistent with decode being scheduler-independent once batched.
+
+\emph{D2 (Compositional Fidelity): Medium.}
+VIDUR composes ML-predicted per-operator execution times (trained on GPU profiling data) with a discrete-event scheduling simulation to produce end-to-end request latencies.
+Like ASTRA-sim, it sidesteps kernel-level prediction by using pre-profiled data from the target GPU---new hardware requires physical access for profiling.
+The composition gap $\gamma$ cannot be measured since the predictor is trained directly on hardware profiles rather than predicting from first principles.
+
+\emph{D3 (Generalization): Medium.}
+Pre-profiled configurations span 7 LLM architectures (Llama-2/3, CodeLlama, internlm, Qwen) across A100, H100, and A40 GPUs, with tensor and pipeline parallelism support.
+However, temporal stability is fragile: Python 3.10 is required (3.11+ breaks argparse), no Docker image is provided, and scikit-learn/wandb dependencies create version sensitivity.
+We tested only Llama-2-7B on simulated A100---cross-model and cross-hardware generalization remains unvalidated.
+
+\emph{D4 (Deployment Viability): Medium.}
+Setup takes $\sim$5 minutes via pip install, significantly faster than Docker-based tools.
+However, the strict Python~3.10 requirement, lack of Docker support, and wandb import dependency create deployment fragility.
+Deterministic outputs (with fixed seed) partially compensate, but CI integration requires careful Python version management.
+
+\emph{D5 (Extensibility): High.}
+Five production scheduling algorithms (vLLM, Orca, Sarathi, LightLLM, FasterTransformer) are implemented and switchable via CLI flag.
+A built-in config optimizer supports automated hyperparameter search for deployment tuning.
+The profiling pipeline for adding new models and GPUs is documented, and 20+ output metrics cover request-level (E2E, TTFT, TPOT) and system-level (batch size, memory, MFU) performance.
+
+\emph{Composite score:} $S(\text{VIDUR}) = 0.4 \times 2 + 0.2 \times 2 + 0.2 \times 2 + 0.1 \times 2 + 0.1 \times 3 = 2.1$ (70.0\%).
+VIDUR's primary strength is extensibility (5~schedulers, config optimizer); its primary weakness is deployment fragility (Python~3.10 only, no Docker).
