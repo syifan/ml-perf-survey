@@ -91,10 +91,12 @@ Hybrid approaches (NeuSight~\cite{neusight2025}) combine analytical structure wi
 Yet no prior work examines \emph{why} certain modeling approaches succeed on certain platforms, or how prediction errors propagate across the abstraction stack.
 Existing surveys focus on ML \emph{techniques} for modeling~\cite{granite2022} or specific hardware~\cite{timeloop2019}; this survey goes beyond cataloging tools to identify cross-cutting architectural principles that explain when and why different approaches work.
 
-We make four contributions:
+Our central methodological contribution is an \textbf{accuracy-centered independent verification framework} paired with an \textbf{LLM-focused benchmark suite}---a systematic approach that replaces the field's reliance on self-reported accuracy with reproducible, third-party evaluation.
+Where prior surveys reprint authors' own numbers, we deploy each tool from its public artifact and run our own experiments, revealing that claimed error rates are overstated by $2$--$4\times$.
+We make four specific contributions:
 \begin{itemize}
-    \item An \textbf{LLM-focused benchmark suite} of 28 scenarios covering training (data/tensor/pipeline parallelism, FP8, LoRA, MoE) and inference (serving, KV cache, speculative decoding, quantization), used to evaluate tool coverage---revealing that 50\% of scenarios have zero tool support (Section~\ref{sec:eval-framework}).
-    \item \textbf{Accuracy-centered independent evaluation} of five tools using our own experiments (146 GPU configurations, collective benchmarks, LLM serving simulations, energy validation), revealing that self-reported accuracy claims are overstated by $2$--$4\times$ and entirely unverifiable for the tool claiming the lowest error (Section~\ref{sec:eval-results}).
+    \item A \textbf{28-scenario LLM benchmark suite} spanning the full training and inference lifecycle (data/tensor/pipeline parallelism, FP8, LoRA, MoE, serving, KV cache, speculative decoding, quantization) that provides a standardized coverage criterion for evaluating any performance modeling tool---revealing that 50\% of scenarios have zero tool support (Section~\ref{sec:eval-framework}).
+    \item \textbf{Independent accuracy verification} of five tools through our own experiments (146 GPU configurations, collective benchmarks, LLM serving simulations, energy validation), demonstrating that self-reported accuracy claims are systematically overstated and entirely unverifiable for the tool claiming the lowest error (Section~\ref{sec:eval-results}).
     \item A \textbf{unified simulation pipeline} across five layers---kernel prediction, model composition, distributed training, LLM serving, and hardware design---identifying the kernel-to-model composition gap as the critical missing piece (Section~\ref{sec:unified-pipeline}).
     \item A \textbf{coverage matrix} exposing structural research gaps, with a \textbf{research agenda} centered on composition modeling, unified input formats, cross-hardware transfer, and continuous validation (Sections~\ref{sec:taxonomy},~\ref{sec:challenges}).
 \end{itemize}
@@ -433,7 +435,10 @@ ESM~\cite{esm2025} finds well-tuned random forests match deep learning surrogate
 \label{sec:eval-framework}
 
 Prior surveys reprint self-reported accuracy numbers using each tool's own benchmarks, making cross-tool comparison methodologically unsound: a tool reporting 2\% MAPE on GPU kernels solves a fundamentally different problem than one reporting 5\% on distributed training.
-We take a different approach: we define an \textbf{LLM-focused benchmark suite} representing concrete user needs for modern LLM training and inference, then evaluate each tool's capability against this suite through \textbf{accuracy-centered independent experiments}.
+We introduce a novel evaluation methodology---\textbf{accuracy-centered independent verification}---that addresses this gap through two components.
+First, an \textbf{LLM-focused benchmark suite} of 28 scenarios defines standardized coverage criteria representing concrete user needs for modern LLM training and inference.
+Second, \textbf{independent experiments} deploy each tool from its public artifact and measure accuracy under controlled conditions, replacing reliance on self-reported claims with reproducible third-party evaluation.
+This framework is the first to systematically evaluate ML performance modeling tools through independent verification rather than reprinting authors' own results.
 
 \textbf{Evaluation principle.}
 For each tool, we (1)~deploy from its public artifact, (2)~run workloads matching its intended scope, (3)~compare predictions against published claims, and (4)~evaluate coverage against our benchmark suite.
