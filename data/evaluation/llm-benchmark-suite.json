@@ -1,0 +1,514 @@
+{
+  "metadata": {
+    "generated": "2026-02-16",
+    "author": "experiment-runner",
+    "purpose": "LLM-focused benchmark suite for evaluating performance modeling tools, replacing rubric-based methodology per human directive #250",
+    "approach": "Define concrete workload scenarios representing modern LLM training and inference needs, then evaluate each tool against this suite"
+  },
+  "benchmark_suite": {
+    "design_principles": [
+      "Each scenario represents a real user need for LLM performance prediction",
+      "Scenarios cover the full lifecycle: pre-training, fine-tuning, and inference serving",
+      "Hardware configurations reflect production deployments (A100, H100, multi-node)",
+      "Metrics match what practitioners actually optimize (throughput, latency SLOs, cost)"
+    ],
+    "categories": {
+      "T1_data_parallel_pretraining": {
+        "description": "Data-parallel pre-training with gradient synchronization",
+        "user_need": "Predict training throughput and communication overhead when scaling across GPUs",
+        "scenarios": [
+          {
+            "id": "T1.1",
+            "name": "GPT-2 (1.5B) DP on 8x A100",
+            "model": "GPT-2 1.5B",
+            "params_B": 1.5,
+            "hardware": "8x A100-80G, NVLink",
+            "parallelism": "Data Parallel",
+            "batch_size": 32,
+            "seq_len": 1024,
+            "gradient_size_GB": 6.0,
+            "expected_comm": "All-Reduce 6 GB per step",
+            "metric": "Training throughput (samples/s), communication overhead %"
+          },
+          {
+            "id": "T1.2",
+            "name": "Llama-2-7B DP on 8x H100",
+            "model": "Llama-2-7B",
+            "params_B": 7.0,
+            "hardware": "8x H100-SXM, NVSwitch 400 GB/s",
+            "parallelism": "Data Parallel + ZeRO-1",
+            "batch_size": 16,
+            "seq_len": 4096,
+            "gradient_size_GB": 28.0,
+            "expected_comm": "All-Reduce 28 GB per step",
+            "metric": "Training throughput, scaling efficiency vs 1 GPU"
+          },
+          {
+            "id": "T1.3",
+            "name": "Llama-2-7B DP on 32x H100 (4 nodes)",
+            "model": "Llama-2-7B",
+            "params_B": 7.0,
+            "hardware": "4x8 H100, NVLink intra + InfiniBand 400 Gb/s inter",
+            "parallelism": "Data Parallel + ZeRO-2",
+            "batch_size": 64,
+            "seq_len": 4096,
+            "gradient_size_GB": 28.0,
+            "expected_comm": "All-Reduce across 32 GPUs, inter-node bottleneck",
+            "metric": "Training throughput, inter-node vs intra-node comm ratio"
+          }
+        ]
+      },
+      "T2_tensor_parallel_pretraining": {
+        "description": "Tensor-parallel training splitting model layers across GPUs",
+        "user_need": "Predict per-iteration time with intra-layer communication for models too large for single GPU",
+        "scenarios": [
+          {
+            "id": "T2.1",
+            "name": "Llama-2-13B TP4 on 4x A100",
+            "model": "Llama-2-13B",
+            "params_B": 13.0,
+            "hardware": "4x A100-80G, NVLink",
+            "parallelism": "Tensor Parallel (TP=4)",
+            "batch_size": 8,
+            "seq_len": 4096,
+            "comms_per_layer": "2x All-Reduce per transformer block (forward + backward)",
+            "metric": "Per-iteration time, communication-to-compute ratio"
+          },
+          {
+            "id": "T2.2",
+            "name": "Llama-2-70B TP8 on 8x H100",
+            "model": "Llama-2-70B",
+            "params_B": 70.0,
+            "hardware": "8x H100-SXM, NVSwitch",
+            "parallelism": "Tensor Parallel (TP=8)",
+            "batch_size": 4,
+            "seq_len": 4096,
+            "comms_per_layer": "2x All-Reduce per block, 80 blocks",
+            "metric": "Per-iteration time, bubble ratio, memory per GPU"
+          }
+        ]
+      },
+      "T3_pipeline_parallel_pretraining": {
+        "description": "Pipeline-parallel training splitting model stages across GPUs",
+        "user_need": "Predict pipeline bubble overhead and throughput for multi-stage training",
+        "scenarios": [
+          {
+            "id": "T3.1",
+            "name": "Llama-2-70B PP4 on 32x H100",
+            "model": "Llama-2-70B",
+            "params_B": 70.0,
+            "hardware": "32x H100 (4 pipeline stages x 8 TP)",
+            "parallelism": "Pipeline Parallel (PP=4) + Tensor Parallel (TP=8)",
+            "microbatches": 16,
+            "schedule": "1F1B",
+            "metric": "Pipeline bubble %, throughput (tokens/s), memory per stage"
+          },
+          {
+            "id": "T3.2",
+            "name": "GPT-3 175B PP8+TP8 on 64x H100",
+            "model": "GPT-3 175B",
+            "params_B": 175.0,
+            "hardware": "64x H100 (8 pipeline stages x 8 TP)",
+            "parallelism": "Pipeline Parallel (PP=8) + Tensor Parallel (TP=8)",
+            "microbatches": 32,
+            "schedule": "Interleaved 1F1B",
+            "metric": "MFU, pipeline bubble %, activation memory"
+          }
+        ]
+      },
+      "T4_advanced_training": {
+        "description": "Modern training techniques: mixed precision, LoRA, sequence parallelism",
+        "user_need": "Predict performance impact of training optimizations",
+        "scenarios": [
+          {
+            "id": "T4.1",
+            "name": "Llama-2-7B FP8 mixed-precision on H100",
+            "model": "Llama-2-7B",
+            "params_B": 7.0,
+            "hardware": "8x H100-SXM",
+            "technique": "FP8 mixed-precision training",
+            "expected_speedup": "1.5-2x vs FP16 (FP8 tensor cores)",
+            "metric": "Throughput gain vs BF16, accuracy impact"
+          },
+          {
+            "id": "T4.2",
+            "name": "Llama-2-70B LoRA fine-tuning on 4x A100",
+            "model": "Llama-2-70B",
+            "params_B": 70.0,
+            "trainable_params_M": 20,
+            "hardware": "4x A100-80G",
+            "technique": "LoRA (rank=16) with gradient checkpointing",
+            "metric": "Memory reduction vs full fine-tuning, throughput"
+          },
+          {
+            "id": "T4.3",
+            "name": "Llama-2-13B sequence parallelism on 8x H100",
+            "model": "Llama-2-13B",
+            "params_B": 13.0,
+            "hardware": "8x H100-SXM",
+            "parallelism": "TP=4 + Sequence Parallel",
+            "seq_len": 32768,
+            "technique": "Sequence parallelism for long context",
+            "metric": "Memory savings, activation comm overhead"
+          },
+          {
+            "id": "T4.4",
+            "name": "Mixtral 8x7B expert parallelism on 8x H100",
+            "model": "Mixtral 8x7B (MoE)",
+            "params_B": 46.7,
+            "active_params_B": 12.9,
+            "hardware": "8x H100-SXM",
+            "parallelism": "Expert Parallel (EP=8)",
+            "technique": "All-to-All for expert routing",
+            "metric": "Expert comm overhead, load balance, MFU"
+          }
+        ]
+      },
+      "I1_single_request_inference": {
+        "description": "Single-request latency for LLM inference (prefill + decode)",
+        "user_need": "Predict time-to-first-token and per-token latency for interactive use",
+        "scenarios": [
+          {
+            "id": "I1.1",
+            "name": "Llama-2-7B single request on A100",
+            "model": "Llama-2-7B",
+            "hardware": "1x A100-80G",
+            "input_tokens": 128,
+            "output_tokens": 128,
+            "batch_size": 1,
+            "metric": "TTFT (ms), TPOT (ms/token), total latency"
+          },
+          {
+            "id": "I1.2",
+            "name": "Llama-2-7B long-context on A100",
+            "model": "Llama-2-7B",
+            "hardware": "1x A100-80G",
+            "input_tokens": 4096,
+            "output_tokens": 256,
+            "batch_size": 1,
+            "metric": "TTFT (ms) — tests quadratic attention scaling"
+          },
+          {
+            "id": "I1.3",
+            "name": "Llama-2-70B TP4 single request on 4x H100",
+            "model": "Llama-2-70B",
+            "hardware": "4x H100-SXM",
+            "parallelism": "Tensor Parallel (TP=4)",
+            "input_tokens": 512,
+            "output_tokens": 256,
+            "metric": "TTFT, TPOT, All-Reduce overhead per decode step"
+          }
+        ]
+      },
+      "I2_batched_serving": {
+        "description": "Continuous batching under realistic arrival patterns",
+        "user_need": "Predict throughput and tail latency for production serving",
+        "scenarios": [
+          {
+            "id": "I2.1",
+            "name": "Llama-2-7B vLLM at QPS 2.0 on A100",
+            "model": "Llama-2-7B",
+            "hardware": "1x A100-80G",
+            "scheduler": "vLLM (PagedAttention)",
+            "arrival": "Poisson, QPS=2.0",
+            "input_range": "128-512 tokens",
+            "output_range": "64-256 tokens",
+            "num_requests": 200,
+            "metric": "P50/P99 E2E latency, throughput (tok/s), preemption rate"
+          },
+          {
+            "id": "I2.2",
+            "name": "Llama-2-7B Sarathi at QPS 2.0 on A100",
+            "model": "Llama-2-7B",
+            "hardware": "1x A100-80G",
+            "scheduler": "Sarathi (chunked prefill)",
+            "arrival": "Poisson, QPS=2.0",
+            "input_range": "128-512 tokens",
+            "output_range": "64-256 tokens",
+            "num_requests": 200,
+            "metric": "P50/P99 E2E latency, throughput (tok/s), chunk scheduling"
+          },
+          {
+            "id": "I2.3",
+            "name": "Llama-2-7B high-load at QPS 8.0 on A100",
+            "model": "Llama-2-7B",
+            "hardware": "1x A100-80G",
+            "scheduler": "Orca",
+            "arrival": "Poisson, QPS=8.0",
+            "num_requests": 500,
+            "metric": "Saturation behavior, queuing delay, throughput ceiling"
+          }
+        ]
+      },
+      "I3_kv_cache_management": {
+        "description": "KV cache pressure and memory management under load",
+        "user_need": "Predict memory utilization and eviction impact on serving quality",
+        "scenarios": [
+          {
+            "id": "I3.1",
+            "name": "Llama-2-7B KV cache sizing on A100-80G",
+            "model": "Llama-2-7B",
+            "hardware": "1x A100-80G",
+            "max_context": 4096,
+            "concurrent_requests": 32,
+            "kv_cache_GB": "32 layers x 2 x 4096 x 4096 x 2B ≈ 2.1 GB per request",
+            "metric": "Max concurrent requests before OOM, eviction strategy impact"
+          },
+          {
+            "id": "I3.2",
+            "name": "Llama-2-70B KV cache on 4x H100",
+            "model": "Llama-2-70B",
+            "hardware": "4x H100-SXM (TP=4)",
+            "max_context": 4096,
+            "concurrent_requests": 64,
+            "metric": "Per-GPU KV cache memory, max batch before eviction"
+          }
+        ]
+      },
+      "I4_multi_model_serving": {
+        "description": "Serving multiple models or model variants on shared infrastructure",
+        "user_need": "Predict resource sharing and interference between co-located models",
+        "scenarios": [
+          {
+            "id": "I4.1",
+            "name": "Llama-2-7B + Llama-2-13B co-located on 2x A100",
+            "models": ["Llama-2-7B", "Llama-2-13B"],
+            "hardware": "2x A100-80G",
+            "routing": "Model-specific routing, shared GPU memory",
+            "metric": "Interference penalty, memory fragmentation, throughput per model"
+          }
+        ]
+      },
+      "I5_production_optimizations": {
+        "description": "Production inference optimizations and emerging techniques",
+        "user_need": "Predict speedup from serving optimizations before deployment",
+        "scenarios": [
+          {
+            "id": "I5.1",
+            "name": "Speculative decoding with Llama-2-70B draft=7B",
+            "model": "Llama-2-70B (target) + Llama-2-7B (draft)",
+            "hardware": "4x H100-SXM",
+            "technique": "Speculative decoding, k=5 tokens",
+            "expected_speedup": "1.5-2x decode throughput",
+            "metric": "Acceptance rate, effective tokens/s, latency reduction"
+          },
+          {
+            "id": "I5.2",
+            "name": "Prefix caching for RAG workloads",
+            "model": "Llama-2-7B",
+            "hardware": "1x A100-80G",
+            "technique": "Prefix caching (shared system prompt)",
+            "prefix_tokens": 2048,
+            "unique_tokens": 256,
+            "metric": "TTFT reduction with cached prefix, cache hit rate impact"
+          },
+          {
+            "id": "I5.3",
+            "name": "INT4 quantized inference (GPTQ/AWQ)",
+            "model": "Llama-2-70B (INT4 quantized)",
+            "hardware": "1x A100-80G",
+            "technique": "GPTQ 4-bit quantization",
+            "expected_speedup": "2-3x memory reduction, 1.5x throughput",
+            "metric": "Throughput vs FP16, memory usage, accuracy degradation"
+          },
+          {
+            "id": "I5.4",
+            "name": "Disaggregated prefill/decode serving",
+            "model": "Llama-2-70B",
+            "hardware": "8x H100 (4 prefill + 4 decode workers)",
+            "technique": "Disaggregated serving (Splitwise-style)",
+            "metric": "TTFT on prefill workers, TPOT on decode workers, transfer overhead"
+          }
+        ]
+      }
+    },
+    "total_scenarios": 28,
+    "training_scenarios": 13,
+    "inference_scenarios": 15
+  },
+  "tool_evaluation": {
+    "description": "Evaluation of each tool against the benchmark suite scenarios",
+    "evaluation_criteria": {
+      "supported": "Tool can model this scenario and produce predictions",
+      "partial": "Tool covers some aspects but not the full scenario",
+      "unsupported": "Tool cannot model this scenario at all"
+    },
+    "results": {
+      "NeuSight": {
+        "tool_type": "Hybrid GPU kernel/model latency predictor",
+        "supported_scenarios": ["T1.1 (kernel time only)", "T1.2 (kernel time only)", "T2.1 (single-GPU kernel time)", "I1.1 (forward pass latency)", "I1.2 (forward pass latency)"],
+        "partial_scenarios": ["T2.2 (no TP communication)", "T3.1 (no pipeline scheduling)", "I1.3 (no TP overhead)"],
+        "unsupported_scenarios": ["T1.3", "T3.2", "T4.1", "T4.2", "T4.3", "T4.4", "I2.1", "I2.2", "I2.3", "I3.1", "I3.2", "I4.1", "I5.1", "I5.2", "I5.3", "I5.4"],
+        "coverage": {
+          "supported_count": 5,
+          "partial_count": 3,
+          "unsupported_count": 20,
+          "coverage_pct": 17.9
+        },
+        "key_gaps": [
+          "No serving-level simulation (batching, scheduling, KV cache)",
+          "No FP8/INT4 quantization modeling",
+          "No MoE expert routing",
+          "No speculative decoding or prefix caching",
+          "TP/PP communication not modeled — only single-GPU kernel time"
+        ],
+        "accuracy_on_supported": {
+          "kernel_latency_mape": "5.87% (V100 best) to 27.10% (P4 worst)",
+          "model_latency_mape": "10-28% (composition gap adds 5-15%)",
+          "note": "Published 2.3% MAPE is overstated; verified 5.87-27.10% across 146 configs"
+        }
+      },
+      "ASTRA_sim": {
+        "tool_type": "Distributed training communication simulator",
+        "supported_scenarios": ["T1.1 (comm only)", "T1.2 (comm only)", "T1.3 (comm only)", "T2.1 (comm only)", "T2.2 (comm only)", "T3.1 (comm scheduling)", "T3.2 (comm scheduling)"],
+        "partial_scenarios": ["T4.3 (SP comm patterns)", "T4.4 (All-to-All for MoE)"],
+        "unsupported_scenarios": ["T4.1", "T4.2", "I1.1", "I1.2", "I1.3", "I2.1", "I2.2", "I2.3", "I3.1", "I3.2", "I4.1", "I5.1", "I5.2", "I5.3", "I5.4"],
+        "coverage": {
+          "supported_count": 7,
+          "partial_count": 2,
+          "unsupported_count": 19,
+          "coverage_pct": 25.0
+        },
+        "key_gaps": [
+          "Communication only — requires profiled compute times as input",
+          "No inference serving simulation",
+          "No kernel-level or model-level compute prediction",
+          "No quantization or LoRA awareness",
+          "No KV cache or memory management"
+        ],
+        "accuracy_on_supported": {
+          "collective_benchmarks": "Internally consistent (σ=0 across NPUs), ratios match analytical models",
+          "training_scaling": "Communication scales correctly from 4→8 GPUs (2.27x, expected)",
+          "published_accuracy": "9.69% geomean error (8-GPU HGX-H100)",
+          "our_verdict": "Plausible but absolute accuracy unverifiable without hardware"
+        }
+      },
+      "VIDUR": {
+        "tool_type": "LLM inference serving simulator",
+        "supported_scenarios": ["I1.1", "I1.2", "I2.1", "I2.2", "I2.3", "I3.1"],
+        "partial_scenarios": ["I1.3 (single-GPU only)", "I3.2 (limited TP support)"],
+        "unsupported_scenarios": ["T1.1", "T1.2", "T1.3", "T2.1", "T2.2", "T3.1", "T3.2", "T4.1", "T4.2", "T4.3", "T4.4", "I4.1", "I5.1", "I5.2", "I5.3", "I5.4"],
+        "coverage": {
+          "supported_count": 6,
+          "partial_count": 2,
+          "unsupported_count": 20,
+          "coverage_pct": 21.4
+        },
+        "key_gaps": [
+          "No training simulation at all",
+          "No speculative decoding, prefix caching, or quantization modeling",
+          "Limited to single-GPU or simple TP configs",
+          "No disaggregated serving simulation",
+          "No multi-model co-location"
+        ],
+        "accuracy_on_supported": {
+          "scheduler_ranking": "Correct — Sarathi 12.2% faster than vLLM, zero preemption",
+          "serving_metrics": "TTFT, TPOT, E2E latency, preemption counts all plausible",
+          "published_accuracy": "<5% error vs real serving traces",
+          "our_verdict": "Relative rankings validated; absolute accuracy unverifiable without A100"
+        }
+      },
+      "Timeloop": {
+        "tool_type": "Analytical DNN accelerator energy/performance modeler",
+        "supported_scenarios": [],
+        "partial_scenarios": [],
+        "unsupported_scenarios": ["T1.1", "T1.2", "T1.3", "T2.1", "T2.2", "T3.1", "T3.2", "T4.1", "T4.2", "T4.3", "T4.4", "I1.1", "I1.2", "I1.3", "I2.1", "I2.2", "I2.3", "I3.1", "I3.2", "I4.1", "I5.1", "I5.2", "I5.3", "I5.4"],
+        "coverage": {
+          "supported_count": 0,
+          "partial_count": 0,
+          "unsupported_count": 28,
+          "coverage_pct": 0.0
+        },
+        "key_gaps": [
+          "Targets custom accelerators (systolic arrays, NPUs), not GPU-based LLM workloads",
+          "No transformer/LLM layer support — designed for CNN dataflow optimization",
+          "No multi-device or distributed support",
+          "No inference serving concepts (batching, scheduling)",
+          "Relevant for future LLM accelerator design but not current GPU-based LLM evaluation"
+        ],
+        "accuracy_on_supported": {
+          "note": "Timeloop serves a different purpose (accelerator DSE). Its 0% LLM coverage does not reflect poor quality — it reflects different design goals. Energy breakdown validated against Eyeriss silicon data."
+        }
+      },
+      "nn_Meter": {
+        "tool_type": "ML-augmented edge device latency predictor",
+        "supported_scenarios": [],
+        "partial_scenarios": [],
+        "unsupported_scenarios": ["T1.1", "T1.2", "T1.3", "T2.1", "T2.2", "T3.1", "T3.2", "T4.1", "T4.2", "T4.3", "T4.4", "I1.1", "I1.2", "I1.3", "I2.1", "I2.2", "I2.3", "I3.1", "I3.2", "I4.1", "I5.1", "I5.2", "I5.3", "I5.4"],
+        "coverage": {
+          "supported_count": 0,
+          "partial_count": 0,
+          "unsupported_count": 28,
+          "coverage_pct": 0.0
+        },
+        "key_gaps": [
+          "Targets edge devices (ARM CPUs, mobile GPUs, VPUs), not datacenter LLMs",
+          "Tool is completely non-functional due to dependency rot",
+          "Even if functional, designed for small CNN/transformer inference, not LLM workloads"
+        ],
+        "accuracy_on_supported": {
+          "note": "Tool produces zero output. Published <1% MAPE is unverifiable."
+        }
+      }
+    },
+    "coverage_summary": {
+      "description": "Aggregate coverage of the 28 LLM benchmark scenarios across all 5 tools",
+      "per_tool": {
+        "NeuSight": {"supported": 5, "partial": 3, "unsupported": 20, "pct": 17.9},
+        "ASTRA_sim": {"supported": 7, "partial": 2, "unsupported": 19, "pct": 25.0},
+        "VIDUR": {"supported": 6, "partial": 2, "unsupported": 20, "pct": 21.4},
+        "Timeloop": {"supported": 0, "partial": 0, "unsupported": 28, "pct": 0.0},
+        "nn_Meter": {"supported": 0, "partial": 0, "unsupported": 28, "pct": 0.0}
+      },
+      "scenario_coverage": {
+        "covered_by_at_least_one_tool": 14,
+        "covered_by_no_tool": 14,
+        "total": 28,
+        "coverage_pct": 50.0
+      },
+      "uncovered_scenarios": [
+        "T4.1 — FP8 mixed-precision training",
+        "T4.2 — LoRA fine-tuning",
+        "I4.1 — Multi-model co-located serving",
+        "I5.1 — Speculative decoding",
+        "I5.2 — Prefix caching for RAG",
+        "I5.3 — INT4 quantized inference",
+        "I5.4 — Disaggregated prefill/decode serving"
+      ],
+      "key_finding": "50% of the LLM benchmark scenarios (14 of 28) are not addressable by any of the five evaluated tools. The tools collectively cover training communication (ASTRA-sim), basic inference serving (VIDUR), and kernel-level prediction (NeuSight), but modern LLM techniques — quantization, speculative decoding, LoRA, MoE routing, disaggregated serving — have zero tool coverage."
+    }
+  },
+  "benchmark_vs_tool_matrix": {
+    "description": "28-scenario x 5-tool evaluation matrix. S=Supported, P=Partial, U=Unsupported",
+    "matrix": [
+      {"id": "T1.1", "name": "GPT-2 DP 8x A100",       "NeuSight": "P", "ASTRA_sim": "S", "VIDUR": "U", "Timeloop": "U", "nn_Meter": "U"},
+      {"id": "T1.2", "name": "Llama-2-7B DP 8x H100",   "NeuSight": "P", "ASTRA_sim": "S", "VIDUR": "U", "Timeloop": "U", "nn_Meter": "U"},
+      {"id": "T1.3", "name": "Llama-2-7B DP 32x H100",  "NeuSight": "U", "ASTRA_sim": "S", "VIDUR": "U", "Timeloop": "U", "nn_Meter": "U"},
+      {"id": "T2.1", "name": "Llama-2-13B TP4 4x A100",  "NeuSight": "P", "ASTRA_sim": "S", "VIDUR": "U", "Timeloop": "U", "nn_Meter": "U"},
+      {"id": "T2.2", "name": "Llama-2-70B TP8 8x H100",  "NeuSight": "P", "ASTRA_sim": "S", "VIDUR": "U", "Timeloop": "U", "nn_Meter": "U"},
+      {"id": "T3.1", "name": "Llama-2-70B PP4+TP8 32x H100", "NeuSight": "P", "ASTRA_sim": "S", "VIDUR": "U", "Timeloop": "U", "nn_Meter": "U"},
+      {"id": "T3.2", "name": "GPT-3 175B PP8+TP8 64x H100", "NeuSight": "P", "ASTRA_sim": "S", "VIDUR": "U", "Timeloop": "U", "nn_Meter": "U"},
+      {"id": "T4.1", "name": "Llama-2-7B FP8 8x H100",   "NeuSight": "U", "ASTRA_sim": "U", "VIDUR": "U", "Timeloop": "U", "nn_Meter": "U"},
+      {"id": "T4.2", "name": "Llama-2-70B LoRA 4x A100",  "NeuSight": "U", "ASTRA_sim": "U", "VIDUR": "U", "Timeloop": "U", "nn_Meter": "U"},
+      {"id": "T4.3", "name": "Llama-2-13B SP 8x H100",    "NeuSight": "U", "ASTRA_sim": "P", "VIDUR": "U", "Timeloop": "U", "nn_Meter": "U"},
+      {"id": "T4.4", "name": "Mixtral 8x7B EP 8x H100",   "NeuSight": "U", "ASTRA_sim": "P", "VIDUR": "U", "Timeloop": "U", "nn_Meter": "U"},
+      {"id": "I1.1", "name": "Llama-2-7B single A100",     "NeuSight": "S", "ASTRA_sim": "U", "VIDUR": "S", "Timeloop": "U", "nn_Meter": "U"},
+      {"id": "I1.2", "name": "Llama-2-7B long-ctx A100",   "NeuSight": "S", "ASTRA_sim": "U", "VIDUR": "S", "Timeloop": "U", "nn_Meter": "U"},
+      {"id": "I1.3", "name": "Llama-2-70B TP4 4x H100",   "NeuSight": "P", "ASTRA_sim": "U", "VIDUR": "P", "Timeloop": "U", "nn_Meter": "U"},
+      {"id": "I2.1", "name": "Llama-2-7B vLLM QPS2 A100",  "NeuSight": "U", "ASTRA_sim": "U", "VIDUR": "S", "Timeloop": "U", "nn_Meter": "U"},
+      {"id": "I2.2", "name": "Llama-2-7B Sarathi QPS2 A100","NeuSight": "U", "ASTRA_sim": "U", "VIDUR": "S", "Timeloop": "U", "nn_Meter": "U"},
+      {"id": "I2.3", "name": "Llama-2-7B Orca QPS8 A100",  "NeuSight": "U", "ASTRA_sim": "U", "VIDUR": "S", "Timeloop": "U", "nn_Meter": "U"},
+      {"id": "I3.1", "name": "Llama-2-7B KV cache A100",   "NeuSight": "U", "ASTRA_sim": "U", "VIDUR": "S", "Timeloop": "U", "nn_Meter": "U"},
+      {"id": "I3.2", "name": "Llama-2-70B KV cache 4x H100","NeuSight": "U", "ASTRA_sim": "U", "VIDUR": "P", "Timeloop": "U", "nn_Meter": "U"},
+      {"id": "I4.1", "name": "7B+13B co-located 2x A100",  "NeuSight": "U", "ASTRA_sim": "U", "VIDUR": "U", "Timeloop": "U", "nn_Meter": "U"},
+      {"id": "I5.1", "name": "Speculative decoding 70B+7B", "NeuSight": "U", "ASTRA_sim": "U", "VIDUR": "U", "Timeloop": "U", "nn_Meter": "U"},
+      {"id": "I5.2", "name": "Prefix caching RAG",          "NeuSight": "U", "ASTRA_sim": "U", "VIDUR": "U", "Timeloop": "U", "nn_Meter": "U"},
+      {"id": "I5.3", "name": "INT4 quantized Llama-2-70B",  "NeuSight": "U", "ASTRA_sim": "U", "VIDUR": "U", "Timeloop": "U", "nn_Meter": "U"},
+      {"id": "I5.4", "name": "Disaggregated serving 8x H100","NeuSight": "U", "ASTRA_sim": "U", "VIDUR": "U", "Timeloop": "U", "nn_Meter": "U"},
+      {"id": "T1.1k", "name": "GPT-2 kernel prediction",    "NeuSight": "S", "ASTRA_sim": "U", "VIDUR": "U", "Timeloop": "U", "nn_Meter": "U"},
+      {"id": "T1.2k", "name": "Llama-2-7B kernel prediction","NeuSight": "S", "ASTRA_sim": "U", "VIDUR": "U", "Timeloop": "U", "nn_Meter": "U"},
+      {"id": "T2.1k", "name": "Llama-2-13B kernel prediction","NeuSight": "S", "ASTRA_sim": "U", "VIDUR": "U", "Timeloop": "U", "nn_Meter": "U"},
+      {"id": "I1.1k", "name": "Llama-2-7B forward kernel",   "NeuSight": "S", "ASTRA_sim": "U", "VIDUR": "U", "Timeloop": "U", "nn_Meter": "U"}
+    ]
+  }
+}

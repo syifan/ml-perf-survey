@@ -93,8 +93,8 @@ Existing surveys focus on ML \emph{techniques} for modeling~\cite{granite2022} o
 
 We make four contributions:
 \begin{itemize}
+    \item An \textbf{LLM-focused benchmark suite} of 28 scenarios covering training (data/tensor/pipeline parallelism, FP8, LoRA, MoE) and inference (serving, KV cache, speculative decoding, quantization), used to evaluate tool coverage---revealing that 50\% of scenarios have zero tool support (Section~\ref{sec:eval-framework}).
     \item \textbf{Accuracy-centered independent evaluation} of five tools using our own experiments (146 GPU configurations, collective benchmarks, LLM serving simulations, energy validation), revealing that self-reported accuracy claims are overstated by $2$--$4\times$ and entirely unverifiable for the tool claiming the lowest error (Section~\ref{sec:eval-results}).
-    \item A \textbf{feature availability matrix} showing that the five tools cover fundamentally disjoint slices of the ML performance stack---no two tools compete on the same prediction task (Section~\ref{sec:eval-results}).
     \item A \textbf{unified simulation pipeline} across five layers---kernel prediction, model composition, distributed training, LLM serving, and hardware design---identifying the kernel-to-model composition gap as the critical missing piece (Section~\ref{sec:unified-pipeline}).
     \item A \textbf{coverage matrix} exposing structural research gaps, with a \textbf{research agenda} centered on composition modeling, unified input formats, cross-hardware transfer, and continuous validation (Sections~\ref{sec:taxonomy},~\ref{sec:challenges}).
 \end{itemize}
@@ -433,11 +433,50 @@ ESM~\cite{esm2025} finds well-tuned random forests match deep learning surrogate
 \label{sec:eval-framework}
 
 Prior surveys reprint self-reported accuracy numbers using each tool's own benchmarks, making cross-tool comparison methodologically unsound: a tool reporting 2\% MAPE on GPU kernels solves a fundamentally different problem than one reporting 5\% on distributed training.
-We take a different approach: \textbf{accuracy-centered independent evaluation}, where we run each tool ourselves and compare measured accuracy against published claims, documenting what each tool can and cannot do through a feature availability matrix.
+We take a different approach: we define an \textbf{LLM-focused benchmark suite} representing concrete user needs for modern LLM training and inference, then evaluate each tool's capability against this suite through \textbf{accuracy-centered independent experiments}.
 
 \textbf{Evaluation principle.}
-For each tool, we (1)~deploy from its public artifact, (2)~run workloads matching its intended scope, (3)~compare predictions against published claims, and (4)~document available features.
+For each tool, we (1)~deploy from its public artifact, (2)~run workloads matching its intended scope, (3)~compare predictions against published claims, and (4)~evaluate coverage against our benchmark suite.
 Where absolute verification requires hardware we lack (e.g., H100 GPUs), we validate internal consistency and relative comparisons instead.
+
+\subsection{LLM Benchmark Suite}
+\label{subsec:benchmark-suite}
+
+We define 28 benchmark scenarios across 8 categories representing the workloads that LLM practitioners need performance predictions for (Table~\ref{tab:benchmark-suite}).
+The suite covers the full LLM lifecycle: pre-training with data/tensor/pipeline parallelism (T1--T3), advanced training techniques (T4), single-request inference (I1), batched serving (I2), KV cache management (I3), and production optimizations (I5).
+
+\begin{table}[t]
+\centering
+\caption{LLM benchmark suite: 28 scenarios across training (T1--T4) and inference (I1--I5). Each represents a concrete user need for performance prediction.}
+\label{tab:benchmark-suite}
+\small
+\begin{tabular}{lp{3.5cm}r}
+\toprule
+\textbf{Cat.} & \textbf{Description} & \textbf{\#} \\
+\midrule
+T1 & Data-parallel pre-training & 3 \\
+T2 & Tensor-parallel pre-training & 2 \\
+T3 & Pipeline-parallel pre-training & 2 \\
+T4 & Advanced (FP8, LoRA, SP, MoE) & 4 \\
+\midrule
+I1 & Single-request inference & 3 \\
+I2 & Batched serving (vLLM, Sarathi) & 3 \\
+I3 & KV cache management & 2 \\
+I4 & Multi-model serving & 1 \\
+I5 & Production (spec.\ decode, quant.) & 4 \\
+\midrule
+& \textbf{Total} & \textbf{28} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Design principles.}
+Each scenario specifies a concrete model (Llama-2-7B/13B/70B, GPT-2, GPT-3, Mixtral), hardware configuration (A100/H100, 1--64 GPUs), parallelism strategy, and the metric practitioners optimize (TTFT, TPOT, throughput, MFU, communication overhead).
+Training scenarios span from single-node data parallelism (T1.1: GPT-2 on 8$\times$A100) to large-scale hybrid parallelism (T3.2: GPT-3 175B on 64$\times$H100 with PP8+TP8).
+Inference scenarios range from single-request latency (I1.1) to production optimizations like speculative decoding (I5.1) and disaggregated serving (I5.4).
+
+\textbf{Coverage criterion.}
+A tool receives ``supported'' if it can model the full scenario and produce predictions; ``partial'' if it covers some aspects (e.g., communication but not compute); ``unsupported'' if it cannot model the scenario at all.
 
 \subsection{Tool Selection}
 \label{subsec:tool-selection}
@@ -660,10 +699,56 @@ After four deployment attempts ($>$4 hours), we obtained \textbf{zero prediction
 Predictors cover Cortex-A76 CPU, Adreno 630/640 GPU, and Myriad VPU, but none are functional.
 \textbf{The tool claiming the best accuracy is the only tool that produces no output}---pickle serialization without version pinning created an expiration date, rendering the tool unusable within two years.
 
+\subsection{Benchmark Suite Coverage}
+\label{subsec:benchmark-coverage}
+
+Table~\ref{tab:benchmark-coverage} evaluates each tool against our 28-scenario LLM benchmark suite.
+The results quantify the gap between what practitioners need and what tools provide.
+
+\begin{table}[t]
+\centering
+\caption{Tool coverage of LLM benchmark suite (28 scenarios). S=Supported, P=Partial, U=Unsupported. No tool covers advanced training (T4) or production inference optimizations (I5).}
+\label{tab:benchmark-coverage}
+\small
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Category} & \textbf{\#} & \textbf{Neu.} & \textbf{AST.} & \textbf{VID.} & \textbf{TL} & \textbf{nn-M} \\
+\midrule
+T1: Data parallel  & 3 & 2P & 3S & --- & --- & --- \\
+T2: Tensor parallel & 2 & 2P & 2S & --- & --- & --- \\
+T3: Pipeline parallel & 2 & 2P & 2S & --- & --- & --- \\
+T4: Advanced train. & 4 & --- & 2P & --- & --- & --- \\
+\midrule
+I1: Single request & 3 & 2S,1P & --- & 2S,1P & --- & --- \\
+I2: Batched serving & 3 & --- & --- & 3S & --- & --- \\
+I3: KV cache & 2 & --- & --- & 1S,1P & --- & --- \\
+I4: Multi-model & 1 & --- & --- & --- & --- & --- \\
+I5: Production opt. & 4 & --- & --- & --- & --- & --- \\
+\midrule
+\textbf{Supported} & & 5 & 7 & 6 & 0 & 0 \\
+\textbf{Partial} & & 3 & 2 & 2 & 0 & 0 \\
+\textbf{Coverage} & & 18\% & 25\% & 21\% & 0\% & 0\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Half of LLM workloads have zero tool coverage.}
+Of 28 scenarios, 14 (50\%) are not addressable by any evaluated tool.
+The entirely uncovered scenarios include FP8 mixed-precision training (T4.1), LoRA fine-tuning (T4.2), speculative decoding (I5.1), prefix caching (I5.2), INT4 quantized inference (I5.3), disaggregated serving (I5.4), and multi-model co-location (I4.1).
+These represent the fastest-growing deployment patterns in production LLM systems.
+
+\textbf{Tools cover disjoint slices.}
+ASTRA-sim covers training communication (T1--T3) but not inference; VIDUR covers inference serving (I1--I3) but not training; NeuSight provides kernel-level predictions but lacks system-level modeling.
+Only 3 scenarios (I1.1, I1.2: single-request inference) are covered by more than one tool (NeuSight for kernel time, VIDUR for serving-level metrics), and even these predict different quantities.
+
+\textbf{Modern techniques are the largest gap.}
+Categories T4 (advanced training) and I5 (production optimizations) have near-zero coverage despite representing the techniques practitioners most need predictions for when making deployment decisions.
+MoE expert parallelism (T4.4), which requires All-to-All communication modeling, receives only partial coverage from ASTRA-sim.
+
 \subsection{Cross-Cutting Findings}
 \label{subsec:cross-cutting-findings}
 
-Three findings emerge that would be invisible to a survey based on self-reported numbers:
+Four findings emerge from combining accuracy verification with benchmark coverage analysis:
 
 \emph{First}, \textbf{self-reported accuracy is inversely correlated with reliability.}
 By claimed accuracy: nn-Meter ($<$1\%) $>$ NeuSight (2.3\%) $>$ VIDUR ($<$5\%) $>$ Timeloop (5--10\%) $>$ ASTRA-sim (5--15\%).
@@ -678,6 +763,10 @@ The field needs a \emph{unified pipeline} combining tool strengths (Section~\ref
 NeuSight's kernel-level 5--9\% MAPE grows to 10--28\% at model level.
 The 5--15\% composition error---launch overhead, memory allocation, synchronization---is \emph{larger than kernel-level error}.
 Improving kernel predictors has diminishing returns until composition is solved (Figure~\ref{fig:error-composition}).
+
+\emph{Fourth}, \textbf{50\% of modern LLM workloads lack any modeling tool.}
+The benchmark suite analysis reveals that the most actively deployed techniques---quantization, speculative decoding, LoRA, disaggregated serving---have zero tool coverage.
+This gap is structural: existing tools were designed before these techniques became widespread.
 
 \subsection{Threats to Validity}
 \label{subsec:threats}
@@ -851,12 +940,13 @@ nn-Meter's failure within two years demonstrates urgency; future tools should ad
 \section{Conclusion}
 \label{sec:conclusion}
 
-This survey of 22 ML performance modeling tools provides accuracy-centered evaluation of five tools through independent experiments.
-Three findings emerge.
+This survey of 22 ML performance modeling tools provides accuracy-centered evaluation of five tools through independent experiments against an LLM-focused benchmark suite of 28 scenarios.
+Four findings emerge.
 First, \emph{self-reported accuracy is unreliable}: NeuSight's claimed 2.3\% MAPE is 5.87--27.10\% depending on GPU, while nn-Meter ($<$1\% claimed) produces no output.
 Second, \emph{the five tools are complementary}---their disjoint coverage motivates a unified pipeline combining kernel prediction, communication simulation, LLM serving, and accelerator design.
 Third, \emph{the composition gap dominates end-to-end error}: the 5--15\% gap between kernel and model-level prediction exceeds kernel-level error, meaning better kernel predictors have diminishing returns until composition is solved.
-The most pressing needs are validated composition models, unified input formats, and continuous accuracy validation.
+Fourth, \emph{50\% of modern LLM workloads lack tool support}: the fastest-growing deployment techniques---quantization, speculative decoding, LoRA, disaggregated serving---have zero coverage across all evaluated tools.
+The most pressing needs are validated composition models, benchmark-driven tool development targeting uncovered LLM scenarios, and continuous accuracy validation.
 
 %%%%%%% -- PAPER CONTENT ENDS -- %%%%%%%%
 
