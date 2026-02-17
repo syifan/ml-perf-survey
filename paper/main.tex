@@ -494,12 +494,26 @@ Inference scenarios I1--I3 reflect the evolution from single-request latency (th
 I5 scenarios target production optimizations that no tool currently models but that dominate deployment decisions: speculative decoding can improve throughput by $2$--$3\times$ but requires modeling draft-target model interaction; disaggregated serving~\cite{splitwise2024} separates prefill and decode to different GPU pools, requiring inter-pool network modeling.
 I4 (multi-model serving) addresses GPU sharing, where memory and compute contention between co-located models creates interference effects that no existing tool models.
 
+\textbf{Concrete benchmark parameterization.}
+Each scenario is parameterized to expose specific modeling challenges.
+Training scenario T1.1 (GPT-2 on 8$\times$A100 with data parallelism) requires predicting AllReduce time for 354\,M parameters at fp16---a 708\,MB gradient exchange where ring bandwidth at NVLink speed determines whether communication overlaps with backward pass computation.
+T3.2 (GPT-3 175B on 64$\times$H100 with PP8+TP8) combines pipeline bubbles ($(P-1)/(\text{microbatches}+P-1)$ efficiency) with intra-node tensor-parallel AllReduce, requiring tools to model the interaction between pipeline scheduling and communication.
+Inference scenario I2.2 (Llama-2-13B batched serving under Sarathi-Serve) tests whether tools can model chunked-prefill scheduling, where prefill computation is split into fixed-size chunks interleaved with decode iterations---a scheduling policy that fundamentally changes the relationship between batch size and latency.
+I5.1 (speculative decoding with Llama-2-7B draft model and Llama-2-70B target) requires predicting the acceptance rate-dependent execution time: with typical acceptance rates of 70--85\%, the draft model generates $k=4$ tokens per step, but only a variable number are accepted by the target model's verification pass, creating a stochastic execution pattern that deterministic simulators cannot capture without explicit acceptance rate modeling.
+
 \textbf{Coverage criterion.}
 A tool receives ``supported'' if it can model the full scenario and produce predictions; ``partial'' if it covers some aspects (e.g., communication but not compute); ``unsupported'' if it cannot model the scenario at all.
 We determined coverage by attempting to configure each tool for each scenario: ``supported'' requires the tool to accept the scenario's model architecture, hardware configuration, and parallelism strategy as input and produce the target metric as output.
 ``Partial'' means the tool can model some component (e.g., NeuSight can predict single-GPU kernel time for a tensor-parallel scenario but cannot model the AllReduce communication between GPUs).
 Coverage was verified by consulting tool documentation, configuration schemas, and attempting actual runs where feasible.
 We did not consider post-hoc workarounds (e.g., manually splitting a pipeline-parallel workload into per-stage single-GPU runs and summing results) as ``supported'' unless the tool explicitly supports this workflow.
+
+\textbf{Coverage assessment methodology.}
+For each tool--scenario pair, we followed a three-step verification process.
+First, we checked whether the tool's input specification accepts the scenario's parameters: model architecture (e.g., Llama-2-70B for T3.2), hardware configuration (e.g., 64$\times$H100), and parallelism strategy (e.g., PP8+TP8).
+Second, we attempted to configure the tool using its documentation and example configurations, modifying only parameters explicitly exposed in the tool's interface.
+Third, we verified that the tool produces the scenario's target metric (e.g., TTFT for I2.2, MFU for T1.3) as a direct output rather than requiring manual post-processing.
+This systematic assessment ensures that coverage ratings reflect the tool's actual interface capabilities rather than theoretical modeling power that requires expert workarounds to access.
 
 \subsection{Tool Selection}
 \label{subsec:tool-selection}
@@ -669,6 +683,12 @@ This pattern confirms that NeuSight should be positioned as a \emph{kernel-level
 NeuSight's accuracy is sufficient for coarse-grained GPU selection (V100 vs.\ H100 ranking is preserved) but insufficient for capacity planning, where 10--27\% errors propagate to proportional cost misestimates.
 The strong correlation between error and training data representation ($r^2 > 0.7$ for MAPE vs.\ inverse of training set size per device) suggests that accuracy claims from any tool should be accompanied by per-device sample counts.
 
+\textbf{Benchmark suite coverage for NeuSight.}
+Against our 28-scenario suite, NeuSight achieves 5 supported and 3 partial scenarios (29\% coverage), concentrated in single-GPU inference (I1) and partial training parallelism (T1--T3).
+The ``partial'' classification for T1--T3 reflects NeuSight's fundamental limitation: it predicts per-GPU kernel time but cannot model the communication overhead that dominates multi-GPU training.
+For example, in scenario T2.1 (Llama-2-13B tensor-parallel on 4$\times$A100), NeuSight can predict the reduced per-GPU computation after tensor partitioning but cannot predict the AllReduce latency between GPUs that determines whether communication overlaps with computation.
+This makes NeuSight useful as a \emph{component} in a multi-tool pipeline but insufficient as a standalone predictor for any distributed scenario.
+
 \subsection{ASTRA-sim: Distributed Training Communication}
 \label{subsec:astrasim-results}
 
@@ -719,6 +739,11 @@ ASTRA-sim sidesteps kernel-level prediction by requiring profiled compute durati
 This design choice means the tool's claimed 9.69\% geomean error applies only to \emph{communication time prediction}, not total training time.
 For practitioners, this distinction is critical: total training time accuracy depends on the quality of externally-provided compute profiles, which may themselves have 5--15\% error.
 
+\textbf{Benchmark coverage implications.}
+Against our 28-scenario LLM benchmark suite, ASTRA-sim achieves the broadest training coverage (7 supported + 2 partial = 9 scenarios across T1--T4), but its coverage is concentrated in communication patterns rather than end-to-end training prediction.
+For scenario T1.1 (GPT-2 data-parallel on 8$\times$A100), ASTRA-sim can model the gradient AllReduce communication but requires externally profiled per-layer compute times---meaning it predicts communication overhead accurately but not total iteration time.
+For T4.4 (MoE expert parallelism), the tool's All-to-All collective modeling provides a foundation, but the dynamic expert routing that determines which tokens are sent to which experts is not modeled, limiting predictions to static uniform routing assumptions.
+
 \subsection{VIDUR: LLM Inference Serving}
 \label{subsec:vidur-results}
 
@@ -759,6 +784,12 @@ TPOT (time-per-output-token) is nearly identical (0.0093 vs.\ 0.0090\,s), confir
 The 53 preempted requests under vLLM (26.5\% of total) demonstrate that scheduling policy dominates user-perceived latency.
 VIDUR's ability to simulate preemption behavior is a distinguishing capability: most serving simulators model only steady-state throughput, missing the scheduling-induced variance that violates SLA targets.
 Absolute values require A100 hardware for verification.
+
+\textbf{Benchmark coverage for inference scenarios.}
+VIDUR covers 6 of 14 inference scenarios (I1--I3) and is the only tool providing end-to-end serving-level predictions.
+For scenario I2.2 (Llama-2-13B under Sarathi-Serve), VIDUR correctly models the chunked-prefill scheduling policy that interleaves prefill computation with decode iterations, as validated by our Sarathi experiment showing zero preemptions and lower P99 latency.
+However, for I3.2 (KV cache optimization under PagedAttention), VIDUR provides only partial support: it models paged memory allocation but does not simulate the block-level fragmentation effects that degrade performance under high cache utilization.
+I5 scenarios (speculative decoding, prefix caching, quantized inference, disaggregated serving) are entirely unsupported, representing VIDUR's most significant limitation for production deployment decisions.
 
 \subsection{Timeloop: Accelerator Energy/Performance}
 \label{subsec:timeloop-results}
@@ -838,13 +869,17 @@ The entirely uncovered scenarios include FP8 mixed-precision training (T4.1), Lo
 These represent the fastest-growing deployment patterns in production LLM systems.
 Sequence parallelism (T4.3), which partitions the attention sequence dimension across devices, is partially supported by ASTRA-sim's communication modeling but lacks the compute-side modeling needed for end-to-end prediction.
 
-\textbf{Tools cover disjoint slices.}
+\textbf{Tools cover disjoint slices with minimal overlap.}
 ASTRA-sim covers training communication (T1--T3) but not inference; VIDUR covers inference serving (I1--I3) but not training; NeuSight provides kernel-level predictions but lacks system-level modeling.
 Only 3 scenarios (I1.1, I1.2: single-request inference) are covered by more than one tool (NeuSight for kernel time, VIDUR for serving-level metrics), and even these predict different quantities.
+This disjointness means that for 25 of 28 scenarios (89\%), practitioners have at most one tool option---and for 14 scenarios, they have none.
+The practical consequence is that no single tool can answer end-to-end deployment questions like ``What throughput will Llama-2-70B achieve on 32$\times$H100 with tensor parallelism under Sarathi-Serve at QPS~8?''---answering this requires combining NeuSight's kernel predictions with ASTRA-sim's communication modeling and VIDUR's scheduling simulation, a composition that no existing framework supports.
 
 \textbf{Modern techniques are the largest gap.}
 Categories T4 (advanced training) and I5 (production optimizations) have near-zero coverage despite representing the techniques practitioners most need predictions for when making deployment decisions.
 MoE expert parallelism (T4.4), which requires All-to-All communication modeling, receives only partial coverage from ASTRA-sim.
+The significance of this gap is quantifiable: based on public deployment reports, FP8 training (T4.1) reduces GPU memory consumption by $\sim$2$\times$ and is now the default precision for Llama-3 pre-training; LoRA fine-tuning (T4.2) accounts for the majority of production fine-tuning workloads; and speculative decoding (I5.1) is deployed in production at multiple LLM serving providers.
+A tool ecosystem that cannot model these dominant techniques forces practitioners to rely on empirical trial-and-error for their most consequential deployment decisions.
 
 \textbf{Per-scenario gap analysis.}
 The 14 entirely uncovered scenarios cluster into three groups.
@@ -852,16 +887,31 @@ The 14 entirely uncovered scenarios cluster into three groups.
 \emph{Inference-side gaps} (I5.1--I5.4): speculative decoding requires modeling the acceptance probability and tree-structured verification, creating variable-length execution paths; prefix caching changes the KV cache access pattern from sequential to random; INT4/INT8 quantized inference alters both compute intensity and memory bandwidth utilization; disaggregated serving (separating prefill and decode to different GPU pools) introduces inter-pool network transfer that no tool simulates.
 \emph{Multi-model gaps} (I4.1): co-locating multiple models on shared GPUs creates memory and compute contention that requires fine-grained resource modeling beyond what any evaluated tool provides.
 
+\textbf{Failure mode taxonomy for uncovered scenarios.}
+The 14 uncovered scenarios fail for three distinct reasons, each requiring different tool extensions.
+\emph{Missing algorithmic primitives}: speculative decoding (I5.1) and prefix caching (I5.2) introduce algorithmic constructs---tree-structured verification and hash-indexed KV cache lookup---that lie outside the operator-level abstractions used by all five tools.
+Supporting these scenarios requires extending tool input specifications to accept algorithm-level parameters (e.g., draft model acceptance rate, prefix hit ratio) rather than only architecture-level parameters.
+\emph{Missing hardware models}: FP8 training (T4.1) and INT4 inference (I5.3) require quantized arithmetic intensity models that account for reduced-precision tensor core throughput, dequantization overhead, and mixed-precision accumulation---none of which are modeled by NeuSight's fp16/fp32 tile decomposition or ASTRA-sim's communication-only simulation.
+\emph{Missing system-level interactions}: disaggregated serving (I5.4) and multi-model co-location (I4.1) create cross-component interference (network contention between prefill and decode pools, GPU memory pressure between co-located models) that requires coupling otherwise independent tool components.
+
 \textbf{Coverage concentration.}
 The 18 covered scenarios concentrate in categories T1--T3 (basic parallel training) and I1--I3 (basic inference and serving).
 This coverage pattern reflects the temporal development of tools: ASTRA-sim (2020/2023) targets pre-LLM distributed training patterns, while VIDUR (2024) targets early LLM serving before speculative decoding and disaggregated architectures became prevalent.
 The field's tool development lags deployment practice by 1--2 years.
+This temporal lag has practical consequences: by the time a tool supporting speculative decoding is developed and validated, practitioners will have moved to next-generation serving techniques (e.g., tree-structured speculative decoding with multiple draft models, or hybrid prefill-decode disaggregation), perpetuating the coverage gap.
+Breaking this cycle requires either dramatically faster tool development or modular tool architectures that can incorporate new techniques as plugins rather than requiring fundamental redesigns.
 
 \textbf{Aggregate coverage by tool.}
 Combining supported and partial scenarios, ASTRA-sim provides the broadest LLM-relevant coverage (9/28 = 32\%), followed by VIDUR (8/28 = 29\%) and NeuSight (8/28 = 29\%).
 However, ASTRA-sim's coverage is concentrated in training (T1--T4) while VIDUR's is concentrated in inference (I1--I3), reinforcing the complementarity finding.
 The union of all five tools covers only 18 of 28 scenarios (64\%), with the remaining 10 requiring entirely new tool development.
 Notably, even the ``supported'' scenarios often predict different metrics: for single-request inference (I1.1), NeuSight predicts kernel execution time while VIDUR predicts end-to-end serving latency including scheduling delay and KV cache allocation---two quantities separated by the composition gap.
+
+\textbf{Coverage quality varies within ``supported'' scenarios.}
+Even among the 18 covered scenarios, support quality is uneven.
+For T1.1 (data-parallel GPT-2 on 8$\times$A100), NeuSight provides only per-GPU kernel time (partial) while ASTRA-sim provides full communication modeling (supported)---but neither tool produces the end-to-end iteration time that practitioners optimize.
+For I2.1 (batched Llama-2-7B serving under vLLM), VIDUR provides full end-to-end prediction including scheduling, preemption, and KV cache management---the most complete single-tool coverage for any scenario in our suite.
+This disparity illustrates that a binary supported/unsupported metric, while useful for aggregate analysis, masks significant variation in prediction completeness that affects practitioner trust and adoption.
 
 \subsection{Cross-Cutting Findings}
 \label{subsec:cross-cutting-findings}
@@ -892,6 +942,7 @@ NeuSight (hybrid ML+analytical) required manual environment setup and produced c
 nn-Meter (pure ML-augmented) failed entirely.
 Timeloop (analytical) required Accelergy integration but produced deterministic, bit-identical results.
 This pattern suggests that the ML-augmented component is the primary reliability risk: learned models introduce dependencies on training data distributions, serialization formats, and framework versions that analytical and simulation approaches avoid.
+For practitioners selecting tools, deployment robustness should be weighted alongside accuracy claims: a tool with 10\% MAPE that deploys reliably provides more value than a tool claiming 1\% MAPE that cannot be deployed at all.
 
 \emph{Sixth}, \textbf{inference and training accuracy diverge systematically.}
 Across NeuSight's 146 configurations, inference accuracy (mean MAPE: 5.87--27.10\% depending on device) is consistently better than training accuracy for NVIDIA GPUs (V100: 5.87\% inf vs.\ 8.91\% train; A100-80G: 8.63\% inf vs.\ 7.59\% train is the only exception).
@@ -904,6 +955,13 @@ The divergence is particularly stark for AMD GPUs, where the ROCm software stack
 NeuSight's per-model MAPE across all devices shows that MoE architectures (SwitchXL4: 6.33--17.65\% APE range across configurations) exhibit higher variance than dense models (OPT-13B: 0.38--10.53\%; GPT-3-2.7B: 0.43--7.73\%).
 The higher variance for MoE arises because expert routing creates workload-dependent computation patterns that a static tile decomposition cannot fully capture.
 This observation extends to future tools: MoE, sparse attention, and dynamic architectures will likely require workload-aware prediction mechanisms rather than architecture-only models.
+
+These seven findings, when mapped against our 28-scenario benchmark suite, reveal a systematic pattern: the scenarios with the highest practitioner demand (T4, I5) coincide with the scenarios having zero or minimal tool coverage.
+Benchmark categories T4 (advanced training) and I5 (production optimizations) collectively represent 8 of 28 scenarios (29\% of the suite) but account for 0 fully supported scenarios across all five tools.
+Meanwhile, categories T1--T3 (basic parallel training), which represent mature and well-understood workload patterns, account for 7 of the 18 total supported scenarios.
+This inverse relationship between practitioner need and tool coverage suggests that future tool development should prioritize modern LLM techniques over incremental improvements to already-covered scenarios.
+Concretely, a tool achieving even 20\% MAPE on speculative decoding (I5.1) or disaggregated serving (I5.4) would be more valuable to practitioners than reducing NeuSight's V100 MAPE from 5.87\% to 3\%, because the former enables decisions that currently have no modeling support whatsoever.
+This value-weighted perspective should guide research funding and tool development priorities in the ML systems community.
 
 \subsection{Deployment Experience and Reproducibility}
 \label{subsec:deployment-experience}
@@ -934,6 +992,7 @@ VIDUR and ASTRA-sim, both Docker-first tools, deployed in under 30 minutes with 
 Timeloop required partial manual setup for its Accelergy energy estimation plugin but produced results within one hour.
 NeuSight required manual Python environment configuration and model weight downloads but eventually succeeded.
 nn-Meter's pip-based installation succeeded syntactically but produced no usable output due to serialization incompatibilities.
+This represents the worst deployment outcome: silent success at install time masking complete failure at inference time, with no diagnostic error message until the user attempts to load a predictor---a failure pattern that undermines trust in the broader ML-augmented tool ecosystem.
 
 \textbf{Determinism varies by methodology.}
 All evaluated tools except nn-Meter (which produced no output) generated bit-identical results across three independent runs on the same platform.
@@ -954,6 +1013,9 @@ Findings rest on single tool instances per methodology type---e.g., nn-Meter may
 NeuSight's analysis uses the tool's own prediction/label pairs rather than independent hardware measurements.
 The per-device sample sizes vary (3--18 configurations), limiting statistical power for devices with few data points (e.g., P4 with only 3 configurations, A100-SXM with 3 configurations).
 We mitigate this by reporting both mean and worst-case APE.
+Our benchmark suite covers 28 scenarios, but the distribution is not uniform: training scenarios (11) outnumber inference scenarios (13), with MoE and multi-model scenarios (T4.4, I4.1) represented by only one scenario each.
+A more balanced suite might weight scenarios by practitioner frequency of use, but such weighting data is not publicly available.
+Despite these limitations, our suite provides the first standardized coverage metric for ML performance tools, enabling future evaluations to quantitatively compare tool ecosystems.
 
 \textbf{Construct validity.}
 Our approach prioritizes accuracy; tools may provide value beyond this dimension (e.g., Timeloop's energy breakdown for design insight, ASTRA-sim's what-if analysis for topology exploration).
@@ -967,6 +1029,12 @@ Tools under active development (ASTRA-sim, VIDUR, NeuSight) may have addressed s
 However, our core findings about structural coverage gaps and accuracy overstatement reflect fundamental design choices rather than fixable bugs, and are likely to persist across versions.
 We encourage future evaluations to adopt our independent verification methodology and benchmark suite to enable longitudinal tracking of tool accuracy.
 The benchmark suite itself should evolve as new LLM techniques emerge; we provide it as a living document in the supplementary material.
+
+\textbf{Benchmark suite validity.}
+Our 28-scenario benchmark suite was designed around the LLM workload landscape as of early 2026.
+Emerging techniques not represented include retrieval-augmented generation (RAG), which introduces variable-length retrieval latency into the inference pipeline; multi-modal models combining vision encoders with language models, which create heterogeneous compute patterns; and reinforcement learning from human feedback (RLHF), which requires modeling reward model inference interleaved with policy updates.
+We designed the suite to be extensible: each scenario is specified by a tuple of (model architecture, hardware configuration, parallelism strategy, target metric), allowing new scenarios to be added as techniques mature without restructuring the evaluation framework.
+Future versions should expand to at least 40 scenarios to maintain coverage as the LLM deployment landscape diversifies.
 
 % ==============================================================================
 % UNIFIED SIMULATION PIPELINE
