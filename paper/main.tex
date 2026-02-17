@@ -733,7 +733,7 @@ Realizing this pipeline requires: (a)~a common workload format (currently each t
 \section{Open Challenges and Future Directions}
 \label{sec:challenges}
 
-Our evaluation exposes five research directions grounded in empirical gaps.
+Our evaluation exposes six research directions grounded in empirical gaps.
 
 \textbf{1. Bridging the composition gap.}
 The composition problem (Figure~\ref{fig:error-composition}) is the field's most pressing challenge.
@@ -837,11 +837,17 @@ The temporal validation lag is closing for transformers but remains wide: MoE, d
 Cross-family transfer (GPU$\rightarrow$TPU$\rightarrow$PIM) remains unsolved despite meta-learning (HELP) and feature-based transfer (LitePred).
 PIM~\cite{upimulator2024,attacc2024,neupims2024,paise2025}, chiplets, and disaggregated designs blur memory hierarchy assumptions.
 
-\textbf{4. Standardized evaluation infrastructure.}
+\textbf{4. Network simulation fidelity.}
+ASTRA-sim and TrioSim~\cite{triosim2025} model networks using analytical ring and tree abstractions, omitting packet-level dynamics such as congestion, adaptive routing, and tail-latency effects.
+Detailed simulators (NS-3~\cite{ns3_2010}, OMNeT++) capture these phenomena but impose orders-of-magnitude slowdown that limits scalability studies.
+The critical open question is \emph{when} packet-level fidelity matters: collective communication patterns at scale may exhibit congestion behaviors invisible to analytical models, yet for many parallelism strategies the simpler abstractions may suffice.
+Quantifying this accuracy--speed trade-off for representative ML workloads remains an unexplored research gap.
+
+\textbf{5. Standardized evaluation infrastructure.}
 No MLPerf~\cite{mlperf_training2020,mlperf_inference2020} equivalent exists for performance \emph{prediction}.
 The community needs common benchmarks, shared platforms, and standardized reporting; portable formats (ONNX, Chakra~\cite{chakra2023}) and Docker-first deployment are prerequisites.
 
-\textbf{5. Temporal stability.}
+\textbf{6. Temporal stability.}
 Software stack evolution (FlashAttention~\cite{flashattention2022}, CUDA updates) silently invalidates models.
 nn-Meter's failure within two years demonstrates urgency; future tools should adopt continuous validation~\cite{mlperfpower2025}.
 
