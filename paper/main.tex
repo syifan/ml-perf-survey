@@ -185,20 +185,8 @@ TLP~\cite{tlp2023} & GPU & M & Tensor program & $<$10\% & ms & Transformer cost 
 \section{Evaluation Methodology}
 \label{sec:eval-framework}
 
-Prior surveys reprint self-reported accuracy numbers using each tool's own benchmarks, making cross-tool comparison methodologically unsound: a tool reporting 2\% MAPE on GPU kernels solves a fundamentally different problem than one reporting 5\% on distributed training.
-We introduce a novel evaluation methodology---\textbf{accuracy-centered independent verification}---that addresses this gap through two components.
-First, an \textbf{LLM-focused benchmark suite} of 28 scenarios defines standardized coverage criteria representing concrete user needs for modern LLM training and inference.
-Second, \textbf{independent experiments} deploy each tool from its public artifact and measure accuracy under controlled conditions, replacing reliance on self-reported claims with reproducible third-party evaluation.
-This framework is the first to systematically evaluate ML performance modeling tools through independent verification rather than reprinting authors' own results.
-
-\textbf{Evaluation principle.}
-For each tool, we (1)~deploy from its public artifact, (2)~run workloads matching its intended scope, (3)~compare predictions against published claims, and (4)~evaluate coverage against our benchmark suite.
-Where absolute verification requires hardware we lack (e.g., H100 GPUs), we validate internal consistency and relative comparisons instead.
-
-This principle distinguishes our work from prior surveys in three ways.
-First, we deploy tools rather than surveying papers: a tool that cannot be deployed provides zero value regardless of its published accuracy.
-Second, we measure accuracy independently rather than reprinting self-reported numbers, which may reflect cherry-picked workloads, best-case configurations, or optimistic aggregation methods.
-Third, we evaluate each tool against the \emph{same} benchmark suite rather than each tool's preferred benchmarks, enabling meaningful cross-tool comparison.
+Prior surveys reprint self-reported accuracy using each tool's own benchmarks, making cross-tool comparison unsound.
+We introduce \textbf{accuracy-centered independent verification}: an \textbf{LLM benchmark suite} of 28 scenarios (Sec.~\ref{subsec:benchmark-suite}) defines standardized coverage, while \textbf{independent experiments} deploy each tool from its public artifact and measure accuracy under controlled conditions---replacing self-reported claims with reproducible third-party evaluation.
 
 \subsection{LLM Benchmark Suite}
 \label{subsec:benchmark-suite}
@@ -238,12 +226,8 @@ Training scenarios span from single-node data parallelism (T1.1: GPT-2 on 8$\tim
 Inference scenarios range from single-request latency (I1.1) to production optimizations like speculative decoding (I5.1) and disaggregated serving (I5.4).
 
 \textbf{Scenario selection rationale.}
-The 28 scenarios were selected to reflect real deployment decisions.
-Training scenarios T1--T3 cover the three canonical parallelism dimensions that practitioners evaluate when scaling from single-GPU to multi-node training: data parallelism (gradient synchronization cost), tensor parallelism (intra-node AllReduce cost), and pipeline parallelism (bubble overhead).
-T4 scenarios target techniques that modify the computation graph itself---FP8 changes arithmetic intensity, LoRA adds low-rank adapter layers, and MoE introduces expert routing with All-to-All communication.
-Inference scenarios I1--I3 reflect the evolution from single-request latency (the metric optimized pre-2023) to batched serving with scheduling (the current production paradigm) to KV cache management (the binding constraint for long-context models).
-I5 scenarios target production optimizations that no tool currently models but that dominate deployment decisions: speculative decoding can improve throughput by $2$--$3\times$ but requires modeling draft-target model interaction; disaggregated serving~\cite{splitwise2024} separates prefill and decode to different GPU pools, requiring inter-pool network modeling.
-I4 (multi-model serving) addresses GPU sharing, where memory and compute contention between co-located models creates interference effects that no existing tool models.
+Training scenarios T1--T3 cover the three canonical parallelism dimensions (data, tensor, pipeline); T4 targets computation-graph modifications (FP8, LoRA, MoE).
+Inference scenarios span single-request latency (I1) through batched serving (I2), KV cache management (I3), multi-model GPU sharing (I4), and production optimizations like speculative decoding and disaggregated serving~\cite{splitwise2024} (I5).
 
 \textbf{Concrete benchmark parameterization.}
 Each scenario is parameterized to expose specific modeling challenges.
@@ -256,15 +240,7 @@ I5.1 (speculative decoding with Llama-2-7B draft model and Llama-2-70B target) r
 A tool receives ``supported'' if it can model the full scenario and produce predictions; ``partial'' if it covers some aspects (e.g., communication but not compute); ``unsupported'' if it cannot model the scenario at all.
 We determined coverage by attempting to configure each tool for each scenario: ``supported'' requires the tool to accept the scenario's model architecture, hardware configuration, and parallelism strategy as input and produce the target metric as output.
 ``Partial'' means the tool can model some component (e.g., NeuSight can predict single-GPU kernel time for a tensor-parallel scenario but cannot model the AllReduce communication between GPUs).
-Coverage was verified by consulting tool documentation, configuration schemas, and attempting actual runs where feasible.
-We did not consider post-hoc workarounds (e.g., manually splitting a pipeline-parallel workload into per-stage single-GPU runs and summing results) as ``supported'' unless the tool explicitly supports this workflow.
-
-\textbf{Coverage assessment methodology.}
-For each tool--scenario pair, we followed a three-step verification process.
-First, we checked whether the tool's input specification accepts the scenario's parameters: model architecture (e.g., Llama-2-70B for T3.2), hardware configuration (e.g., 64$\times$H100), and parallelism strategy (e.g., PP8+TP8).
-Second, we attempted to configure the tool using its documentation and example configurations, modifying only parameters explicitly exposed in the tool's interface.
-Third, we verified that the tool produces the scenario's target metric (e.g., TTFT for I2.2, MFU for T1.3) as a direct output rather than requiring manual post-processing.
-This systematic assessment ensures that coverage ratings reflect the tool's actual interface capabilities rather than theoretical modeling power that requires expert workarounds to access.
+Coverage was verified by consulting tool documentation, configuration schemas, and attempting actual runs where feasible; post-hoc workarounds were not counted as ``supported.''
 
 \subsection{Tool Selection}
 \label{subsec:tool-selection}
@@ -301,22 +277,9 @@ For nn-Meter, we attempted deployment from the published pip package and documen
 \subsection{Limitations}
 \label{subsec:eval-limitations}
 
-Our platform lacks discrete GPUs, preventing absolute accuracy verification for GPU-targeting tools.
-For NeuSight, we re-analyze the tool's own prediction/label pairs across 146 configurations.
-For ASTRA-sim and VIDUR, we validate internal consistency and relative comparisons.
-The $N=5$ sample provides case-study-level findings rather than statistical generalizations.
-
-\textbf{What our evaluation can and cannot show.}
-Our approach verifies three properties: (1)~\emph{claim reproducibility}---whether published accuracy numbers are achievable from the tool's own artifacts; (2)~\emph{internal consistency}---whether tool outputs obey expected mathematical relationships (e.g., Reduce-Scatter $\approx$ 0.5$\times$ All-Reduce); (3)~\emph{relative ranking}---whether tools correctly rank configurations (e.g., Sarathi vs.\ vLLM serving latency).
-Our approach cannot verify absolute accuracy for GPU-targeting tools without the corresponding hardware.
-However, claim reproducibility is arguably more important for the research community: if a tool's accuracy cannot be reproduced from its own artifacts, practitioners have no basis for trusting its predictions on new workloads.
-
-\textbf{Generalizability of per-tool findings.}
-Each tool was evaluated on workloads within its intended scope.
-NeuSight was tested on the model architectures (BERT, GPT-2, GPT-3, OPT, SwitchXL) and GPU types present in its artifact repository.
-ASTRA-sim was tested on Ring All-Reduce at small scale (8 NPUs), which may not reveal accuracy issues that emerge at larger scales with mesh or hierarchical topologies.
-VIDUR was tested on a single model (Llama-2-7B) at moderate load (QPS 2.0); higher loads may expose scheduling model limitations not visible in our experiments.
-Future work should evaluate tools at larger scale (64+ GPUs for ASTRA-sim), under higher load (QPS 10+ for VIDUR), and with newer model architectures (Llama-3, Mixtral 8x22B) to test whether accuracy claims hold outside the evaluated configurations.
+Our platform lacks discrete GPUs, so we verify \emph{claim reproducibility} (whether published accuracy is achievable from a tool's own artifacts), \emph{internal consistency} (e.g., Reduce-Scatter $\approx$ 0.5$\times$ All-Reduce), and \emph{relative ranking} (e.g., Sarathi vs.\ vLLM latency) rather than absolute accuracy.
+The $N=5$ sample provides case-study-level findings; each tool was evaluated within its intended scope (NeuSight on its 146 artifact configurations; ASTRA-sim on Ring All-Reduce at 8 NPUs; VIDUR on Llama-2-7B at QPS 2.0).
+Future work should test at larger scale and with newer architectures.
 
 % ==============================================================================
 % EVALUATION RESULTS
@@ -928,38 +891,16 @@ Deterministic outputs simplify regression testing and enable exact reproducibili
 \label{subsec:threats}
 
 \textbf{External validity.}
-Our venue-focused search may under-represent industry tools.
-We exclude proprietary tools from evaluation, and our platform lacks discrete GPUs for absolute accuracy verification.
-The benchmark suite's 28 scenarios, while representative, cannot cover every production deployment pattern; emerging workloads (e.g., retrieval-augmented generation, multi-modal models) are not yet included.
+Our venue-focused search may under-represent industry tools; we exclude proprietary tools and lack discrete GPUs for absolute accuracy verification. The 28-scenario suite cannot cover every deployment pattern (e.g., RAG, multi-modal, RLHF are not yet included).
 
 \textbf{Internal validity.}
-Our evaluation covers 5 of 22 tools.
-Findings rest on single tool instances per methodology type---e.g., nn-Meter may be unrepresentative due to deployment failure.
-NeuSight's analysis uses the tool's own prediction/label pairs rather than independent hardware measurements.
-The per-device sample sizes vary (3--18 configurations), limiting statistical power for devices with few data points (e.g., P4 with only 3 configurations, A100-SXM with 3 configurations).
-We mitigate this by reporting both mean and worst-case APE.
-Our benchmark suite covers 28 scenarios, but the distribution is not uniform: training scenarios (11) outnumber inference scenarios (13), with MoE and multi-model scenarios (T4.4, I4.1) represented by only one scenario each.
-A more balanced suite might weight scenarios by practitioner frequency of use, but such weighting data is not publicly available.
-Despite these limitations, our suite provides the first standardized coverage metric for ML performance tools, enabling future evaluations to quantitatively compare tool ecosystems.
+We evaluate 5 of 22 tools (one per methodology type), with NeuSight analyzed via its own prediction/label pairs rather than independent measurements. Per-device sample sizes vary (3--18 configurations); we report both mean and worst-case APE to mitigate this.
 
 \textbf{Construct validity.}
-Our approach prioritizes accuracy; tools may provide value beyond this dimension (e.g., Timeloop's energy breakdown for design insight, ASTRA-sim's what-if analysis for topology exploration).
-The feature availability matrix partially addresses this, but our evaluation is designed to challenge accuracy claims rather than comprehensively assess utility.
-Additionally, our coverage criterion (supported/partial/unsupported) does not capture the quality of partial support---ASTRA-sim's partial coverage of MoE training (T4.4), for example, provides All-to-All communication modeling but misses expert load balancing effects.
-A finer-grained coverage metric---e.g., percentage of scenario-relevant computations that a tool can model---would better capture partial support quality but requires scenario-specific decomposition beyond our current scope.
+Our evaluation prioritizes accuracy; tools may provide additional value (e.g., Timeloop's energy breakdown, ASTRA-sim's what-if analysis) not captured here. The ternary coverage criterion does not capture partial-support quality.
 
 \textbf{Temporal validity.}
-Our evaluation reflects tool state as of January 2026.
-Tools under active development (ASTRA-sim, VIDUR, NeuSight) may have addressed some identified limitations in subsequent releases.
-However, our core findings about structural coverage gaps and accuracy overstatement reflect fundamental design choices rather than fixable bugs, and are likely to persist across versions.
-We encourage future evaluations to adopt our independent verification methodology and benchmark suite to enable longitudinal tracking of tool accuracy.
-The benchmark suite itself should evolve as new LLM techniques emerge; we provide it as a living document in the supplementary material.
-
-\textbf{Benchmark suite validity.}
-Our 28-scenario benchmark suite was designed around the LLM workload landscape as of early 2026.
-Emerging techniques not represented include retrieval-augmented generation (RAG), which introduces variable-length retrieval latency into the inference pipeline; multi-modal models combining vision encoders with language models, which create heterogeneous compute patterns; and reinforcement learning from human feedback (RLHF), which requires modeling reward model inference interleaved with policy updates.
-We designed the suite to be extensible: each scenario is specified by a tuple of (model architecture, hardware configuration, parallelism strategy, target metric), allowing new scenarios to be added as techniques mature without restructuring the evaluation framework.
-Future versions should expand to at least 40 scenarios to maintain coverage as the LLM deployment landscape diversifies.
+Results reflect tool state as of January 2026. Core findings about structural coverage gaps reflect design choices likely to persist; the extensible benchmark suite is provided as a living document in supplementary material.
 
 \section{Toward a Unified Simulation Pipeline}\label{sec:unified-pipeline}
 No single tool spans kernel execution through serving SLAs. Figure~\ref{fig:pipeline-architecture} shows five layers: hardware design (Timeloop), kernel prediction (NeuSight), \textbf{model composition (CRITICAL GAP)}, distributed training (ASTRA-sim), and serving (VIDUR). NeuSight's 5--9\% kernel MAPE grows to 10--28\% at model level via launch overhead; common formats and cross-hardware transfer remain unsolved.
