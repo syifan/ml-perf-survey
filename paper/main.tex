@@ -63,31 +63,21 @@
 \subtitle{\normalsize{MICRO 2026 Submission -- Confidential Draft -- Do NOT Distribute!!}}
 
 \begin{abstract}
-We survey 22 performance modeling tools from 53 papers (2016--2026) and independently evaluate five---NeuSight, ASTRA-sim, VIDUR, Timeloop, nn-Meter---through accuracy-centered experiments spanning 146 GPU configurations, collective benchmarks, LLM serving simulations, energy validation, and reproducibility testing.
-Three findings emerge.
-First, self-reported accuracy is unreliable: NeuSight claims 2.3\% MAPE but we measure 5.87--27.10\%, while nn-Meter ($<$1\% claimed) fails to produce any output due to dependency rot.
-Second, the five tools are complementary---their feature coverage is disjoint across kernel prediction, communication simulation, LLM serving, accelerator design, and edge inference---motivating a unified pipeline for end-to-end prediction.
-Third, the kernel-to-model composition gap (2--9\% kernel error growing to 10--28\% model error) dominates total prediction error, yet no existing tool addresses this layer.
+We survey 22 performance modeling tools from 53 papers (2016--2026) and independently evaluate five---NeuSight, ASTRA-sim, VIDUR, Timeloop, nn-Meter---across 146 GPU configurations, collective benchmarks, LLM serving simulations, energy validation, and reproducibility testing. Three findings emerge: (1)~self-reported accuracy is unreliable---NeuSight claims 2.3\% MAPE but we measure 5.87--27.10\%, while nn-Meter ($<$1\% claimed) produces no output due to dependency rot; (2)~the five tools are complementary but disjoint across kernel prediction, communication simulation, LLM serving, accelerator design, and edge inference, motivating a unified pipeline; (3)~the kernel-to-model composition gap (2--9\% kernel error growing to 10--28\% model error) dominates total prediction error, yet no existing tool addresses this layer.
 \end{abstract}
-
-%%
-%% Keywords
 \keywords{ML workload performance prediction, DNN accelerator modeling, GPU simulation, distributed training simulation, LLM inference serving, design space exploration, survey}
-
 \maketitle
 
 \section{Introduction}
 \label{sec:introduction}
-
-Domain-specific architectures~\cite{hennessy2019golden,tpuv1_2017,tpuv4_2023} make performance prediction critical for ML workload deployment, yet no prior work examines \emph{why} certain approaches succeed---analytical models~\cite{timeloop2019,maestro2019}, trace-driven simulators~\cite{astrasim2023,vidur2024}, hybrid approaches~\cite{neusight2025}---or how errors propagate across the abstraction stack; existing surveys focus on ML \emph{techniques} for modeling~\cite{granite2022} or specific hardware~\cite{timeloop2019}.
-We contribute an \textbf{accuracy-centered verification framework} paired with an \textbf{LLM-focused benchmark suite}, replacing self-reported accuracy with reproducible evaluation showing claimed error rates are overstated by $2$--$4\times$:
+Domain-specific architectures~\cite{hennessy2019golden,tpuv1_2017,tpuv4_2023} make performance prediction critical for ML deployment, yet no prior work examines \emph{why} certain approaches succeed---analytical~\cite{timeloop2019,maestro2019}, trace-driven~\cite{astrasim2023,vidur2024}, hybrid~\cite{neusight2025}---or how errors propagate across the stack; existing surveys cover ML \emph{techniques} for modeling~\cite{granite2022} or specific hardware~\cite{timeloop2019}.
+We contribute an \textbf{accuracy-centered verification framework} with an \textbf{LLM-focused benchmark suite}, replacing self-reported accuracy with reproducible evaluation showing claimed error rates are overstated by $2$--$4\times$:
 \begin{itemize}[noitemsep,topsep=2pt]
-\item A \textbf{28-scenario LLM benchmark suite} spanning training and inference, revealing 50\% of scenarios have zero tool support (Section~\ref{sec:eval-framework}).
+\item A \textbf{28-scenario LLM benchmark suite} spanning training and inference, revealing 50\% of scenarios lack tool support (Section~\ref{sec:eval-framework}).
 \item \textbf{Independent accuracy verification} of five tools (146 GPU configs, collectives, LLM serving, energy), showing self-reported claims are overstated (Section~\ref{sec:eval-results}).
 \item A \textbf{unified simulation pipeline} identifying the kernel-to-model composition gap as the critical missing piece (Section~\ref{sec:unified-pipeline}).
 \item A \textbf{coverage matrix} and research agenda for composition modeling, unified formats, and continuous validation (Sections~\ref{sec:taxonomy},~\ref{sec:challenges}).
 \end{itemize}
-
 \begin{figure}[t]
 \centering
 \resizebox{\columnwidth}{!}{%
@@ -103,10 +93,8 @@ We contribute an \textbf{accuracy-centered verification framework} paired with a
 \caption{Evolution of performance modeling tools (2016--2026).}
 \label{fig:timeline}
 \end{figure}
-
 \section{Survey Methodology}
 \label{sec:methodology}
-
 We searched ACM DL, IEEE Xplore, Semantic Scholar, and arXiv targeting architecture (MICRO, ISCA, HPCA, ASPLOS), systems (MLSys, OSDI, SOSP, NSDI), and related venues.
 From 287 candidates, 53 papers (2016--2026) plus 12 foundational works were classified by \emph{methodology type}, \emph{target platform}, and \emph{abstraction level}.
 Prior surveys cover ML for processor DSE~\cite{rakhshanfar2021survey}, DNN hardware~\cite{sze2017efficient}, simulation infrastructure~\cite{gpgpusim2009,binkert2011gem5,sst2012}, and measurement~\cite{mlperf_training2020,mlperf_inference2020}; the closest work~\cite{latencypredictorsnas2024} compares edge predictors for NAS.
@@ -114,15 +102,11 @@ We exclude proprietary tools (NVIDIA Nsight~\cite{nsightcompute2019}), compiler 
 
 \section{Background}
 \label{sec:background}
-
 ML workloads are computation graphs with statically known operator shapes amenable to analytical modeling; MoE and dynamic inference add input-dependent control flow~\cite{pytorch2019,tensorflow2016}. Performance depends on dataflow/tiling, KV cache~\cite{vllm2023}, and compute--memory--network interactions; LLM inference splits into compute-bound prefill and memory-bound decode~\cite{splitwise2024,sarathi2024,orca2022}.
 Five methodology types span accuracy--speed trade-offs: \textbf{analytical}~\cite{williams2009roofline} ($\mu$s), \textbf{cycle-accurate}~\cite{gpgpusim2009,accelsim2020} ($10^3$--$10^4\times$ slowdown), \textbf{trace-driven}~\cite{astrasim2023,vidur2024} (min.), \textbf{ML-augmented}~\cite{nnmeter2021} (ms), and \textbf{hybrid}~\cite{neusight2025,habitat2021} (analytical+learned).
-
 \section{Taxonomy}
 \label{sec:taxonomy}
-
 We organize the literature by \emph{methodology type}, \emph{target platform}, and \emph{abstraction level} (Table~\ref{tab:taxonomy-matrix}).
-
 \begin{table*}[t]
 \centering
 \caption{Methodology taxonomy: coverage matrix and trade-off profile. \textbf{0} = research gap.}
@@ -141,7 +125,6 @@ Hybrid           & 1 & 2 & \textbf{0} & \textbf{0} & 1 & ms & Mixed & Med. & Tra
 \bottomrule
 \end{tabular}
 \end{table*}
-
 Three gaps emerge (Figure~\ref{fig:tool-architecture}): trace-driven replay is exclusive to distributed systems, edge devices lack hybrid alternatives, and no ML-augmented tool targets distributed settings.
 \begin{figure}[t]
 \centering
@@ -164,11 +147,9 @@ Three gaps emerge (Figure~\ref{fig:tool-architecture}): trace-driven replay is e
 \caption{Unified architecture showing how tool methodologies compose.}
 \label{fig:tool-architecture}
 \end{figure}
-
 \textbf{Methodology--platform pairings.}
 \label{subsec:by-methodology}
-Platform constrains methodology: accelerators use analytical models~\cite{timeloop2019,maestro2019}; GPUs span all five types; distributed systems require trace-driven simulation~\cite{astrasim2023,vidur2024}; edge devices rely on ML-augmented~\cite{nnmeter2021,litepred2024}; CPUs~\cite{concorde2025,granite2022} remain least studied. Errors propagate (Figure~\ref{fig:abstraction-levels}): kernel 2--3\%, model 5--12\%, system 5--15\%.
-
+Platform constrains methodology: accelerators use analytical models~\cite{timeloop2019,maestro2019}; GPUs span all five types; distributed systems need trace-driven simulation~\cite{astrasim2023,vidur2024}; edge devices rely on ML-augmented~\cite{nnmeter2021,litepred2024}; CPUs~\cite{concorde2025,granite2022} remain least studied. Errors propagate (Figure~\ref{fig:abstraction-levels}): kernel 2--3\%, model 5--12\%, system 5--15\%.
 \begin{figure}[t]
 \centering
 \resizebox{\columnwidth}{!}{%
@@ -183,15 +164,12 @@ Platform constrains methodology: accelerators use analytical models~\cite{timelo
 \caption{Abstraction level hierarchy with error accumulation.}
 \label{fig:abstraction-levels}
 \end{figure}
-
 \textbf{Workload coverage.}
 \label{subsec:workload-coverage}
 Of 14 tools, 9 validate only on CNNs; post-2023 tools target transformers/LLMs but \textbf{none validates on diffusion or dynamic inference}~\cite{dynamicreasoning2026}, only Frontier~\cite{frontier2025} validates MoE, and none spans the full kernel-to-system stack.
 \section{Survey of Approaches}
 \label{sec:survey}
-
 We survey tools by target platform (Table~\ref{tab:survey-summary}).
-
 \begin{table*}[t]
 \centering
 \caption{Surveyed tools by target platform. A=Analytical, S=Simulation, T=Trace-driven, M=ML-augmented, H=Hybrid. $^*$Surrogate-vs-simulator fidelity. $^\dagger$Unverifiable. $^\ddagger$No hardware baseline.}
@@ -238,8 +216,7 @@ TLP~\cite{tlp2023} & GPU & M & Tensor program & $<$10\% & ms & Transformer cost 
 
 \textbf{DNN accelerators and GPUs.}
 Computational regularity~\cite{sze2017efficient} enables analytical tractability~\cite{diannao2014,eyeriss2016}: Timeloop~\cite{timeloop2019} enumerates loop-nest mappings (5--10\%); MAESTRO~\cite{maestro2019} and Sparseloop~\cite{sparseloop2022} extend to data-centric and sparse tensors; PyTorchSim~\cite{pytorchsim2025}, ArchGym~\cite{archgym2023}, and PIM tools~\cite{upimulator2024,attacc2024,neupims2024,paise2025} represent newer approaches. For GPUs, cycle-accurate simulators (GPGPU-Sim~\cite{gpgpusim2009}, Accel-Sim~\cite{accelsim2020}) achieve 0.90--0.97 IPC correlation at $10^3$--$10^4\times$ slowdown~\cite{dramsim3_2020,ramulator2_2023,dissectinggpu2025}; hybrid and ML-augmented tools---NeuSight~\cite{neusight2025} (2.3\%), Habitat~\cite{habitat2021} (11.8\%), AMALI~\cite{amali2025} (23.6\%), TVM~\cite{tvm2018}/Ansor~\cite{ansor2020}/TLP~\cite{tlp2023}~\cite{life2025,hermes2025,omniwise2025,swizzleperf2025,synperf2025,tenset2021}---trade accuracy for speed.
-\textbf{Distributed, serving, and edge.}
-ASTRA-sim~\cite{astrasim2023} replays Chakra traces~\cite{chakra2023} (5--15\%); SimAI~\cite{simai2025} models NCCL reductions (1.9\%); VIDUR~\cite{vidur2024} simulates request-level LLM serving; Lumos~\cite{lumos2025} (3.3\%), Echo~\cite{echo2024}, Paleo~\cite{paleo2017}, and other serving tools~\cite{distserve2024,frontier2025,podattention2025,aqua2025,throttllem2025,sailor2025} provide complementary coverage. For edge, nn-Meter~\cite{nnmeter2021} claims $<$1\% but is unverifiable (Section~\ref{sec:eval-results}); LitePred~\cite{litepred2024} achieves 0.7\% across 85 platforms; HELP~\cite{help2021} reaches 1.9\% with 10-sample meta-learning~\cite{esm2025,latencypredictorsnas2024}.
+\textbf{Distributed, serving, and edge.} ASTRA-sim~\cite{astrasim2023} replays Chakra traces~\cite{chakra2023} (5--15\%); SimAI~\cite{simai2025} models NCCL reductions (1.9\%); VIDUR~\cite{vidur2024} simulates request-level LLM serving; Lumos~\cite{lumos2025} (3.3\%), Echo~\cite{echo2024}, Paleo~\cite{paleo2017}, and other tools~\cite{distserve2024,frontier2025,podattention2025,aqua2025,throttllem2025,sailor2025} provide complementary coverage. For edge, nn-Meter~\cite{nnmeter2021} claims $<$1\% but is unverifiable (Section~\ref{sec:eval-results}); LitePred~\cite{litepred2024} achieves 0.7\% across 85 platforms; HELP~\cite{help2021} reaches 1.9\% with 10-sample meta-learning~\cite{esm2025,latencypredictorsnas2024}.
 \section{Evaluation Methodology}
 \label{sec:eval-framework}
 
@@ -1050,9 +1027,7 @@ Figure~\ref{fig:pipeline-architecture} shows a five-layer pipeline: hardware des
 
 \section{Open Challenges and Future Directions}
 \label{sec:challenges}
-
-Our evaluation exposes four research directions.
-\textbf{(1)~Composition gap:} Kernel errors of 2--3\% yield 5--12\% model-level error (Figure~\ref{fig:error-composition}; $\sigma_{\text{model}} \approx \sigma_{\text{kernel}} \cdot \sqrt{N}$), yet no validated composition pipeline exists.
+\textbf{(1)~Composition gap:} Kernel errors of 2--3\% yield 5--12\% model-level error (Figure~\ref{fig:error-composition}; $\sigma_{\text{model}} \approx \sigma_{\text{kernel}} \cdot \sqrt{N}$) with no validated composition pipeline.
 \begin{figure}[t]
 \centering
 \resizebox{\columnwidth}{!}{%
@@ -1087,15 +1062,12 @@ Our evaluation exposes four research directions.
 \caption{Workload coverage by publication period. MoE and diffusion models remain uncharacterized.}
 \label{fig:workload-coverage}
 \end{figure}
-\textbf{(3)~Hardware transfer and network fidelity:} Cross-family transfer (GPU$\rightarrow$TPU$\rightarrow$PIM~\cite{upimulator2024,attacc2024,neupims2024,paise2025}) remains unsolved; tools~\cite{astrasim2023,triosim2025} use analytical network abstractions omitting congestion modeled only by NS-3~\cite{ns3_2010}.
-\textbf{(4)~Standardized evaluation:} No MLPerf~\cite{mlperf_training2020,mlperf_inference2020} equivalent exists for prediction tools; the community needs common benchmarks, portable formats (ONNX, Chakra~\cite{chakra2023}), and continuous validation~\cite{mlperfpower2025} (nn-Meter's dependency rot exemplifies model invalidation by software evolution~\cite{flashattention2022}).
+\textbf{(3)~Hardware transfer and network fidelity:} Cross-family transfer (GPU$\rightarrow$TPU$\rightarrow$PIM~\cite{upimulator2024,attacc2024,neupims2024,paise2025}) remains unsolved, and tools~\cite{astrasim2023,triosim2025} use analytical network abstractions omitting congestion modeled only by NS-3~\cite{ns3_2010}.
+\textbf{(4)~Standardized evaluation:} No MLPerf~\cite{mlperf_training2020,mlperf_inference2020} equivalent exists for prediction tools; the community needs common benchmarks, portable formats (ONNX, Chakra~\cite{chakra2023}), and continuous validation~\cite{mlperfpower2025}---nn-Meter's dependency rot exemplifies invalidation by software evolution~\cite{flashattention2022}.
 
 \section{Conclusion}
 \label{sec:conclusion}
-
-We survey 22 ML performance modeling tools and independently evaluate five against a 28-scenario LLM benchmark suite, finding that self-reported accuracy is unreliable (NeuSight: 2.3\% claimed vs.\ 5.87--27.10\% measured; nn-Meter: no output).
-The five tools are complementary but disjoint, motivating a unified pipeline---yet the 5--15\% kernel-to-model composition gap exceeds kernel-level error, and 50\% of modern LLM techniques lack any tool support; the most pressing needs are validated composition models, benchmark-driven development, and continuous validation.
-
+We survey 22 ML performance modeling tools and independently evaluate five against a 28-scenario LLM benchmark suite, finding self-reported accuracy unreliable (NeuSight: 2.3\% claimed vs.\ 5.87--27.10\% measured; nn-Meter: no output). The five tools are complementary but disjoint, motivating a unified pipeline---yet the 5--15\% kernel-to-model composition gap exceeds kernel-level error and 50\% of modern LLM techniques lack tool support; the most pressing needs are validated composition models, benchmark-driven development, and continuous validation.
 \bibliographystyle{ACM-Reference-Format}
 \bibliography{references}
 
