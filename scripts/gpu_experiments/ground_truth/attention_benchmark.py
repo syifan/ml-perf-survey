@@ -105,6 +105,11 @@ def main():
     parser.add_argument("--iters", type=int, default=100)
     parser.add_argument("--warmup", type=int, default=10)
     parser.add_argument("--output-dir", default="results")
+    # Single-config overrides (used by run_perfsim_survey_2026.sh)
+    parser.add_argument("--hidden-dim", type=int, default=None)
+    parser.add_argument("--num-heads", type=int, default=None)
+    parser.add_argument("--seq-len", type=int, default=None)
+    parser.add_argument("--batch-size", type=int, default=None)
     args = parser.parse_args()
 
     dtype_map = {"fp16": torch.float16, "fp32": torch.float32, "bf16": torch.bfloat16}
@@ -120,8 +125,19 @@ def main():
     print(f"{'Label':<22} {'Heads':>5} {'Seq':>6} {'Batch':>5} | {'Median(ms)':>10} {'Mean(ms)':>10}")
     print("-" * 90)
 
+    # If single-config args provided, run one benchmark; otherwise use DEFAULT_CONFIGS
+    if args.hidden_dim is not None:
+        num_heads = args.num_heads if args.num_heads is not None else 32
+        head_dim = args.hidden_dim // num_heads
+        seq_len = args.seq_len if args.seq_len is not None else 2048
+        batch_size = args.batch_size if args.batch_size is not None else 1
+        label = f"custom-h{args.hidden_dim}-nh{num_heads}-s{seq_len}-b{batch_size}"
+        configs = [(num_heads, head_dim, seq_len, batch_size, label)]
+    else:
+        configs = DEFAULT_CONFIGS
+
     results = []
-    for num_heads, head_dim, seq_len, batch_size, label in DEFAULT_CONFIGS:
+    for num_heads, head_dim, seq_len, batch_size, label in configs:
         try:
             r = benchmark_attention(num_heads, head_dim, seq_len, batch_size, dtype,
                                     warmup=args.warmup, iters=args.iters)

@@ -155,6 +155,13 @@ def main():
     parser.add_argument("--iters", type=int, default=50)
     parser.add_argument("--warmup", type=int, default=10)
     parser.add_argument("--output-dir", default="results")
+    # Single-config overrides (used by run_perfsim_survey_2026.sh)
+    parser.add_argument("--hidden-dim", type=int, default=None)
+    parser.add_argument("--num-heads", type=int, default=None)
+    parser.add_argument("--num-layers", type=int, default=None)
+    parser.add_argument("--seq-len", type=int, default=None)
+    parser.add_argument("--batch-size", type=int, default=None)
+    parser.add_argument("--intermediate-dim", type=int, default=None)
     args = parser.parse_args()
 
     dtype_map = {"fp16": torch.float16, "fp32": torch.float32, "bf16": torch.bfloat16}
@@ -171,8 +178,22 @@ def main():
           f"{'Median(ms)':>10} {'Tok/s':>10} {'Mem(MB)':>8}")
     print("-" * 100)
 
+    # If single-config args provided, run one benchmark; otherwise use DEFAULT_CONFIGS
+    if args.hidden_dim is not None:
+        num_layers = args.num_layers if args.num_layers is not None else 1
+        hidden = args.hidden_dim
+        heads = args.num_heads if args.num_heads is not None else 32
+        # Default intermediate_dim to ~2.7x hidden if not provided (LLaMA ratio)
+        inter = args.intermediate_dim if args.intermediate_dim is not None else int(hidden * 2.6875)
+        seq = args.seq_len if args.seq_len is not None else 2048
+        batch = args.batch_size if args.batch_size is not None else 1
+        label = f"custom-h{hidden}-l{num_layers}-s{seq}-b{batch}"
+        configs = [(num_layers, hidden, heads, inter, seq, batch, label)]
+    else:
+        configs = DEFAULT_CONFIGS
+
     results = []
-    for num_layers, hidden, heads, inter, seq, batch, label in DEFAULT_CONFIGS:
+    for num_layers, hidden, heads, inter, seq, batch, label in configs:
         try:
             r = benchmark_forward(num_layers, hidden, heads, inter, seq, batch, dtype,
                                   warmup=args.warmup, iters=args.iters)

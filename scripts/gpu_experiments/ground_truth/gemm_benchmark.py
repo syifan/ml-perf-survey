@@ -102,6 +102,10 @@ def main():
                         help="Number of warmup iterations")
     parser.add_argument("--output-dir", default="results",
                         help="Directory for output files")
+    # Single-config overrides (used by run_perfsim_survey_2026.sh)
+    # Accepts one or more 'M,K,N' tokens, e.g. --sizes 2048,5120,256 2048,256,5120
+    parser.add_argument("--sizes", nargs="+", default=None,
+                        help="Override sizes as space-separated M,K,N tokens")
     args = parser.parse_args()
 
     dtype_map = {"fp16": torch.float16, "fp32": torch.float32, "bf16": torch.bfloat16}
@@ -117,8 +121,19 @@ def main():
     print(f"{'M':>6} {'K':>6} {'N':>6} | {'Median(ms)':>10} {'Mean(ms)':>10} {'TFLOPS':>8}")
     print("-" * 80)
 
+    # If --sizes provided, parse them; otherwise fall back to DEFAULT_SIZES
+    if args.sizes is not None:
+        sizes = []
+        for token in args.sizes:
+            parts = token.split(",")
+            if len(parts) != 3:
+                parser.error(f"--sizes token '{token}' must be in M,K,N format")
+            sizes.append(tuple(int(p) for p in parts))
+    else:
+        sizes = DEFAULT_SIZES
+
     results = []
-    for M, K, N in DEFAULT_SIZES:
+    for M, K, N in sizes:
         try:
             r = benchmark_gemm(M, K, N, dtype, warmup=args.warmup, iters=args.iters)
             results.append(r)
