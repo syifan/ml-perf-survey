@@ -1,7 +1,7 @@
 #!/bin/bash
-# MLPerf-Survey-2026 Unified Benchmark Runner
+# PerfSim-Survey-2026 Unified Benchmark Runner
 #
-# Runs all 36 MLPerf-Survey-2026 benchmark scenarios defined in the paper
+# Runs all 36 PerfSim-Survey-2026 benchmark scenarios defined in the paper
 # (Table 3). Each scenario maps to a ground-truth PyTorch measurement that
 # captures actual GPU timing for the corresponding workload pattern.
 #
@@ -24,18 +24,18 @@
 #   - diffusers (for D1 scenarios): pip install diffusers transformers accelerate
 #
 # Usage:
-#   ./run_mlperf_survey_2026.sh                   # Run all 36 scenarios
-#   ./run_mlperf_survey_2026.sh --scenario T1     # Run all T1 scenarios
-#   ./run_mlperf_survey_2026.sh --scenario T1.1   # Run a single scenario
-#   ./run_mlperf_survey_2026.sh --scenario all     # Run all (same as no flag)
-#   ./run_mlperf_survey_2026.sh --list             # List all scenarios
-#   ./run_mlperf_survey_2026.sh --help             # Show usage
+#   ./run_perfsim_survey_2026.sh                   # Run all 36 scenarios
+#   ./run_perfsim_survey_2026.sh --scenario T1     # Run all T1 scenarios
+#   ./run_perfsim_survey_2026.sh --scenario T1.1   # Run a single scenario
+#   ./run_perfsim_survey_2026.sh --scenario all     # Run all (same as no flag)
+#   ./run_perfsim_survey_2026.sh --list             # List all scenarios
+#   ./run_perfsim_survey_2026.sh --help             # Show usage
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 GT_DIR="${SCRIPT_DIR}/ground_truth"
-RESULTS_DIR="${SCRIPT_DIR}/results/mlperf_survey_2026"
+RESULTS_DIR="${SCRIPT_DIR}/results/perfsim_survey_2026"
 TIMESTAMP="$(date +%Y%m%d_%H%M%S)"
 REPORT_FILE="${RESULTS_DIR}/report_${TIMESTAMP}.json"
 DTYPE="fp16"
@@ -179,10 +179,10 @@ declare -A SCENARIO_BENCH=(
 
 usage() {
   cat <<'USAGE'
-MLPerf-Survey-2026 Unified Benchmark Runner
+PerfSim-Survey-2026 Unified Benchmark Runner
 
 Usage:
-  ./run_mlperf_survey_2026.sh [OPTIONS]
+  ./run_perfsim_survey_2026.sh [OPTIONS]
 
 Options:
   --scenario FILTER   Run specific scenario(s). Examples:
@@ -197,20 +197,20 @@ Options:
   --help              Show this help message
 
 Examples:
-  ./run_mlperf_survey_2026.sh                         # All 36 scenarios
-  ./run_mlperf_survey_2026.sh --scenario T1           # Training DP only
-  ./run_mlperf_survey_2026.sh --scenario I1.1         # Single scenario
-  ./run_mlperf_survey_2026.sh --scenario T1,I1 --dtype bf16
+  ./run_perfsim_survey_2026.sh                         # All 36 scenarios
+  ./run_perfsim_survey_2026.sh --scenario T1           # Training DP only
+  ./run_perfsim_survey_2026.sh --scenario I1.1         # Single scenario
+  ./run_perfsim_survey_2026.sh --scenario T1,I1 --dtype bf16
 
 Output:
   Results are saved as JSON to:
-    scripts/gpu_experiments/results/mlperf_survey_2026/report_YYYYMMDD_HHMMSS.json
+    scripts/gpu_experiments/results/perfsim_survey_2026/report_YYYYMMDD_HHMMSS.json
 USAGE
   exit 0
 }
 
 list_scenarios() {
-  echo "MLPerf-Survey-2026 Benchmark Suite — 36 Scenarios"
+  echo "PerfSim-Survey-2026 Benchmark Suite — 36 Scenarios"
   echo "=================================================="
   local current_cat=""
   for sid in "${SCENARIO_ORDER[@]}"; do
@@ -260,7 +260,7 @@ done
 # ─── Pre-flight Checks ───────────────────────────────────────────────────
 
 echo "============================================================"
-echo "  MLPerf-Survey-2026 Unified Benchmark Runner"
+echo "  PerfSim-Survey-2026 Unified Benchmark Runner"
 echo "============================================================"
 echo ""
 
@@ -309,7 +309,7 @@ fi
 python3 -c "
 import json, datetime, torch
 report = {
-    'suite': 'MLPerf-Survey-2026',
+    'suite': 'PerfSim-Survey-2026',
     'timestamp': datetime.datetime.now().isoformat(),
     'gpu': torch.cuda.get_device_properties(0).name,
     'gpu_count': torch.cuda.device_count(),

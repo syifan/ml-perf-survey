@@ -14,7 +14,7 @@
 We survey 25 performance modeling tools from 53 papers (2016--2026) and evaluate ten---NeuSight, ASTRA-sim, VIDUR, Timeloop, nn-Meter with full experiments, plus MAESTRO, Paleo, Habitat, Accel-Sim with deployment testing---across 146 GPU configurations, collective benchmarks, LLM serving, energy validation, and reproducibility testing. Three findings emerge: (1)~self-reported accuracy is unreliable---NeuSight claims 2.3\% MAPE but we measure 5.87--27.10\%, while nn-Meter produces no output due to dependency rot; (2)~the five fully-evaluated tools are complementary but disjoint, motivating a unified pipeline; (3)~the kernel-to-model composition gap (2--9\% kernel error growing to 10--28\% model error) dominates total error, yet no tool addresses this layer.
 \end{abstract}\keywords{ML workload performance prediction, DNN accelerator modeling, GPU simulation, distributed training simulation, LLM inference serving, design space exploration, survey}\maketitle
 \section{Introduction}\label{sec:introduction}
-Domain-specific architectures~\cite{hennessy2019golden,tpuv1_2017,tpuv4_2023} make performance prediction critical, yet no prior work examines \emph{why} certain approaches succeed or how errors propagate; prior surveys cover ML techniques for modeling~\cite{granite2022}, specific hardware, or distributed training simulators~\cite{svedassurvey2025}. We contribute: (1)~the \textbf{MLPerf-Survey-2026} benchmark suite of \textbf{36 scenarios} where 56\% of scenarios lack tool support; (2)~\textbf{third-party evaluation} showing claimed error rates are overstated by $2$--$4\times$; (3)~a \textbf{unified pipeline} identifying the composition gap; and (4)~a \textbf{research agenda} for composition modeling and continuous validation.
+Domain-specific architectures~\cite{hennessy2019golden,tpuv1_2017,tpuv4_2023} make performance prediction critical, yet no prior work examines \emph{why} certain approaches succeed or how errors propagate; prior surveys cover ML techniques for modeling~\cite{granite2022}, specific hardware, or distributed training simulators~\cite{svedassurvey2025}. We contribute: (1)~the \textbf{PerfSim-Survey-2026} benchmark suite of \textbf{36 scenarios} where 56\% of scenarios lack tool support; (2)~\textbf{third-party evaluation} showing claimed error rates are overstated by $2$--$4\times$; (3)~a \textbf{unified pipeline} identifying the composition gap; and (4)~a \textbf{research agenda} for composition modeling and continuous validation.
 \begin{figure}[t]
 \centering\resizebox{\columnwidth}{!}{%
 \begin{tikzpicture}[yearnode/.style={font=\footnotesize\bfseries, text=black!70}, eventnode/.style={font=\footnotesize, text width=2cm, align=center}]
@@ -95,19 +95,19 @@ TLP~\cite{tlp2023} & GPU & M & Tensor program & $<$10\% & ms & Transformer cost 
 \label{sec:eval-framework}
 
 Prior surveys reprint self-reported accuracy using each tool's own benchmarks, making cross-tool comparison unsound.
-We introduce a \textbf{third-party evaluation} with two components: (1)~the \textbf{MLPerf-Survey-2026} benchmark suite of 36 scenarios defining standardized coverage criteria for modern LLM workloads, and (2)~\textbf{independent experiments} deploying each tool from its public artifact under controlled conditions.
+We introduce a \textbf{third-party evaluation} with two components: (1)~the \textbf{PerfSim-Survey-2026} benchmark suite of 36 scenarios defining standardized coverage criteria for modern LLM workloads, and (2)~\textbf{independent experiments} deploying each tool from its public artifact under controlled conditions.
 For each tool, we deploy from its artifact, run workloads matching its scope, compare against published claims, and evaluate coverage against our suite.
 Where absolute verification requires hardware we lack (e.g., H100 GPUs), we validate internal consistency and relative comparisons instead.
 
 \subsection{LLM Benchmark Suite}
 \label{subsec:benchmark-suite}
 
-The \emph{MLPerf-Survey-2026} benchmark suite comprises 36 scenarios across 9 categories (Table~\ref{tab:benchmark-suite}), covering the full LLM lifecycle from pre-training (T1--T4) through inference (I1--I5) to diffusion (D1).
+The \emph{PerfSim-Survey-2026} benchmark suite comprises 36 scenarios across 9 categories (Table~\ref{tab:benchmark-suite}), covering the full LLM lifecycle from pre-training (T1--T4) through inference (I1--I5) to diffusion (D1).
 Unlike MLPerf, which measures hardware performance, our suite evaluates whether prediction \emph{tools} can model these scenarios.
 
 \begin{table}[t]
 \centering
-\caption{MLPerf-Survey-2026 benchmark suite: 36 scenarios across training (T1--T4), inference (I1--I5), and diffusion (D1). Each represents a concrete user need for performance prediction.}
+\caption{PerfSim-Survey-2026 benchmark suite: 36 scenarios across training (T1--T4), inference (I1--I5), and diffusion (D1). Each represents a concrete user need for performance prediction.}
 \label{tab:benchmark-suite}
 \small
 \begin{tabular}{lp{3.5cm}r}
@@ -436,7 +436,7 @@ Table~\ref{tab:benchmark-coverage} evaluates each tool against our 36-scenario b
 
 \begin{table}[t]
 \centering
-\caption{Tool coverage of MLPerf-Survey-2026 benchmark suite (36 scenarios). S=Supported, P=Partial, U=Unsupported. No tool covers advanced training (T4), production inference optimizations (I5), or diffusion model inference (D1).}
+\caption{Tool coverage of PerfSim-Survey-2026 benchmark suite (36 scenarios). S=Supported, P=Partial, U=Unsupported. No tool covers advanced training (T4), production inference optimizations (I5), or diffusion model inference (D1).}
 \label{tab:benchmark-coverage}
 \small
 \begin{tabular}{lcccccc}
