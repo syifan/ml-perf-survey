@@ -17,10 +17,10 @@ We survey 25 performance modeling tools from 53 papers (2016--2026) and evaluate
 Domain-specific architectures~\cite{hennessy2019golden,tpuv1_2017,tpuv4_2023} make performance prediction critical, yet no prior work examines \emph{why} certain approaches succeed or how errors propagate; prior surveys cover ML techniques for modeling~\cite{granite2022}, specific hardware, or distributed training simulators~\cite{svedassurvey2025}. We contribute: (1)~a \textbf{28-scenario benchmark suite} where 50\% of scenarios lack tool support; (2)~\textbf{third-party evaluation} showing claimed error rates are overstated by $2$--$4\times$; (3)~a \textbf{unified pipeline} identifying the composition gap; and (4)~a \textbf{research agenda} for composition modeling and continuous validation.
 \begin{figure}[t]
 \centering\resizebox{\columnwidth}{!}{%
-\begin{tikzpicture}[yearnode/.style={font=\scriptsize\bfseries, text=black!70}, eventnode/.style={font=\tiny, text width=2cm, align=center}]
+\begin{tikzpicture}[yearnode/.style={font=\footnotesize\bfseries, text=black!70}, eventnode/.style={font=\footnotesize, text width=2cm, align=center}]
 \draw[thick, ->, black!40] (0,0) -- (9,0); \foreach \x/\year in {0.3/2016, 1.5/2018, 3/2020, 4.5/2022, 6/2024, 7.2/2025, 8.5/2026} { \draw[thick, black!40] (\x,-0.1) -- (\x,0.1); \node[yearnode, below] at (\x,-0.12) {\year}; }
 \node[eventnode, above] at (0.3,0.12) {Eyeriss\\Paleo}; \node[eventnode, below] at (1.2,-0.12) {TVM}; \node[eventnode, above] at (2.2,0.12) {Timeloop\\MAESTRO}; \node[eventnode, below] at (3,-0.12) {Ansor\\ASTRA-sim}; \node[eventnode, above] at (3.8,0.12) {nn-Meter\\Habitat}; \node[eventnode, below] at (4.5,-0.12) {Sparseloop\\Accel-Sim}; \node[eventnode, above] at (5.3,0.12) {TLP\\ASTRA-sim 2.0}; \node[eventnode, below] at (6,-0.12) {VIDUR\\Echo}; \node[eventnode, above] at (7.2,0.12) {SimAI\\NeuSight}; \node[eventnode, below] at (8.5,-0.12) {PRISM\\Frontier};
-\draw[thick, ->, blue!50, dashed] (0.5,0.7) -- (8.2,0.7); \node[font=\tiny, text=blue!60, above] at (4.3,0.7) {Toward hybrid analytical+learned models};
+\draw[thick, ->, blue!50, dashed] (0.5,0.7) -- (8.2,0.7); \node[font=\footnotesize, text=blue!60, above] at (4.3,0.7) {Toward hybrid analytical+learned models};
 \end{tikzpicture}}\caption{Evolution of performance modeling tools (2016--2026).}\label{fig:timeline}\end{figure}
 \section{Survey Methodology}\label{sec:methodology}
 From 287 candidates on ACM DL, IEEE Xplore, Semantic Scholar, and arXiv, 53 papers (2016--2026) plus 12 foundational works were classified by methodology, platform, and abstraction level~\cite{rakhshanfar2021survey}, excluding proprietary tools, infrastructure~\cite{binkert2011gem5,sst2012}, compilers~\cite{halide2013,mlir2020,triton2019}, and schedulers~\cite{pollux2021,sia2023}.
@@ -41,19 +41,19 @@ Hybrid & 1 & 2 & \textbf{0} & \textbf{0} & 1 & ms & Mixed & Med. & Training doma
 Three gaps emerge (Figure~\ref{fig:tool-architecture}): trace-driven methods are exclusive to distributed systems, edge devices lack hybrid tools, and no ML-augmented tool targets distributed settings.%
 \begin{figure}[t]
 \centering\resizebox{\columnwidth}{!}{%
-\begin{tikzpicture}[comp/.style={draw=black!60, rounded corners=3pt, minimum width=2.4cm, minimum height=0.45cm, align=center, font=\scriptsize}, input/.style={draw=black!40, dashed, rounded corners=2pt, minimum width=1.8cm, minimum height=0.35cm, align=center, font=\tiny}, arr/.style={-{Stealth[length=3pt]}, thick, black!50}, lbl/.style={font=\tiny, text=black!50}]
+\begin{tikzpicture}[comp/.style={draw=black!60, rounded corners=3pt, minimum width=2.4cm, minimum height=0.45cm, align=center, font=\footnotesize}, input/.style={draw=black!40, dashed, rounded corners=2pt, minimum width=1.8cm, minimum height=0.35cm, align=center, font=\footnotesize}, arr/.style={-{Stealth[length=3pt]}, thick, black!50}, lbl/.style={font=\footnotesize, text=black!50}]
 \node[input] (wl) at (0,1.9) {Workload\\(ONNX/Chakra)}; \node[input] (hw) at (3,1.9) {Hardware\\config}; \node[input] (prof) at (6,1.9) {Profiling\\data}; \node[comp, fill=blue!15] (analytical) at (0,1.1) {Analytical\\Engine}; \node[comp, fill=red!15] (simulator) at (3,1.1) {Cycle-Accurate\\Simulator}; \node[comp, fill=purple!15] (mlmodel) at (6,1.1) {ML Cost\\Model};
 \node[comp, fill=green!15, minimum width=3.2cm] (hybrid) at (3,0.4) {Hybrid Composition\\(analytical + learned)}; \node[comp, fill=orange!15, minimum width=6.5cm] (system) at (3,-0.2) {System Orchestrator (trace-driven)}; \node[input, draw=black!60, fill=gray!10] (output) at (3,-0.75) {Latency / Energy / Throughput};
 \draw[arr] (wl) -- (analytical); \draw[arr] (hw) -- (analytical); \draw[arr] (hw) -- (simulator); \draw[arr] (wl) -- (simulator); \draw[arr] (prof) -- (mlmodel); \draw[arr] (wl) -- (mlmodel); \draw[arr] (analytical) -- (hybrid); \draw[arr] (mlmodel) -- (hybrid); \draw[arr, dashed, gray] (simulator) -- node[lbl, right] {valid.} (hybrid); \draw[arr] (hybrid) -- (system); \draw[arr] (analytical) |- (system); \draw[arr] (system) -- (output);
-\node[font=\tiny, text=blue!60, anchor=east] at (-0.5,1.1) {Timeloop, MAESTRO}; \node[font=\tiny, text=red!60, anchor=east] at (1.2,1.35) {Accel-Sim, GPGPU-Sim}; \node[font=\tiny, text=purple!60, anchor=west] at (7.6,1.1) {nn-Meter, TVM}; \node[font=\tiny, text=green!50!black, anchor=west] at (5,0.4) {NeuSight, Habitat}; \node[font=\tiny, text=orange!60!black, anchor=west] at (6.7,-0.2) {ASTRA-sim, VIDUR};
+\node[font=\footnotesize, text=blue!60, anchor=east] at (-0.5,1.1) {Timeloop, MAESTRO}; \node[font=\footnotesize, text=red!60, anchor=east] at (1.2,1.35) {Accel-Sim, GPGPU-Sim}; \node[font=\footnotesize, text=purple!60, anchor=west] at (7.6,1.1) {nn-Meter, TVM}; \node[font=\footnotesize, text=green!50!black, anchor=west] at (5,0.4) {NeuSight, Habitat}; \node[font=\footnotesize, text=orange!60!black, anchor=west] at (6.7,-0.2) {ASTRA-sim, VIDUR};
 \end{tikzpicture}}\caption{Unified architecture showing how tool methodologies compose.}\label{fig:tool-architecture}\end{figure}
 \textbf{Methodology--platform pairings.}\label{subsec:by-methodology} Platform constrains methodology: accelerators use analytical models~\cite{timeloop2019,maestro2019}; GPUs span all five types; distributed systems need trace-driven simulation~\cite{astrasim2023,vidur2024}; edge relies on ML-augmented~\cite{nnmeter2021,litepred2024}; CPUs remain the least studied platform~\cite{concorde2025}. Errors propagate (Figure~\ref{fig:abstraction-levels}): kernel 2--3\%, model 5--12\%, system 5--15\%.
 \begin{figure}[t]
 \centering\resizebox{\columnwidth}{!}{%
-\begin{tikzpicture}[level/.style={draw, rounded corners=3pt, minimum width=3.2cm, minimum height=0.5cm, align=center, font=\small\bfseries}, tool/.style={font=\scriptsize, text=black!70}, err/.style={font=\scriptsize\itshape, text=red!70!black}, arrow/.style={-{Stealth[length=3pt]}, thick, gray!60}, compos/.style={-{Stealth[length=4pt]}, thick, red!50!black, dashed}]
+\begin{tikzpicture}[level/.style={draw, rounded corners=3pt, minimum width=3.2cm, minimum height=0.5cm, align=center, font=\small\bfseries}, tool/.style={font=\footnotesize, text=black!70}, err/.style={font=\footnotesize\itshape, text=red!70!black}, arrow/.style={-{Stealth[length=3pt]}, thick, gray!60}, compos/.style={-{Stealth[length=4pt]}, thick, red!50!black, dashed}]
 \node[level, fill=blue!15, draw=blue!50] (kernel) at (0,0) {Kernel / Operator}; \node[level, fill=green!15, draw=green!50] (model) at (0,0.7) {Model / End-to-End}; \node[level, fill=orange!15, draw=orange!50] (system) at (0,1.4) {System}; \draw[arrow] (kernel) -- (model); \draw[arrow] (model) -- (system);
 \node[tool, anchor=east] at (-2.1,0) {NeuSight, nn-Meter,}; \node[tool, anchor=east] at (-2.1,-0.2) {TVM, GRANITE, TLP}; \node[tool, anchor=east] at (-2.1,0.7) {Paleo, Habitat,}; \node[tool, anchor=east] at (-2.1,0.5) {AMALI, Lumos, LIFE}; \node[tool, anchor=east] at (-2.1,1.4) {ASTRA-sim, VIDUR,}; \node[tool, anchor=east] at (-2.1,1.2) {SimAI, Frontier}; \node[err, anchor=west] at (2.1,0) {2--3\% error}; \node[err, anchor=west] at (2.1,0.7) {5--12\% error}; \node[err, anchor=west] at (2.1,1.4) {5--15\% error};
-\draw[compos] (3.6,0.15) -- (3.6,1.25); \node[font=\scriptsize, text=red!50!black, rotate=90, anchor=south] at (3.9,0.7) {error accumulates};
+\draw[compos] (3.6,0.15) -- (3.6,1.25); \node[font=\footnotesize, text=red!50!black, rotate=90, anchor=south] at (3.9,0.7) {error accumulates};
 \end{tikzpicture}}\caption{Abstraction level hierarchy with error accumulation.}\label{fig:abstraction-levels}\end{figure}
 \textbf{Workload coverage.}\label{subsec:workload-coverage} Of 14 tools, 9 validate only on CNNs; post-2023 tools target transformers/LLMs but \textbf{none validates on diffusion or dynamic inference} such as speculative decoding~\cite{medusa2024,dynamicreasoning2026}; only Frontier~\cite{frontier2025} covers MoE, whose expert-parallel routing introduces load-dependent latency that static models cannot capture.
 \section{Survey of Approaches}\label{sec:survey}
@@ -335,17 +335,17 @@ Figure~\ref{fig:accuracy-comparison} visualizes the accuracy gap across GPU type
     ymin=0, ymax=32,
     xtick=data,
     symbolic x coords={V100,H100,A100-80G,L4,T4,P4,MI100,MI210,MI250},
-    xticklabel style={font=\tiny, rotate=35, anchor=east},
-    yticklabel style={font=\scriptsize},
+    xticklabel style={font=\footnotesize, rotate=35, anchor=east},
+    yticklabel style={font=\footnotesize},
     xlabel style={font=\small},
     ylabel style={font=\small},
-    legend style={at={(0.02,0.98)}, anchor=north west, font=\tiny, draw=none, fill=white, fill opacity=0.9, text opacity=1},
+    legend style={at={(0.02,0.98)}, anchor=north west, font=\footnotesize, draw=none, fill=white, fill opacity=0.9, text opacity=1},
     legend cell align={left},
     height=5.5cm,
     width=8.5cm,
     enlarge x limits={abs=0.6cm},
     nodes near coords,
-    every node near coord/.append style={font=\tiny, rotate=60, anchor=west},
+    every node near coord/.append style={font=\footnotesize, rotate=60, anchor=west},
     point meta=explicit symbolic,
 ]
 % Published claims (where available)
@@ -588,8 +588,8 @@ Figure~\ref{fig:coverage-heatmap} provides a visual summary of the coverage gaps
 \centering
 \resizebox{\columnwidth}{!}{%
 \begin{tikzpicture}[
-    cell/.style={minimum width=1.1cm, minimum height=0.55cm, align=center, font=\tiny\bfseries, inner sep=0pt},
-    hdr/.style={font=\tiny\bfseries, align=center},
+    cell/.style={minimum width=1.1cm, minimum height=0.55cm, align=center, font=\footnotesize\bfseries, inner sep=0pt},
+    hdr/.style={font=\footnotesize\bfseries, align=center},
 ]
 
 % Column headers
@@ -686,11 +686,11 @@ Figure~\ref{fig:coverage-heatmap} provides a visual summary of the coverage gaps
 
 % Legend
 \node[cell, fill=green!40, minimum width=0.5cm] at (1.3,-5.3) {S};
-\node[font=\tiny, anchor=west] at (1.65,-5.3) {Supported};
+\node[font=\footnotesize, anchor=west] at (1.65,-5.3) {Supported};
 \node[cell, fill=yellow!40, minimum width=0.5cm] at (3.1,-5.3) {P};
-\node[font=\tiny, anchor=west] at (3.45,-5.3) {Partial};
+\node[font=\footnotesize, anchor=west] at (3.45,-5.3) {Partial};
 \node[cell, fill=red!15, minimum width=0.5cm] at (4.9,-5.3) {U};
-\node[font=\tiny, anchor=west] at (5.25,-5.3) {Unsupported};
+\node[font=\footnotesize, anchor=west] at (5.25,-5.3) {Unsupported};
 
 \end{tikzpicture}%
 }
@@ -901,25 +901,25 @@ Future versions should expand to at least 40 scenarios to maintain coverage as t
 No single tool spans kernel execution through serving SLAs. Figure~\ref{fig:pipeline-architecture} shows five layers where 5--9\% kernel MAPE grows to 10--28\% at model level, driven by (i)~interface heterogeneity, (ii)~calibration mismatch between steady-state models and transient-dominated kernels, and (iii)~feedback loops in serving schedulers.
 \begin{figure}[t]
 \centering\resizebox{\columnwidth}{!}{%
-\begin{tikzpicture}[layer/.style={draw=black!60, rounded corners=3pt, minimum width=5.5cm, minimum height=0.6cm, align=center, font=\scriptsize\bfseries}, tool/.style={font=\tiny, text=black!60}, arr/.style={-{Stealth[length=3pt]}, thick, black!50}, data/.style={font=\tiny\itshape, text=blue!50!black}]
-\node[layer, fill=purple!12, draw=purple!40] (hw) at (0,0) {Layer 1: Hardware Design}; \node[tool, anchor=west] at (3.2,0) {Timeloop}; \node[layer, fill=blue!12, draw=blue!40] (kernel) at (0,0.7) {Layer 2: Kernel Prediction}; \node[tool, anchor=west] at (3.2,0.7) {NeuSight}; \node[layer, fill=red!8, draw=red!60, dashed, line width=1pt] (comp) at (0,1.4) {Layer 3: Model Composition}; \node[font=\tiny\bfseries, text=red!60!black, anchor=west] at (3.2,1.4) {CRITICAL GAP}; \node[layer, fill=orange!12, draw=orange!40] (dist) at (0,2.1) {Layer 4: Distributed Training}; \node[tool, anchor=west] at (3.2,2.1) {ASTRA-sim}; \node[layer, fill=green!12, draw=green!40] (serve) at (0,2.8) {Layer 5: Serving System}; \node[tool, anchor=west] at (3.2,2.8) {VIDUR};
+\begin{tikzpicture}[layer/.style={draw=black!60, rounded corners=3pt, minimum width=5.5cm, minimum height=0.6cm, align=center, font=\footnotesize\bfseries}, tool/.style={font=\footnotesize, text=black!60}, arr/.style={-{Stealth[length=3pt]}, thick, black!50}, data/.style={font=\footnotesize\itshape, text=blue!50!black}]
+\node[layer, fill=purple!12, draw=purple!40] (hw) at (0,0) {Layer 1: Hardware Design}; \node[tool, anchor=west] at (3.2,0) {Timeloop}; \node[layer, fill=blue!12, draw=blue!40] (kernel) at (0,0.7) {Layer 2: Kernel Prediction}; \node[tool, anchor=west] at (3.2,0.7) {NeuSight}; \node[layer, fill=red!8, draw=red!60, dashed, line width=1pt] (comp) at (0,1.4) {Layer 3: Model Composition}; \node[font=\footnotesize\bfseries, text=red!60!black, anchor=west] at (3.2,1.4) {CRITICAL GAP}; \node[layer, fill=orange!12, draw=orange!40] (dist) at (0,2.1) {Layer 4: Distributed Training}; \node[tool, anchor=west] at (3.2,2.1) {ASTRA-sim}; \node[layer, fill=green!12, draw=green!40] (serve) at (0,2.8) {Layer 5: Serving System}; \node[tool, anchor=west] at (3.2,2.8) {VIDUR};
 \draw[arr] (hw) -- node[data, right, xshift=2pt] {energy, latency} (kernel); \draw[arr] (kernel) -- node[data, right, xshift=2pt] {per-kernel time} (comp); \draw[arr, draw=red!50, dashed] (comp) -- node[data, right, xshift=2pt, text=red!50!black] {iteration time} (dist); \draw[arr] (dist) -- node[data, right, xshift=2pt] {throughput} (serve);
-\node[font=\tiny, text=black!50, anchor=east] at (-3.2,0) {5--10\% err}; \node[font=\tiny, text=black!50, anchor=east] at (-3.2,0.7) {2--9\% MAPE}; \node[font=\tiny, text=red!60!black, anchor=east] at (-3.2,1.4) {\textbf{5--15\% gap}}; \node[font=\tiny, text=black!50, anchor=east] at (-3.2,2.1) {5--15\% geo.}; \node[font=\tiny, text=black!50, anchor=east] at (-3.2,2.8) {$<$5\% err}; \draw[decorate, decoration={brace, amplitude=4pt, mirror}, thick, red!50] (-3.4,1.1) -- (-3.4,1.7); \node[font=\tiny, text=red!50!black, anchor=east] at (-3.8,1.4) {unmodeled};
+\node[font=\footnotesize, text=black!50, anchor=east] at (-3.2,0) {5--10\% err}; \node[font=\footnotesize, text=black!50, anchor=east] at (-3.2,0.7) {2--9\% MAPE}; \node[font=\footnotesize, text=red!60!black, anchor=east] at (-3.2,1.4) {\textbf{5--15\% gap}}; \node[font=\footnotesize, text=black!50, anchor=east] at (-3.2,2.1) {5--15\% geo.}; \node[font=\footnotesize, text=black!50, anchor=east] at (-3.2,2.8) {$<$5\% err}; \draw[decorate, decoration={brace, amplitude=4pt, mirror}, thick, red!50] (-3.4,1.1) -- (-3.4,1.7); \node[font=\footnotesize, text=red!50!black, anchor=east] at (-3.8,1.4) {unmodeled};
 \end{tikzpicture}}\caption{Unified five-layer pipeline. Layer~3 (dashed) is the critical unmodeled gap.}\label{fig:pipeline-architecture}\end{figure}
 \section{Open Challenges and Future Directions}\label{sec:challenges}
 \textbf{(1)~Composition gap:} Kernel errors of 2--3\% yield 5--12\% model-level error (Figure~\ref{fig:error-composition}) with no validated pipeline. \textbf{(2)~Frontier workloads:} MoE, diffusion~\cite{dynamicreasoning2026}, and dynamic inference lack validated tools; scaling laws~\cite{kaplan2020scaling,hoffmann2022chinchilla,scalinglawguide2025,scalinglaws2024} predict loss but not latency (Figure~\ref{fig:workload-coverage}).
 \begin{figure}[t]
 \centering\resizebox{\columnwidth}{!}{%
-\begin{tikzpicture}[box/.style={draw=black!60, rounded corners=2pt, minimum width=1.2cm, minimum height=0.45cm, align=center, font=\tiny}, err/.style={font=\tiny\itshape, text=red!60!black}, arr/.style={-{Stealth[length=3pt]}, thick, black!50}, brace/.style={decorate, decoration={brace, amplitude=4pt, mirror}, thick, black!40}]
-\node[box, fill=blue!10] (k1) at (0,0) {Conv}; \node[box, fill=blue!10] (k2) at (1.5,0) {Attn}; \node[box, fill=blue!10] (k3) at (3,0) {FFN}; \node[box, fill=blue!10] (k4) at (4.5,0) {Norm}; \node[box, fill=blue!10] (k5) at (6,0) {Softmax}; \node[err] at (0,-0.45) {2.3\%}; \node[err] at (1.5,-0.45) {2.1\%}; \node[err] at (3,-0.45) {1.8\%}; \node[err] at (4.5,-0.45) {3.5\%}; \node[err] at (6,-0.45) {2.0\%}; \node[font=\scriptsize\bfseries, anchor=east] at (-0.8,0) {Kernel}; \draw[arr] (0.5,0) -- (1,0); \draw[arr] (2,0) -- (2.5,0); \draw[arr] (3.5,0) -- (4,0); \draw[arr] (5,0) -- (5.5,0);
+\begin{tikzpicture}[box/.style={draw=black!60, rounded corners=2pt, minimum width=1.2cm, minimum height=0.45cm, align=center, font=\footnotesize}, err/.style={font=\footnotesize\itshape, text=red!60!black}, arr/.style={-{Stealth[length=3pt]}, thick, black!50}, brace/.style={decorate, decoration={brace, amplitude=4pt, mirror}, thick, black!40}]
+\node[box, fill=blue!10] (k1) at (0,0) {Conv}; \node[box, fill=blue!10] (k2) at (1.5,0) {Attn}; \node[box, fill=blue!10] (k3) at (3,0) {FFN}; \node[box, fill=blue!10] (k4) at (4.5,0) {Norm}; \node[box, fill=blue!10] (k5) at (6,0) {Softmax}; \node[err] at (0,-0.45) {2.3\%}; \node[err] at (1.5,-0.45) {2.1\%}; \node[err] at (3,-0.45) {1.8\%}; \node[err] at (4.5,-0.45) {3.5\%}; \node[err] at (6,-0.45) {2.0\%}; \node[font=\footnotesize\bfseries, anchor=east] at (-0.8,0) {Kernel}; \draw[arr] (0.5,0) -- (1,0); \draw[arr] (2,0) -- (2.5,0); \draw[arr] (3.5,0) -- (4,0); \draw[arr] (5,0) -- (5.5,0);
 \node[box, fill=yellow!20, dashed, draw=orange!60] (h1) at (0.75,0.5) {Launch\\overhead}; \node[box, fill=yellow!20, dashed, draw=orange!60] (h2) at (2.25,0.5) {Mem\\alloc}; \node[box, fill=yellow!20, dashed, draw=orange!60] (h3) at (3.75,0.5) {Data\\movement}; \node[box, fill=yellow!20, dashed, draw=orange!60] (h4) at (5.25,0.5) {Sync\\barrier};
-\node[box, fill=green!10, minimum width=6.5cm] (model) at (3,1.1) {Model-level prediction}; \node[err] at (3,0.82) {5--12\% (hidden overhead accumulates)}; \node[font=\scriptsize\bfseries, anchor=east] at (-0.8,1.1) {Model}; \node[box, fill=orange!10, minimum width=6.5cm] (system) at (3,1.75) {System-level prediction}; \node[err] at (3,1.45) {+ communication, scheduling, contention}; \node[font=\scriptsize\bfseries, anchor=east] at (-0.8,1.75) {System}; \node[err] at (3,2.05) {5--15\% total error};
-\draw[brace] (-0.5,-0.65) -- (6.5,-0.65) node[midway, below=4pt, font=\tiny, text=red!60!black] {$\sigma_{\text{model}} \approx \sigma_{\text{kernel}} \cdot \sqrt{N}$ (uncorrelated) to $N \cdot \sigma_{\text{kernel}}$ (correlated)};
+\node[box, fill=green!10, minimum width=6.5cm] (model) at (3,1.1) {Model-level prediction}; \node[err] at (3,0.82) {5--12\% (hidden overhead accumulates)}; \node[font=\footnotesize\bfseries, anchor=east] at (-0.8,1.1) {Model}; \node[box, fill=orange!10, minimum width=6.5cm] (system) at (3,1.75) {System-level prediction}; \node[err] at (3,1.45) {+ communication, scheduling, contention}; \node[font=\footnotesize\bfseries, anchor=east] at (-0.8,1.75) {System}; \node[err] at (3,2.05) {5--15\% total error};
+\draw[brace] (-0.5,-0.65) -- (6.5,-0.65) node[midway, below=4pt, font=\footnotesize, text=red!60!black] {$\sigma_{\text{model}} \approx \sigma_{\text{kernel}} \cdot \sqrt{N}$ (uncorrelated) to $N \cdot \sigma_{\text{kernel}}$ (correlated)};
 \end{tikzpicture}}\caption{Error composition: kernel predictions (2--3\%) accumulate to 5--15\% at system level.}\label{fig:error-composition}\end{figure}
 \begin{figure}[t]
 \centering\resizebox{\columnwidth}{!}{%
 \begin{tikzpicture}
-\begin{axis}[ybar stacked, bar width=14pt, xlabel={Publication year}, ylabel={Number of tools}, ymin=0, ymax=16, xtick={2016,2018,2020,2022,2024,2026}, xticklabels={2016--17,2018--19,2020--21,2022--23,2024--25,2026}, xticklabel style={font=\scriptsize}, yticklabel style={font=\scriptsize}, xlabel style={font=\small}, ylabel style={font=\small}, legend style={at={(0.02,0.98)}, anchor=north west, font=\tiny, draw=none, fill=white, fill opacity=0.9, text opacity=1, legend columns=2}, legend cell align={left}, height=2.5cm, width=8.5cm, enlarge x limits={abs=0.8cm}]
+\begin{axis}[ybar stacked, bar width=14pt, xlabel={Publication year}, ylabel={Number of tools}, ymin=0, ymax=16, xtick={2016,2018,2020,2022,2024,2026}, xticklabels={2016--17,2018--19,2020--21,2022--23,2024--25,2026}, xticklabel style={font=\footnotesize}, yticklabel style={font=\footnotesize}, xlabel style={font=\small}, ylabel style={font=\small}, legend style={at={(0.02,0.98)}, anchor=north west, font=\footnotesize, draw=none, fill=white, fill opacity=0.9, text opacity=1, legend columns=2}, legend cell align={left}, height=2.5cm, width=8.5cm, enlarge x limits={abs=0.8cm}]
 \addplot[fill=blue!50, draw=blue!70] coordinates {(2016,2) (2018,2) (2020,4) (2022,3) (2024,2) (2026,0)}; \addplot[fill=orange!50, draw=orange!70] coordinates {(2016,0) (2018,1) (2020,0) (2022,2) (2024,3) (2026,0)}; \addplot[fill=red!50, draw=red!70] coordinates {(2016,0) (2018,0) (2020,1) (2022,1) (2024,8) (2026,2)}; \addplot[fill=green!50, draw=green!70] coordinates {(2016,0) (2018,0) (2020,1) (2022,0) (2024,2) (2026,1)};
 \legend{CNN only, CNN+Transformer, LLM/Distributed, Cross-workload}
 \end{axis}\end{tikzpicture}}\caption{Workload coverage by publication period. MoE and diffusion models remain uncharacterized.}\label{fig:workload-coverage}\end{figure}
