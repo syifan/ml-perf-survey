@@ -1,0 +1,1541 @@
+{
+  "suite": "PerfSim-Survey-2026",
+  "timestamp": "2026-02-19T17:25:20.948103",
+  "gpu": "NVIDIA H100 PCIe",
+  "gpu_count": 1,
+  "gpu_memory_gb": 79.2,
+  "cuda_version": "12.8",
+  "pytorch_version": "2.10.0+cu128",
+  "dtype": "fp16",
+  "warmup": 5,
+  "iterations": 50,
+  "scenarios": {
+    "T1.1": {
+      "description": "DP pre-training: Llama-2-7B, 4\u00d7A100, DDP",
+      "status": "pass",
+      "elapsed_seconds": 55,
+      "script": "forward_pass_benchmark.py",
+      "results": {
+        "forward_pass_fp16.json": {
+          "benchmark": "forward_pass",
+          "gpu_info": {
+            "gpu_name": "NVIDIA H100 PCIe",
+            "gpu_memory_gb": 79.2,
+            "cuda_version": "12.8",
+            "pytorch_version": "2.10.0+cu128",
+            "gpu_count": 1
+          },
+          "config": {
+            "dtype": "fp16",
+            "iters": 50,
+            "warmup": 10
+          },
+          "timestamp": "2026-02-19T17:26:18+0000",
+          "results": [
+            {
+              "num_layers": 32,
+              "hidden_dim": 4096,
+              "num_heads": 32,
+              "intermediate_dim": 11008,
+              "seq_len": 2048,
+              "batch_size": 4,
+              "num_params_M": 6476.8,
+              "dtype": "torch.float16",
+              "median_ms": 319.9019,
+              "mean_ms": 319.7197,
+              "min_ms": 314.8236,
+              "max_ms": 322.42,
+              "p95_ms": 321.8619,
+              "tokens_per_sec": 25607.8,
+              "peak_mem_mb": 13158.5,
+              "iters": 50,
+              "label": "custom-h4096-l32-s2048-b4"
+            }
+          ]
+        }
+      }
+    },
+    "T1.2": {
+      "description": "DP pre-training: Llama-2-13B, 8\u00d7A100, DDP",
+      "status": "pass",
+      "elapsed_seconds": 84,
+      "script": "forward_pass_benchmark.py",
+      "results": {
+        "forward_pass_fp16.json": {
+          "benchmark": "forward_pass",
+          "gpu_info": {
+            "gpu_name": "NVIDIA H100 PCIe",
+            "gpu_memory_gb": 79.2,
+            "cuda_version": "12.8",
+            "pytorch_version": "2.10.0+cu128",
+            "gpu_count": 1
+          },
+          "config": {
+            "dtype": "fp16",
+            "iters": 50,
+            "warmup": 10
+          },
+          "timestamp": "2026-02-19T17:27:41+0000",
+          "results": [
+            {
+              "num_layers": 40,
+              "hidden_dim": 5120,
+              "num_heads": 40,
+              "intermediate_dim": 13760,
+              "seq_len": 2048,
+              "batch_size": 2,
+              "num_params_M": 12649.7,
+              "dtype": "torch.float16",
+              "median_ms": 304.1063,
+              "mean_ms": 303.8248,
+              "min_ms": 299.7341,
+              "max_ms": 305.8121,
+              "p95_ms": 305.4586,
+              "tokens_per_sec": 13469.0,
+              "peak_mem_mb": 24643.8,
+              "iters": 50,
+              "label": "custom-h5120-l40-s2048-b2"
+            }
+          ]
+        }
+      }
+    },
+    "T1.3": {
+      "description": "DP pre-training: GPT-2-XL, 4\u00d7A100, FSDP",
+      "status": "pass",
+      "elapsed_seconds": 34,
+      "script": "forward_pass_benchmark.py",
+      "results": {
+        "forward_pass_fp16.json": {
+          "benchmark": "forward_pass",
+          "gpu_info": {
+            "gpu_name": "NVIDIA H100 PCIe",
+            "gpu_memory_gb": 79.2,
+            "cuda_version": "12.8",
+            "pytorch_version": "2.10.0+cu128",
+            "gpu_count": 1
+          },
+          "config": {
+            "dtype": "fp16",
+            "iters": 50,
+            "warmup": 10
+          },
+          "timestamp": "2026-02-19T17:28:16+0000",
+          "results": [
+            {
+              "num_layers": 48,
+              "hidden_dim": 1600,
+              "num_heads": 25,
+              "intermediate_dim": 4300,
+              "seq_len": 2048,
+              "batch_size": 8,
+              "num_params_M": 1482.7,
+              "dtype": "torch.float16",
+              "median_ms": 363.977,
+              "mean_ms": 364.1768,
+              "min_ms": 361.2824,
+              "max_ms": 368.2106,
+              "p95_ms": 366.2048,
+              "tokens_per_sec": 45013.8,
+              "peak_mem_mb": 3613.1,
+              "iters": 50,
+              "label": "custom-h1600-l48-s2048-b8"
+            }
+          ]
+        }
+      }
+    },
+    "T1.4": {
+      "description": "DP pre-training: Llama-2-7B, 8\u00d7H100, FSDP",
+      "status": "pass",
+      "elapsed_seconds": 74,
+      "script": "forward_pass_benchmark.py",
+      "results": {
+        "forward_pass_fp16.json": {
+          "benchmark": "forward_pass",
+          "gpu_info": {
+            "gpu_name": "NVIDIA H100 PCIe",
+            "gpu_memory_gb": 79.2,
+            "cuda_version": "12.8",
+            "pytorch_version": "2.10.0+cu128",
+            "gpu_count": 1
+          },
+          "config": {
+            "dtype": "fp16",
+            "iters": 50,
+            "warmup": 10
+          },
+          "timestamp": "2026-02-19T17:29:30+0000",
+          "results": [
+            {
+              "num_layers": 32,
+              "hidden_dim": 4096,
+              "num_heads": 32,
+              "intermediate_dim": 11008,
+              "seq_len": 2048,
+              "batch_size": 8,
+              "num_params_M": 6476.8,
+              "dtype": "torch.float16",
+              "median_ms": 640.0857,
+              "mean_ms": 640.0489,
+              "min_ms": 637.7744,
+              "max_ms": 642.0106,
+              "p95_ms": 641.7739,
+              "tokens_per_sec": 25596.6,
+              "peak_mem_mb": 13930.5,
+              "iters": 50,
+              "label": "custom-h4096-l32-s2048-b8"
+            }
+          ]
+        }
+      }
+    },
+    "T2.1": {
+      "description": "TP pre-training: Llama-2-70B, 8\u00d7A100, TP=8",
+      "status": "pass",
+      "elapsed_seconds": 384,
+      "script": "forward_pass_benchmark.py",
+      "results": {
+        "forward_pass_fp16.json": {
+          "benchmark": "forward_pass",
+          "gpu_info": {
+            "gpu_name": "NVIDIA H100 PCIe",
+            "gpu_memory_gb": 79.2,
+            "cuda_version": "12.8",
+            "pytorch_version": "2.10.0+cu128",
+            "gpu_count": 1
+          },
+          "config": {
+            "dtype": "fp16",
+            "iters": 50,
+            "warmup": 10
+          },
+          "timestamp": "2026-02-19T17:35:54+0000",
+          "results": []
+        }
+      }
+    },
+    "T2.2": {
+      "description": "TP pre-training: Mixtral-8x7B, 8\u00d7H100, TP=8",
+      "status": "pass",
+      "elapsed_seconds": 55,
+      "script": "forward_pass_benchmark.py",
+      "results": {
+        "forward_pass_fp16.json": {
+          "benchmark": "forward_pass",
+          "gpu_info": {
+            "gpu_name": "NVIDIA H100 PCIe",
+            "gpu_memory_gb": 79.2,
+            "cuda_version": "12.8",
+            "pytorch_version": "2.10.0+cu128",
+            "gpu_count": 1
+          },
+          "config": {
+            "dtype": "fp16",
+            "iters": 50,
+            "warmup": 10
+          },
+          "timestamp": "2026-02-19T17:36:49+0000",
+          "results": [
+            {
+              "num_layers": 32,
+              "hidden_dim": 4096,
+              "num_heads": 32,
+              "intermediate_dim": 11008,
+              "seq_len": 2048,
+              "batch_size": 4,
+              "num_params_M": 6476.8,
+              "dtype": "torch.float16",
+              "median_ms": 319.9498,
+              "mean_ms": 319.8891,
+              "min_ms": 316.3238,
+              "max_ms": 322.4841,
+              "p95_ms": 321.419,
+              "tokens_per_sec": 25604.0,
+              "peak_mem_mb": 13158.5,
+              "iters": 50,
+              "label": "custom-h4096-l32-s2048-b4"
+            }
+          ]
+        }
+      }
+    },
+    "T2.3": {
+      "description": "TP pre-training: QWen-2.5-72B, 8\u00d7H100, TP=8",
+      "status": "pass",
+      "elapsed_seconds": 373,
+      "script": "forward_pass_benchmark.py",
+      "results": {
+        "forward_pass_fp16.json": {
+          "benchmark": "forward_pass",
+          "gpu_info": {
+            "gpu_name": "NVIDIA H100 PCIe",
+            "gpu_memory_gb": 79.2,
+            "cuda_version": "12.8",
+            "pytorch_version": "2.10.0+cu128",
+            "gpu_count": 1
+          },
+          "config": {
+            "dtype": "fp16",
+            "iters": 50,
+            "warmup": 10
+          },
+          "timestamp": "2026-02-19T17:42:59+0000",
+          "results": []
+        }
+      }
+    },
+    "T3.1": {
+      "description": "PP pre-training: Llama-2-70B, 16\u00d7A100, PP=4 DP=4",
+      "status": "pass",
+      "elapsed_seconds": 95,
+      "script": "forward_pass_benchmark.py",
+      "results": {
+        "forward_pass_fp16.json": {
+          "benchmark": "forward_pass",
+          "gpu_info": {
+            "gpu_name": "NVIDIA H100 PCIe",
+            "gpu_memory_gb": 79.2,
+            "cuda_version": "12.8",
+            "pytorch_version": "2.10.0+cu128",
+            "gpu_count": 1
+          },
+          "config": {
+            "dtype": "fp16",
+            "iters": 50,
+            "warmup": 10
+          },
+          "timestamp": "2026-02-19T17:44:37+0000",
+          "results": [
+            {
+              "num_layers": 20,
+              "hidden_dim": 8192,
+              "num_heads": 64,
+              "intermediate_dim": 22016,
+              "seq_len": 2048,
+              "batch_size": 1,
+              "num_params_M": 16191.0,
+              "dtype": "torch.float16",
+              "median_ms": 184.4621,
+              "mean_ms": 184.8956,
+              "min_ms": 178.4843,
+              "max_ms": 190.3102,
+              "p95_ms": 188.6476,
+              "tokens_per_sec": 11102.6,
+              "peak_mem_mb": 31300.9,
+              "iters": 50,
+              "label": "custom-h8192-l20-s2048-b1"
+            }
+          ]
+        }
+      }
+    },
+    "T3.2": {
+      "description": "PP pre-training: GPT-3-175B, 128\u00d7H100, PP=8 DP=16",
+      "status": "pass",
+      "elapsed_seconds": 126,
+      "script": "forward_pass_benchmark.py",
+      "results": {
+        "forward_pass_fp16.json": {
+          "benchmark": "forward_pass",
+          "gpu_info": {
+            "gpu_name": "NVIDIA H100 PCIe",
+            "gpu_memory_gb": 79.2,
+            "cuda_version": "12.8",
+            "pytorch_version": "2.10.0+cu128",
+            "gpu_count": 1
+          },
+          "config": {
+            "dtype": "fp16",
+            "iters": 50,
+            "warmup": 10
+          },
+          "timestamp": "2026-02-19T17:46:42+0000",
+          "results": [
+            {
+              "num_layers": 12,
+              "hidden_dim": 12288,
+              "num_heads": 96,
+              "intermediate_dim": 33024,
+              "seq_len": 2048,
+              "batch_size": 1,
+              "num_params_M": 21857.4,
+              "dtype": "torch.float16",
+              "median_ms": 239.9317,
+              "mean_ms": 239.0657,
+              "min_ms": 231.408,
+              "max_ms": 240.2989,
+              "p95_ms": 240.2496,
+              "tokens_per_sec": 8535.8,
+              "peak_mem_mb": 42303.7,
+              "iters": 50,
+              "label": "custom-h12288-l12-s2048-b1"
+            }
+          ]
+        }
+      }
+    },
+    "T4.1": {
+      "description": "FP8 training: Llama-2-7B, 4\u00d7H100, FP8 compute",
+      "status": "pass",
+      "elapsed_seconds": 55,
+      "script": "forward_pass_benchmark.py",
+      "results": {
+        "forward_pass_fp16.json": {
+          "benchmark": "forward_pass",
+          "gpu_info": {
+            "gpu_name": "NVIDIA H100 PCIe",
+            "gpu_memory_gb": 79.2,
+            "cuda_version": "12.8",
+            "pytorch_version": "2.10.0+cu128",
+            "gpu_count": 1
+          },
+          "config": {
+            "dtype": "fp16",
+            "iters": 50,
+            "warmup": 10
+          },
+          "timestamp": "2026-02-19T17:47:38+0000",
+          "results": [
+            {
+              "num_layers": 32,
+              "hidden_dim": 4096,
+              "num_heads": 32,
+              "intermediate_dim": 11008,
+              "seq_len": 2048,
+              "batch_size": 4,
+              "num_params_M": 6476.8,
+              "dtype": "torch.float16",
+              "median_ms": 320.0482,
+              "mean_ms": 319.9893,
+              "min_ms": 315.2509,
+              "max_ms": 322.731,
+              "p95_ms": 321.5298,
+              "tokens_per_sec": 25596.1,
+              "peak_mem_mb": 13158.5,
+              "iters": 50,
+              "label": "custom-h4096-l32-s2048-b4"
+            }
+          ]
+        }
+      }
+    },
+    "T4.2": {
+      "description": "LoRA fine-tuning: Llama-2-13B, 1\u00d7A100, rank=16",
+      "status": "pass",
+      "elapsed_seconds": 5,
+      "script": "gemm_benchmark.py",
+      "results": {
+        "gemm_fp16.json": {
+          "benchmark": "gemm",
+          "gpu_info": {
+            "gpu_name": "NVIDIA H100 PCIe",
+            "gpu_memory_gb": 79.2,
+            "cuda_version": "12.8",
+            "pytorch_version": "2.10.0+cu128",
+            "gpu_count": 1
+          },
+          "config": {
+            "dtype": "fp16",
+            "iters": 100,
+            "warmup": 10
+          },
+          "timestamp": "2026-02-19T17:47:43+0000",
+          "results": [
+            {
+              "M": 2048,
+              "K": 5120,
+              "N": 256,
+              "dtype": "torch.float16",
+              "median_ms": 0.0335,
+              "mean_ms": 0.0336,
+              "min_ms": 0.0324,
+              "max_ms": 0.045,
+              "p95_ms": 0.0347,
+              "tflops": 160.39,
+              "iters": 100
+            },
+            {
+              "M": 2048,
+              "K": 256,
+              "N": 5120,
+              "dtype": "torch.float16",
+              "median_ms": 0.0339,
+              "mean_ms": 0.0342,
+              "min_ms": 0.0332,
+              "max_ms": 0.0455,
+              "p95_ms": 0.0348,
+              "tflops": 158.28,
+              "iters": 100
+            }
+          ]
+        }
+      }
+    },
+    "T4.3": {
+      "description": "Sequence parallel: Llama-2-70B, 8\u00d7H100, SP+TP",
+      "status": "pass",
+      "elapsed_seconds": 318,
+      "script": "forward_pass_benchmark.py",
+      "results": {
+        "forward_pass_fp16.json": {
+          "benchmark": "forward_pass",
+          "gpu_info": {
+            "gpu_name": "NVIDIA H100 PCIe",
+            "gpu_memory_gb": 79.2,
+            "cuda_version": "12.8",
+            "pytorch_version": "2.10.0+cu128",
+            "gpu_count": 1
+          },
+          "config": {
+            "dtype": "fp16",
+            "iters": 50,
+            "warmup": 10
+          },
+          "timestamp": "2026-02-19T17:53:00+0000",
+          "results": []
+        }
+      }
+    },
+    "T4.4": {
+      "description": "MoE training: DeepSeek-V2, 8\u00d7H100, EP=8",
+      "status": "pass",
+      "elapsed_seconds": 124,
+      "script": "forward_pass_benchmark.py",
+      "results": {
+        "forward_pass_fp16.json": {
+          "benchmark": "forward_pass",
+          "gpu_info": {
+            "gpu_name": "NVIDIA H100 PCIe",
+            "gpu_memory_gb": 79.2,
+            "cuda_version": "12.8",
+            "pytorch_version": "2.10.0+cu128",
+            "gpu_count": 1
+          },
+          "config": {
+            "dtype": "fp16",
+            "iters": 50,
+            "warmup": 10
+          },
+          "timestamp": "2026-02-19T17:55:05+0000",
+          "results": [
+            {
+              "num_layers": 60,
+              "hidden_dim": 5120,
+              "num_heads": 40,
+              "intermediate_dim": 13760,
+              "seq_len": 2048,
+              "batch_size": 2,
+              "num_params_M": 18974.5,
+              "dtype": "torch.float16",
+              "median_ms": 454.8479,
+              "mean_ms": 454.4835,
+              "min_ms": 448.3664,
+              "max_ms": 459.4994,
+              "p95_ms": 458.2648,
+              "tokens_per_sec": 9005.2,
+              "peak_mem_mb": 36707.5,
+              "iters": 50,
+              "label": "custom-h5120-l60-s2048-b2"
+            }
+          ]
+        }
+      }
+    },
+    "T4.5": {
+      "description": "MoE training: DeepSeek-V3, 16\u00d7H100, EP=8 TP=2",
+      "status": "pass",
+      "elapsed_seconds": 220,
+      "script": "forward_pass_benchmark.py",
+      "results": {
+        "forward_pass_fp16.json": {
+          "benchmark": "forward_pass",
+          "gpu_info": {
+            "gpu_name": "NVIDIA H100 PCIe",
+            "gpu_memory_gb": 79.2,
+            "cuda_version": "12.8",
+            "pytorch_version": "2.10.0+cu128",
+            "gpu_count": 1
+          },
+          "config": {
+            "dtype": "fp16",
+            "iters": 50,
+            "warmup": 10
+          },
+          "timestamp": "2026-02-19T17:58:44+0000",
+          "results": [
+            {
+              "num_layers": 61,
+              "hidden_dim": 7168,
+              "num_heads": 56,
+              "intermediate_dim": 19264,
+              "seq_len": 2048,
+              "batch_size": 1,
+              "num_params_M": 37808.8,
+              "dtype": "torch.float16",
+              "median_ms": 431.6164,
+              "mean_ms": 432.4095,
+              "min_ms": 428.7481,
+              "max_ms": 438.7156,
+              "p95_ms": 437.7263,
+              "tokens_per_sec": 4745.0,
+              "peak_mem_mb": 72601.3,
+              "iters": 50,
+              "label": "custom-h7168-l61-s2048-b1"
+            }
+          ]
+        }
+      }
+    },
+    "T4.6": {
+      "description": "QLoRA fine-tuning: Llama-2-70B, 1\u00d7A100, 4-bit",
+      "status": "pass",
+      "elapsed_seconds": 5,
+      "script": "gemm_benchmark.py",
+      "results": {
+        "gemm_fp16.json": {
+          "benchmark": "gemm",
+          "gpu_info": {
+            "gpu_name": "NVIDIA H100 PCIe",
+            "gpu_memory_gb": 79.2,
+            "cuda_version": "12.8",
+            "pytorch_version": "2.10.0+cu128",
+            "gpu_count": 1
+          },
+          "config": {
+            "dtype": "fp16",
+            "iters": 100,
+            "warmup": 10
+          },
+          "timestamp": "2026-02-19T17:58:50+0000",
+          "results": [
+            {
+              "M": 2048,
+              "K": 8192,
+              "N": 256,
+              "dtype": "torch.float16",
+              "median_ms": 0.0376,
+              "mean_ms": 0.038,
+              "min_ms": 0.0355,
+              "max_ms": 0.0524,
+              "p95_ms": 0.0408,
+              "tflops": 228.46,
+              "iters": 100
+            },
+            {
+              "M": 2048,
+              "K": 256,
+              "N": 8192,
+              "dtype": "torch.float16",
+              "median_ms": 0.0399,
+              "mean_ms": 0.0405,
+              "min_ms": 0.0382,
+              "max_ms": 0.0497,
+              "p95_ms": 0.0447,
+              "tflops": 215.09,
+              "iters": 100
+            }
+          ]
+        }
+      }
+    },
+    "I1.1": {
+      "description": "Single-request inference: Llama-2-7B, 1\u00d7A100, prefill seq=2048",
+      "status": "pass",
+      "elapsed_seconds": 5,
+      "script": "attention_benchmark.py",
+      "results": {
+        "attention_fp16.json": {
+          "benchmark": "attention",
+          "gpu_info": {
+            "gpu_name": "NVIDIA H100 PCIe",
+            "gpu_memory_gb": 79.2,
+            "cuda_version": "12.8",
+            "pytorch_version": "2.10.0+cu128",
+            "gpu_count": 1
+          },
+          "config": {
+            "dtype": "fp16",
+            "iters": 100,
+            "warmup": 10
+          },
+          "timestamp": "2026-02-19T17:58:55+0000",
+          "results": [
+            {
+              "num_heads": 32,
+              "head_dim": 128,
+              "seq_len": 2048,
+              "batch_size": 1,
+              "hidden_dim": 4096,
+              "dtype": "torch.float16",
+              "median_ms": 0.2243,
+              "mean_ms": 0.2243,
+              "min_ms": 0.2105,
+              "max_ms": 0.2436,
+              "p95_ms": 0.2343,
+              "iters": 100,
+              "label": "custom-h4096-nh32-s2048-b1"
+            }
+          ]
+        }
+      }
+    },
+    "I1.2": {
+      "description": "Single-request inference: Llama-2-13B, 1\u00d7A100, prefill seq=4096",
+      "status": "pass",
+      "elapsed_seconds": 5,
+      "script": "attention_benchmark.py",
+      "results": {
+        "attention_fp16.json": {
+          "benchmark": "attention",
+          "gpu_info": {
+            "gpu_name": "NVIDIA H100 PCIe",
+            "gpu_memory_gb": 79.2,
+            "cuda_version": "12.8",
+            "pytorch_version": "2.10.0+cu128",
+            "gpu_count": 1
+          },
+          "config": {
+            "dtype": "fp16",
+            "iters": 100,
+            "warmup": 10
+          },
+          "timestamp": "2026-02-19T17:59:00+0000",
+          "results": [
+            {
+              "num_heads": 40,
+              "head_dim": 128,
+              "seq_len": 4096,
+              "batch_size": 1,
+              "hidden_dim": 5120,
+              "dtype": "torch.float16",
+              "median_ms": 0.8836,
+              "mean_ms": 0.8603,
+              "min_ms": 0.7784,
+              "max_ms": 0.9234,
+              "p95_ms": 0.9151,
+              "iters": 100,
+              "label": "custom-h5120-nh40-s4096-b1"
+            }
+          ]
+        }
+      }
+    },
+    "I1.3": {
+      "description": "Single-request inference: Llama-2-70B, 4\u00d7A100, TP=4 prefill",
+      "status": "pass",
+      "elapsed_seconds": 5,
+      "script": "attention_benchmark.py",
+      "results": {
+        "attention_fp16.json": {
+          "benchmark": "attention",
+          "gpu_info": {
+            "gpu_name": "NVIDIA H100 PCIe",
+            "gpu_memory_gb": 79.2,
+            "cuda_version": "12.8",
+            "pytorch_version": "2.10.0+cu128",
+            "gpu_count": 1
+          },
+          "config": {
+            "dtype": "fp16",
+            "iters": 100,
+            "warmup": 10
+          },
+          "timestamp": "2026-02-19T17:59:05+0000",
+          "results": [
+            {
+              "num_heads": 64,
+              "head_dim": 128,
+              "seq_len": 2048,
+              "batch_size": 1,
+              "hidden_dim": 8192,
+              "dtype": "torch.float16",
+              "median_ms": 0.3659,
+              "mean_ms": 0.3663,
+              "min_ms": 0.3542,
+              "max_ms": 0.3918,
+              "p95_ms": 0.3785,
+              "iters": 100,
+              "label": "custom-h8192-nh64-s2048-b1"
+            }
+          ]
+        }
+      }
+    },
+    "I1.4": {
+      "description": "Single-request inference: GPT-2-XL, 1\u00d7A100, decode 512 tokens",
+      "status": "pass",
+      "elapsed_seconds": 13,
+      "script": "forward_pass_benchmark.py",
+      "results": {
+        "forward_pass_fp16.json": {
+          "benchmark": "forward_pass",
+          "gpu_info": {
+            "gpu_name": "NVIDIA H100 PCIe",
+            "gpu_memory_gb": 79.2,
+            "cuda_version": "12.8",
+            "pytorch_version": "2.10.0+cu128",
+            "gpu_count": 1
+          },
+          "config": {
+            "dtype": "fp16",
+            "iters": 50,
+            "warmup": 10
+          },
+          "timestamp": "2026-02-19T17:59:18+0000",
+          "results": [
+            {
+              "num_layers": 48,
+              "hidden_dim": 1600,
+              "num_heads": 25,
+              "intermediate_dim": 4300,
+              "seq_len": 512,
+              "batch_size": 1,
+              "num_params_M": 1482.7,
+              "dtype": "torch.float16",
+              "median_ms": 16.9609,
+              "mean_ms": 17.0226,
+              "min_ms": 16.8626,
+              "max_ms": 18.7905,
+              "p95_ms": 17.1577,
+              "tokens_per_sec": 30187.1,
+              "peak_mem_mb": 3028.8,
+              "iters": 50,
+              "label": "custom-h1600-l48-s512-b1"
+            }
+          ]
+        }
+      }
+    },
+    "I1.5": {
+      "description": "Single-request inference: QWen-2.5-7B, 1\u00d7H100, prefill+decode",
+      "status": "pass",
+      "elapsed_seconds": 5,
+      "script": "attention_benchmark.py",
+      "results": {
+        "attention_fp16.json": {
+          "benchmark": "attention",
+          "gpu_info": {
+            "gpu_name": "NVIDIA H100 PCIe",
+            "gpu_memory_gb": 79.2,
+            "cuda_version": "12.8",
+            "pytorch_version": "2.10.0+cu128",
+            "gpu_count": 1
+          },
+          "config": {
+            "dtype": "fp16",
+            "iters": 100,
+            "warmup": 10
+          },
+          "timestamp": "2026-02-19T17:59:23+0000",
+          "results": [
+            {
+              "num_heads": 32,
+              "head_dim": 128,
+              "seq_len": 2048,
+              "batch_size": 1,
+              "hidden_dim": 4096,
+              "dtype": "torch.float16",
+              "median_ms": 0.2237,
+              "mean_ms": 0.224,
+              "min_ms": 0.2126,
+              "max_ms": 0.2453,
+              "p95_ms": 0.2349,
+              "iters": 100,
+              "label": "custom-h4096-nh32-s2048-b1"
+            }
+          ]
+        }
+      }
+    },
+    "I2.1": {
+      "description": "Batched serving: Llama-2-7B, 1\u00d7A100, vLLM bs=32",
+      "status": "pass",
+      "elapsed_seconds": 6,
+      "script": "attention_benchmark.py",
+      "results": {
+        "attention_fp16.json": {
+          "benchmark": "attention",
+          "gpu_info": {
+            "gpu_name": "NVIDIA H100 PCIe",
+            "gpu_memory_gb": 79.2,
+            "cuda_version": "12.8",
+            "pytorch_version": "2.10.0+cu128",
+            "gpu_count": 1
+          },
+          "config": {
+            "dtype": "fp16",
+            "iters": 100,
+            "warmup": 10
+          },
+          "timestamp": "2026-02-19T17:59:29+0000",
+          "results": [
+            {
+              "num_heads": 32,
+              "head_dim": 128,
+              "seq_len": 2048,
+              "batch_size": 32,
+              "hidden_dim": 4096,
+              "dtype": "torch.float16",
+              "median_ms": 5.3248,
+              "mean_ms": 5.3011,
+              "min_ms": 4.9902,
+              "max_ms": 5.5682,
+              "p95_ms": 5.3465,
+              "iters": 100,
+              "label": "custom-h4096-nh32-s2048-b32"
+            }
+          ]
+        }
+      }
+    },
+    "I2.2": {
+      "description": "Batched serving: Llama-2-13B, 2\u00d7A100, vLLM continuous batching",
+      "status": "pass",
+      "elapsed_seconds": 5,
+      "script": "attention_benchmark.py",
+      "results": {
+        "attention_fp16.json": {
+          "benchmark": "attention",
+          "gpu_info": {
+            "gpu_name": "NVIDIA H100 PCIe",
+            "gpu_memory_gb": 79.2,
+            "cuda_version": "12.8",
+            "pytorch_version": "2.10.0+cu128",
+            "gpu_count": 1
+          },
+          "config": {
+            "dtype": "fp16",
+            "iters": 100,
+            "warmup": 10
+          },
+          "timestamp": "2026-02-19T17:59:34+0000",
+          "results": [
+            {
+              "num_heads": 40,
+              "head_dim": 128,
+              "seq_len": 2048,
+              "batch_size": 16,
+              "hidden_dim": 5120,
+              "dtype": "torch.float16",
+              "median_ms": 3.3588,
+              "mean_ms": 3.4038,
+              "min_ms": 3.0401,
+              "max_ms": 3.7868,
+              "p95_ms": 3.7082,
+              "iters": 100,
+              "label": "custom-h5120-nh40-s2048-b16"
+            }
+          ]
+        }
+      }
+    },
+    "I2.3": {
+      "description": "Batched serving: Llama-2-7B, 1\u00d7A100, Sarathi chunked prefill",
+      "status": "pass",
+      "elapsed_seconds": 5,
+      "script": "attention_benchmark.py",
+      "results": {
+        "attention_fp16.json": {
+          "benchmark": "attention",
+          "gpu_info": {
+            "gpu_name": "NVIDIA H100 PCIe",
+            "gpu_memory_gb": 79.2,
+            "cuda_version": "12.8",
+            "pytorch_version": "2.10.0+cu128",
+            "gpu_count": 1
+          },
+          "config": {
+            "dtype": "fp16",
+            "iters": 100,
+            "warmup": 10
+          },
+          "timestamp": "2026-02-19T17:59:39+0000",
+          "results": [
+            {
+              "num_heads": 32,
+              "head_dim": 128,
+              "seq_len": 512,
+              "batch_size": 32,
+              "hidden_dim": 4096,
+              "dtype": "torch.float16",
+              "median_ms": 0.4771,
+              "mean_ms": 0.4923,
+              "min_ms": 0.4692,
+              "max_ms": 0.5513,
+              "p95_ms": 0.5476,
+              "iters": 100,
+              "label": "custom-h4096-nh32-s512-b32"
+            }
+          ]
+        }
+      }
+    },
+    "I2.4": {
+      "description": "Batched serving: Llama-2-70B, 4\u00d7H100, vLLM TP=4 bs=64",
+      "status": "pass",
+      "elapsed_seconds": 8,
+      "script": "attention_benchmark.py",
+      "results": {
+        "attention_fp16.json": {
+          "benchmark": "attention",
+          "gpu_info": {
+            "gpu_name": "NVIDIA H100 PCIe",
+            "gpu_memory_gb": 79.2,
+            "cuda_version": "12.8",
+            "pytorch_version": "2.10.0+cu128",
+            "gpu_count": 1
+          },
+          "config": {
+            "dtype": "fp16",
+            "iters": 100,
+            "warmup": 10
+          },
+          "timestamp": "2026-02-19T17:59:47+0000",
+          "results": [
+            {
+              "num_heads": 64,
+              "head_dim": 128,
+              "seq_len": 2048,
+              "batch_size": 64,
+              "hidden_dim": 8192,
+              "dtype": "torch.float16",
+              "median_ms": 23.0748,
+              "mean_ms": 22.4218,
+              "min_ms": 21.025,
+              "max_ms": 23.3913,
+              "p95_ms": 23.3676,
+              "iters": 100,
+              "label": "custom-h8192-nh64-s2048-b64"
+            }
+          ]
+        }
+      }
+    },
+    "I3.1": {
+      "description": "KV cache: Llama-2-7B, 1\u00d7A100, PagedAttention",
+      "status": "pass",
+      "elapsed_seconds": 5,
+      "script": "attention_benchmark.py",
+      "results": {
+        "attention_fp16.json": {
+          "benchmark": "attention",
+          "gpu_info": {
+            "gpu_name": "NVIDIA H100 PCIe",
+            "gpu_memory_gb": 79.2,
+            "cuda_version": "12.8",
+            "pytorch_version": "2.10.0+cu128",
+            "gpu_count": 1
+          },
+          "config": {
+            "dtype": "fp16",
+            "iters": 100,
+            "warmup": 10
+          },
+          "timestamp": "2026-02-19T17:59:52+0000",
+          "results": [
+            {
+              "num_heads": 32,
+              "head_dim": 128,
+              "seq_len": 4096,
+              "batch_size": 8,
+              "hidden_dim": 4096,
+              "dtype": "torch.float16",
+              "median_ms": 4.9956,
+              "mean_ms": 4.9701,
+              "min_ms": 4.7398,
+              "max_ms": 5.0924,
+              "p95_ms": 5.0444,
+              "iters": 100,
+              "label": "custom-h4096-nh32-s4096-b8"
+            }
+          ]
+        }
+      }
+    },
+    "I3.2": {
+      "description": "KV cache: Llama-2-13B, 1\u00d7A100, prefix caching",
+      "status": "pass",
+      "elapsed_seconds": 6,
+      "script": "attention_benchmark.py",
+      "results": {
+        "attention_fp16.json": {
+          "benchmark": "attention",
+          "gpu_info": {
+            "gpu_name": "NVIDIA H100 PCIe",
+            "gpu_memory_gb": 79.2,
+            "cuda_version": "12.8",
+            "pytorch_version": "2.10.0+cu128",
+            "gpu_count": 1
+          },
+          "config": {
+            "dtype": "fp16",
+            "iters": 100,
+            "warmup": 10
+          },
+          "timestamp": "2026-02-19T17:59:58+0000",
+          "results": [
+            {
+              "num_heads": 40,
+              "head_dim": 128,
+              "seq_len": 4096,
+              "batch_size": 4,
+              "hidden_dim": 5120,
+              "dtype": "torch.float16",
+              "median_ms": 3.1165,
+              "mean_ms": 3.1182,
+              "min_ms": 2.9239,
+              "max_ms": 3.2548,
+              "p95_ms": 3.2208,
+              "iters": 100,
+              "label": "custom-h5120-nh40-s4096-b4"
+            }
+          ]
+        }
+      }
+    },
+    "I3.3": {
+      "description": "KV cache: QWen-2.5-7B, 1\u00d7H100, multi-query attention",
+      "status": "pass",
+      "elapsed_seconds": 5,
+      "script": "attention_benchmark.py",
+      "results": {
+        "attention_fp16.json": {
+          "benchmark": "attention",
+          "gpu_info": {
+            "gpu_name": "NVIDIA H100 PCIe",
+            "gpu_memory_gb": 79.2,
+            "cuda_version": "12.8",
+            "pytorch_version": "2.10.0+cu128",
+            "gpu_count": 1
+          },
+          "config": {
+            "dtype": "fp16",
+            "iters": 100,
+            "warmup": 10
+          },
+          "timestamp": "2026-02-19T18:00:03+0000",
+          "results": [
+            {
+              "num_heads": 32,
+              "head_dim": 128,
+              "seq_len": 2048,
+              "batch_size": 8,
+              "hidden_dim": 4096,
+              "dtype": "torch.float16",
+              "median_ms": 1.3241,
+              "mean_ms": 1.332,
+              "min_ms": 1.2248,
+              "max_ms": 1.4584,
+              "p95_ms": 1.4188,
+              "iters": 100,
+              "label": "custom-h4096-nh32-s2048-b8"
+            }
+          ]
+        }
+      }
+    },
+    "I4.1": {
+      "description": "Multi-model: Llama-2-7B + Llama-2-13B co-located, 2\u00d7A100",
+      "status": "pass",
+      "elapsed_seconds": 45,
+      "script": "forward_pass_benchmark.py",
+      "results": {
+        "forward_pass_fp16.json": {
+          "benchmark": "forward_pass",
+          "gpu_info": {
+            "gpu_name": "NVIDIA H100 PCIe",
+            "gpu_memory_gb": 79.2,
+            "cuda_version": "12.8",
+            "pytorch_version": "2.10.0+cu128",
+            "gpu_count": 1
+          },
+          "config": {
+            "dtype": "fp16",
+            "iters": 50,
+            "warmup": 10
+          },
+          "timestamp": "2026-02-19T18:00:48+0000",
+          "results": [
+            {
+              "num_layers": 32,
+              "hidden_dim": 4096,
+              "num_heads": 32,
+              "intermediate_dim": 11008,
+              "seq_len": 1024,
+              "batch_size": 4,
+              "num_params_M": 6476.8,
+              "dtype": "torch.float16",
+              "median_ms": 154.3057,
+              "mean_ms": 154.125,
+              "min_ms": 149.2948,
+              "max_ms": 159.1437,
+              "p95_ms": 157.2682,
+              "tokens_per_sec": 26544.7,
+              "peak_mem_mb": 12772.5,
+              "iters": 50,
+              "label": "custom-h4096-l32-s1024-b4"
+            }
+          ]
+        }
+      }
+    },
+    "I4.2": {
+      "description": "Multi-model: 3 models multiplexed, 4\u00d7A100, time-sharing",
+      "status": "pass",
+      "elapsed_seconds": 54,
+      "script": "forward_pass_benchmark.py",
+      "results": {
+        "forward_pass_fp16.json": {
+          "benchmark": "forward_pass",
+          "gpu_info": {
+            "gpu_name": "NVIDIA H100 PCIe",
+            "gpu_memory_gb": 79.2,
+            "cuda_version": "12.8",
+            "pytorch_version": "2.10.0+cu128",
+            "gpu_count": 1
+          },
+          "config": {
+            "dtype": "fp16",
+            "iters": 50,
+            "warmup": 10
+          },
+          "timestamp": "2026-02-19T18:01:42+0000",
+          "results": [
+            {
+              "num_layers": 32,
+              "hidden_dim": 4096,
+              "num_heads": 32,
+              "intermediate_dim": 11008,
+              "seq_len": 1024,
+              "batch_size": 8,
+              "num_params_M": 6476.8,
+              "dtype": "torch.float16",
+              "median_ms": 299.6488,
+              "mean_ms": 299.967,
+              "min_ms": 297.5564,
+              "max_ms": 304.2108,
+              "p95_ms": 302.826,
+              "tokens_per_sec": 27338.7,
+              "peak_mem_mb": 13158.5,
+              "iters": 50,
+              "label": "custom-h4096-l32-s1024-b8"
+            }
+          ]
+        }
+      }
+    },
+    "I5.1": {
+      "description": "Speculative decoding: Llama-2-70B + 7B draft, 4\u00d7A100",
+      "status": "pass",
+      "elapsed_seconds": 5,
+      "script": "attention_benchmark.py",
+      "results": {
+        "attention_fp16.json": {
+          "benchmark": "attention",
+          "gpu_info": {
+            "gpu_name": "NVIDIA H100 PCIe",
+            "gpu_memory_gb": 79.2,
+            "cuda_version": "12.8",
+            "pytorch_version": "2.10.0+cu128",
+            "gpu_count": 1
+          },
+          "config": {
+            "dtype": "fp16",
+            "iters": 100,
+            "warmup": 10
+          },
+          "timestamp": "2026-02-19T18:01:47+0000",
+          "results": [
+            {
+              "num_heads": 64,
+              "head_dim": 128,
+              "seq_len": 2048,
+              "batch_size": 4,
+              "hidden_dim": 8192,
+              "dtype": "torch.float16",
+              "median_ms": 1.4454,
+              "mean_ms": 1.4023,
+              "min_ms": 1.2369,
+              "max_ms": 1.4796,
+              "p95_ms": 1.4753,
+              "iters": 100,
+              "label": "custom-h8192-nh64-s2048-b4"
+            }
+          ]
+        }
+      }
+    },
+    "I5.2": {
+      "description": "INT4 quantized inference: Llama-2-70B, 1\u00d7A100, GPTQ",
+      "status": "pass",
+      "elapsed_seconds": 5,
+      "script": "gemm_benchmark.py",
+      "results": {
+        "gemm_fp16.json": {
+          "benchmark": "gemm",
+          "gpu_info": {
+            "gpu_name": "NVIDIA H100 PCIe",
+            "gpu_memory_gb": 79.2,
+            "cuda_version": "12.8",
+            "pytorch_version": "2.10.0+cu128",
+            "gpu_count": 1
+          },
+          "config": {
+            "dtype": "fp16",
+            "iters": 100,
+            "warmup": 10
+          },
+          "timestamp": "2026-02-19T18:01:52+0000",
+          "results": [
+            {
+              "M": 2048,
+              "K": 8192,
+              "N": 8192,
+              "dtype": "torch.float16",
+              "median_ms": 0.6023,
+              "mean_ms": 0.6211,
+              "min_ms": 0.5926,
+              "max_ms": 0.6718,
+              "p95_ms": 0.6711,
+              "tflops": 456.35,
+              "iters": 100
+            },
+            {
+              "M": 4096,
+              "K": 8192,
+              "N": 8192,
+              "dtype": "torch.float16",
+              "median_ms": 1.125,
+              "mean_ms": 1.1864,
+              "min_ms": 1.0382,
+              "max_ms": 1.4472,
+              "p95_ms": 1.4467,
+              "tflops": 488.68,
+              "iters": 100
+            }
+          ]
+        }
+      }
+    },
+    "I5.3": {
+      "description": "FP8 quantized inference: Llama-2-70B, 1\u00d7H100, FP8",
+      "status": "pass",
+      "elapsed_seconds": 5,
+      "script": "gemm_benchmark.py",
+      "results": {
+        "gemm_fp16.json": {
+          "benchmark": "gemm",
+          "gpu_info": {
+            "gpu_name": "NVIDIA H100 PCIe",
+            "gpu_memory_gb": 79.2,
+            "cuda_version": "12.8",
+            "pytorch_version": "2.10.0+cu128",
+            "gpu_count": 1
+          },
+          "config": {
+            "dtype": "fp16",
+            "iters": 100,
+            "warmup": 10
+          },
+          "timestamp": "2026-02-19T18:01:58+0000",
+          "results": [
+            {
+              "M": 2048,
+              "K": 8192,
+              "N": 8192,
+              "dtype": "torch.float16",
+              "median_ms": 0.5954,
+              "mean_ms": 0.6177,
+              "min_ms": 0.5842,
+              "max_ms": 0.6803,
+              "p95_ms": 0.6792,
+              "tflops": 461.65,
+              "iters": 100
+            },
+            {
+              "M": 4096,
+              "K": 8192,
+              "N": 8192,
+              "dtype": "torch.float16",
+              "median_ms": 1.184,
+              "mean_ms": 1.2133,
+              "min_ms": 1.0467,
+              "max_ms": 1.4472,
+              "p95_ms": 1.4468,
+              "tflops": 464.31,
+              "iters": 100
+            }
+          ]
+        }
+      }
+    },
+    "I5.4": {
+      "description": "Disaggregated serving: Llama-2-70B, 8\u00d7A100, splitwise",
+      "status": "pass",
+      "elapsed_seconds": 5,
+      "script": "attention_benchmark.py",
+      "results": {
+        "attention_fp16.json": {
+          "benchmark": "attention",
+          "gpu_info": {
+            "gpu_name": "NVIDIA H100 PCIe",
+            "gpu_memory_gb": 79.2,
+            "cuda_version": "12.8",
+            "pytorch_version": "2.10.0+cu128",
+            "gpu_count": 1
+          },
+          "config": {
+            "dtype": "fp16",
+            "iters": 100,
+            "warmup": 10
+          },
+          "timestamp": "2026-02-19T18:02:03+0000",
+          "results": [
+            {
+              "num_heads": 64,
+              "head_dim": 128,
+              "seq_len": 2048,
+              "batch_size": 16,
+              "hidden_dim": 8192,
+              "dtype": "torch.float16",
+              "median_ms": 5.3791,
+              "mean_ms": 5.3452,
+              "min_ms": 5.044,
+              "max_ms": 5.48,
+              "p95_ms": 5.4026,
+              "iters": 100,
+              "label": "custom-h8192-nh64-s2048-b16"
+            }
+          ]
+        }
+      }
+    },
+    "D1.1": {
+      "description": "Diffusion inference: SDXL, 1\u00d7A100, 50 steps",
+      "status": "pass",
+      "elapsed_seconds": 6,
+      "script": "ffn_benchmark.py",
+      "results": {
+        "ffn_fp16.json": {
+          "benchmark": "ffn",
+          "gpu_info": {
+            "gpu_name": "NVIDIA H100 PCIe",
+            "gpu_memory_gb": 79.2,
+            "cuda_version": "12.8",
+            "pytorch_version": "2.10.0+cu128",
+            "gpu_count": 1
+          },
+          "config": {
+            "dtype": "fp16",
+            "iters": 100,
+            "warmup": 10
+          },
+          "timestamp": "2026-02-19T18:02:09+0000",
+          "results": [
+            {
+              "hidden_dim": 2048,
+              "intermediate_dim": 8192,
+              "seq_len": 4096,
+              "batch_size": 2,
+              "activation": "silu",
+              "dtype": "torch.float16",
+              "median_ms": 2.2118,
+              "mean_ms": 2.1845,
+              "min_ms": 2.0312,
+              "max_ms": 2.3189,
+              "p95_ms": 2.3175,
+              "peak_mem_mb": 544.0,
+              "iters": 100,
+              "label": "custom-h2048-i8192-s4096-b2"
+            }
+          ]
+        }
+      }
+    },
+    "D1.2": {
+      "description": "Diffusion inference: FLUX.1-dev, 1\u00d7H100, 28 steps",
+      "status": "pass",
+      "elapsed_seconds": 6,
+      "script": "ffn_benchmark.py",
+      "results": {
+        "ffn_fp16.json": {
+          "benchmark": "ffn",
+          "gpu_info": {
+            "gpu_name": "NVIDIA H100 PCIe",
+            "gpu_memory_gb": 79.2,
+            "cuda_version": "12.8",
+            "pytorch_version": "2.10.0+cu128",
+            "gpu_count": 1
+          },
+          "config": {
+            "dtype": "fp16",
+            "iters": 100,
+            "warmup": 10
+          },
+          "timestamp": "2026-02-19T18:02:15+0000",
+          "results": [
+            {
+              "hidden_dim": 3072,
+              "intermediate_dim": 12288,
+              "seq_len": 4096,
+              "batch_size": 1,
+              "activation": "silu",
+              "dtype": "torch.float16",
+              "median_ms": 2.2393,
+              "mean_ms": 2.391,
+              "min_ms": 2.1481,
+              "max_ms": 2.9863,
+              "p95_ms": 2.9734,
+              "peak_mem_mb": 560.0,
+              "iters": 100,
+              "label": "custom-h3072-i12288-s4096-b1"
+            }
+          ]
+        }
+      }
+    },
+    "D1.3": {
+      "description": "Diffusion inference: SDXL, 4\u00d7A100, batch=8",
+      "status": "pass",
+      "elapsed_seconds": 7,
+      "script": "ffn_benchmark.py",
+      "results": {
+        "ffn_fp16.json": {
+          "benchmark": "ffn",
+          "gpu_info": {
+            "gpu_name": "NVIDIA H100 PCIe",
+            "gpu_memory_gb": 79.2,
+            "cuda_version": "12.8",
+            "pytorch_version": "2.10.0+cu128",
+            "gpu_count": 1
+          },
+          "config": {
+            "dtype": "fp16",
+            "iters": 100,
+            "warmup": 10
+          },
+          "timestamp": "2026-02-19T18:02:22+0000",
+          "results": [
+            {
+              "hidden_dim": 2048,
+              "intermediate_dim": 8192,
+              "seq_len": 4096,
+              "batch_size": 8,
+              "activation": "silu",
+              "dtype": "torch.float16",
+              "median_ms": 8.6959,
+              "mean_ms": 8.8343,
+              "min_ms": 8.0514,
+              "max_ms": 9.7409,
+              "p95_ms": 9.4589,
+              "peak_mem_mb": 1792.0,
+              "iters": 100,
+              "label": "custom-h2048-i8192-s4096-b8"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

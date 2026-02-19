@@ -1,0 +1,2 @@
+num_layers,hidden_dim,num_heads,intermediate_dim,seq_len,batch_size,num_params_M,dtype,median_ms,mean_ms,min_ms,max_ms,p95_ms,tokens_per_sec,peak_mem_mb,iters,label
+48,1600,25,4300,2048,8,1482.7,torch.float16,363.977,364.1768,361.2824,368.2106,366.2048,45013.8,3613.1,50,custom-h1600-l48-s2048-b8

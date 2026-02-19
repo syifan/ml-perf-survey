@@ -1,0 +1,2 @@
+num_heads,head_dim,seq_len,batch_size,hidden_dim,dtype,median_ms,mean_ms,min_ms,max_ms,p95_ms,iters,label
+40,128,2048,16,5120,torch.float16,3.3588,3.4038,3.0401,3.7868,3.7082,100,custom-h5120-nh40-s2048-b16

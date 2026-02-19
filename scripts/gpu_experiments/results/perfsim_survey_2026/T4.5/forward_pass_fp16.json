@@ -1,0 +1,37 @@
+{
+  "benchmark": "forward_pass",
+  "gpu_info": {
+    "gpu_name": "NVIDIA H100 PCIe",
+    "gpu_memory_gb": 79.2,
+    "cuda_version": "12.8",
+    "pytorch_version": "2.10.0+cu128",
+    "gpu_count": 1
+  },
+  "config": {
+    "dtype": "fp16",
+    "iters": 50,
+    "warmup": 10
+  },
+  "timestamp": "2026-02-19T17:58:44+0000",
+  "results": [
+    {
+      "num_layers": 61,
+      "hidden_dim": 7168,
+      "num_heads": 56,
+      "intermediate_dim": 19264,
+      "seq_len": 2048,
+      "batch_size": 1,
+      "num_params_M": 37808.8,
+      "dtype": "torch.float16",
+      "median_ms": 431.6164,
+      "mean_ms": 432.4095,
+      "min_ms": 428.7481,
+      "max_ms": 438.7156,
+      "p95_ms": 437.7263,
+      "tokens_per_sec": 4745.0,
+      "peak_mem_mb": 72601.3,
+      "iters": 50,
+      "label": "custom-h7168-l61-s2048-b1"
+    }
+  ]
+}

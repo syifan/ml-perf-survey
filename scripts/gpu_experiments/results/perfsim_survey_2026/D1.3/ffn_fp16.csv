@@ -1,0 +1,2 @@
+hidden_dim,intermediate_dim,seq_len,batch_size,activation,dtype,median_ms,mean_ms,min_ms,max_ms,p95_ms,peak_mem_mb,iters,label
+2048,8192,4096,8,silu,torch.float16,8.6959,8.8343,8.0514,9.7409,9.4589,1792.0,100,custom-h2048-i8192-s4096-b8

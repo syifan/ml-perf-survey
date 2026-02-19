@@ -1,0 +1,2 @@
+num_layers,hidden_dim,num_heads,intermediate_dim,seq_len,batch_size,num_params_M,dtype,median_ms,mean_ms,min_ms,max_ms,p95_ms,tokens_per_sec,peak_mem_mb,iters,label
+40,5120,40,13760,2048,2,12649.7,torch.float16,304.1063,303.8248,299.7341,305.8121,305.4586,13469.0,24643.8,50,custom-h5120-l40-s2048-b2

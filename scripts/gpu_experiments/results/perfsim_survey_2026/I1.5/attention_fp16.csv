@@ -1,0 +1,2 @@
+num_heads,head_dim,seq_len,batch_size,hidden_dim,dtype,median_ms,mean_ms,min_ms,max_ms,p95_ms,iters,label
+32,128,2048,1,4096,torch.float16,0.2237,0.224,0.2126,0.2453,0.2349,100,custom-h4096-nh32-s2048-b1
