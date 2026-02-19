@@ -31,7 +31,7 @@ Write a paper for **MICRO 2026** that provides:
 
 ## Quality Requirements
 
-- **Page count**: Paper must be close to the page limit (11 pages), no more than half a page short (per issue #140)
+- **Page count**: Paper must be close to the page limit (13 pages), no more than half a page short (per issue #140). Page count: Paper body must be ≤13 pages (EXCLUDING references section). References do not count toward the page limit.
 - **Accuracy claims**: All accuracy numbers must be independently verified by running experiments, not just cited from papers (per issue #143)
 - **Scope**: Survey is about modeling/simulation FOR ML workloads, NOT ML-based modeling (per issue #142)
 - **Figure density**: Paper needs significantly more figures — peer papers have 12-23 figures vs our 2 (per issue #159)
