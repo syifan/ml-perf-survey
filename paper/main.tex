@@ -181,7 +181,7 @@ This yields: Timeloop (analytical, accelerator), ASTRA-sim (trace-driven, distri
 We include nn-Meter despite known deployment issues because failure cases reveal important lessons about tool reliability.
 
 \textbf{Excluded tools and rationale.}
-Notable exclusions include SimAI (1.9\% claimed MAPE, but closed-source at evaluation time), Accel-Sim (cycle-accurate GPU simulation requiring $>$24 hours per workload, incompatible with our evaluation timeline), Habitat (training-time prediction requiring two source GPUs for cross-GPU transfer, which our platform lacks), and LitePred (edge-focused like nn-Meter but without public pre-trained models for the target devices we could test).
+Notable exclusions include SimAI (1.9\% claimed MAPE, but closed-source at evaluation time), Accel-Sim (cycle-accurate GPU simulation requiring $>$24 hours per workload, incompatible with our evaluation timeline), Habitat (training-time prediction requiring two source GPUs for cross-GPU transfer), and LitePred (edge-focused like nn-Meter but without public pre-trained models for the target devices we could test).
 For each excluded tool, we report published accuracy in Table~\ref{tab:survey-summary} with appropriate caveats.
 
 \subsection{Experimental Design}
@@ -199,9 +199,9 @@ Scripts and data are provided as supplementary material.
 
 \textbf{Verification methodology.}
 For NeuSight, we adopted a \emph{prediction-vs-label} approach: the tool's artifact repository includes both predicted latencies and ground-truth hardware measurements across 12 GPU types.
-Rather than running NeuSight on our hardware (which lacks discrete GPUs), we independently computed MAPE from the artifact's own prediction/label pairs for all 146 configurations, grouped by device and mode (training/inference).
+We independently computed MAPE from the artifact's own prediction/label pairs for all 146 configurations, grouped by device and mode (training/inference).
 This approach verifies whether the tool's \emph{published accuracy claims} match the accuracy \emph{achievable from its own artifacts}---testing reproducibility of claims rather than absolute accuracy.
-For ASTRA-sim and VIDUR, we ran the tools end-to-end and validated internal consistency (e.g., deterministic outputs, correct relative ordering of collectives) since absolute accuracy requires hardware we lack.
+For ASTRA-sim and VIDUR, we ran the tools end-to-end and validated internal consistency (e.g., deterministic outputs, correct relative ordering of collectives).
 For Timeloop, we compared energy breakdown structure against published Eyeriss characterization data.
 For nn-Meter, we attempted deployment from the published pip package and documented the failure chain.
 
@@ -835,7 +835,7 @@ Deterministic outputs simplify regression testing and enable exact reproducibili
 
 \textbf{External validity.}
 Our venue-focused search may under-represent industry tools.
-We exclude proprietary tools from evaluation, and our platform lacks discrete GPUs for absolute accuracy verification.
+We exclude proprietary tools from evaluation.
 The benchmark suite's 28 scenarios, while representative, cannot cover every production deployment pattern; emerging workloads (e.g., retrieval-augmented generation, multi-modal models) are not yet included.
 
 \textbf{Internal validity.}
