@@ -102,9 +102,8 @@ Where absolute verification requires hardware we lack (e.g., H100 GPUs), we vali
 \subsection{LLM Benchmark Suite}
 \label{subsec:benchmark-suite}
 
-We define the \emph{MLPerf-Survey-2026} benchmark suite comprising 36 scenarios across 9 categories representing the workloads that LLM and generative-AI practitioners need performance predictions for (Table~\ref{tab:benchmark-suite}).
-The suite covers the full LLM lifecycle: pre-training with data/tensor/pipeline parallelism (T1--T3), advanced training techniques including MoE (T4), single-request inference (I1), batched serving (I2), KV cache management (I3), production optimizations (I5), and diffusion model inference (D1).
-Unlike existing benchmarks that measure hardware performance (MLPerf), our suite evaluates whether prediction \emph{tools} can model these scenarios.
+The \emph{MLPerf-Survey-2026} benchmark suite comprises 36 scenarios across 9 categories (Table~\ref{tab:benchmark-suite}), covering the full LLM lifecycle from pre-training (T1--T4) through inference (I1--I5) to diffusion (D1).
+Unlike MLPerf, which measures hardware performance, our suite evaluates whether prediction \emph{tools} can model these scenarios.
 
 \begin{table}[t]
 \centering
@@ -418,19 +417,8 @@ Absolute values require A100 hardware for verification.
 \label{subsec:timeloop-results}
 
 Timeloop reports accuracy within 10\% of RTL simulation for energy, validated against Eyeriss silicon~\cite{timeloop2019}.
-We ran ResNet-50 Conv1 on an Eyeriss-like architecture:
-
-\begin{itemize}
-    \item Total energy: 649.08~\textmu{}J (5,500~fJ/MAC) with DRAM dominating (61.8\%), followed by weights SPAD (18.4\%) and MAC (3.8\%)
-    \item Estimated latency: 5.854~ms at $\sim$60\% utilization (168 PEs, 702,464 ideal cycles)
-    \item Outputs are deterministic and bit-identical across three runs
-\end{itemize}
-
-The energy breakdown structure matches published Eyeriss data~\cite{eyeriss2016}: DRAM dominance and small MAC energy fraction are characteristic of data-movement-dominated architectures.
-
-\textbf{Energy breakdown validates data-movement-dominated design.}
-DRAM (61.8\%), weight SPAD (18.4\%), and NoC collectively account for $>$85\% of total energy while MACs consume only 3.8\%, confirming a 16:1 data-movement-to-computation ratio~\cite{sze2017efficient}.
-The 60\% PE utilization at 168 PEs reveals that smaller layers underutilize the array, motivating per-layer mapping optimization---a capability unique to analytical accelerator models.
+We ran ResNet-50 Conv1 on an Eyeriss-like architecture: total energy 649.08~\textmu{}J (5,500~fJ/MAC) with DRAM dominating (61.8\%), weights SPAD (18.4\%), and MAC only 3.8\%; estimated latency 5.854~ms at $\sim$60\% utilization (168 PEs); outputs bit-identical across three runs.
+The energy breakdown matches published Eyeriss data~\cite{eyeriss2016}, confirming a 16:1 data-movement-to-computation ratio~\cite{sze2017efficient} and motivating per-layer mapping optimization.
 Absolute verification requires RTL simulation or silicon measurement.
 
 \subsection{nn-Meter: Complete Failure}
@@ -444,8 +432,7 @@ Even if resolved, nn-Meter's kernel-detection rules were validated only on CNNs,
 \subsection{Benchmark Suite Coverage}
 \label{subsec:benchmark-coverage}
 
-Table~\ref{tab:benchmark-coverage} evaluates each tool against our 36-scenario LLM benchmark suite.
-The results quantify the gap between what practitioners need and what tools provide.
+Table~\ref{tab:benchmark-coverage} evaluates each tool against our 36-scenario benchmark suite; Figure~\ref{fig:coverage-heatmap} visualizes the coverage gaps.
 
 \begin{table}[t]
 \centering
@@ -473,8 +460,6 @@ I5: Production opt. & 4 & --- & --- & --- & --- & --- \\
 \bottomrule
 \end{tabular}
 \end{table}
-
-Figure~\ref{fig:coverage-heatmap} provides a visual summary of the coverage gaps, showing the sparse and disjoint nature of tool support across benchmark categories.
 
 \begin{figure}[t]
 \centering
