@@ -18,9 +18,9 @@
 #   D1: Diffusion model inference           (3 scenarios)
 #
 # Requirements:
-#   - NVIDIA GPU (A100 or H100 recommended)
-#   - CUDA 12.x
-#   - PyTorch 2.x with CUDA support
+#   - GPU: NVIDIA (CUDA), AMD (ROCm), or Apple Silicon (MPS)
+#   - PyTorch 2.x with appropriate backend support
+#   - CPU fallback mode available for testing
 #   - diffusers (for D1 scenarios): pip install diffusers transformers accelerate
 #
 # Usage:
@@ -28,6 +28,8 @@
 #   ./run_perfsim_survey_2026.sh --scenario T1     # Run all T1 scenarios
 #   ./run_perfsim_survey_2026.sh --scenario T1.1   # Run a single scenario
 #   ./run_perfsim_survey_2026.sh --scenario all     # Run all (same as no flag)
+#   ./run_perfsim_survey_2026.sh --device mps       # Force MPS backend
+#   ./run_perfsim_survey_2026.sh --device cpu       # Force CPU backend
 #   ./run_perfsim_survey_2026.sh --list             # List all scenarios
 #   ./run_perfsim_survey_2026.sh --help             # Show usage
 
@@ -42,6 +44,7 @@ DTYPE="fp16"
 SCENARIO_FILTER="all"
 WARMUP=5
 ITERS=50
+DEVICE="auto"
 
 # ─── Scenario Definitions ────────────────────────────────────────────────
 # Each scenario: ID | Description | Model | Hardware | Parallelism | Metric
@@ -193,6 +196,7 @@ Options:
   --dtype TYPE        Data type: fp16 (default), fp32, bf16
   --warmup N          Warmup iterations (default: 5)
   --iters N           Benchmark iterations (default: 50)
+  --device BACKEND    Compute backend: auto (default), cuda, mps, cpu
   --list              List all scenarios and exit
   --help              Show this help message
 
@@ -201,6 +205,8 @@ Examples:
   ./run_perfsim_survey_2026.sh --scenario T1           # Training DP only
   ./run_perfsim_survey_2026.sh --scenario I1.1         # Single scenario
   ./run_perfsim_survey_2026.sh --scenario T1,I1 --dtype bf16
+  ./run_perfsim_survey_2026.sh --device mps            # Force Apple MPS
+  ./run_perfsim_survey_2026.sh --device cpu             # CPU fallback
 
 Output:
   Results are saved as JSON to:
@@ -251,6 +257,7 @@ while [[ $# -gt 0 ]]; do
     --dtype)    DTYPE="$2"; shift 2 ;;
     --warmup)   WARMUP="$2"; shift 2 ;;
     --iters)    ITERS="$2"; shift 2 ;;
+    --device)   DEVICE="$2"; shift 2 ;;
     --list)     list_scenarios ;;
     --help|-h)  usage ;;
     *)          echo "Unknown option: $1"; usage ;;
@@ -264,21 +271,142 @@ echo "  PerfSim-Survey-2026 Unified Benchmark Runner"
 echo "============================================================"
 echo ""
 
-# Verify GPU
-if ! python3 -c "import torch; assert torch.cuda.is_available(), 'No GPU'" 2>/dev/null; then
-  echo "ERROR: No CUDA GPU detected. These benchmarks require an NVIDIA GPU."
-  echo "Check: nvidia-smi, python3 -c 'import torch; print(torch.cuda.is_available())'"
-  exit 1
+# Detect backend and collect system info
+SYSINFO=$(DEVICE_ARG="$DEVICE" python3 - <<'PYEOF'
+import sys, torch, platform, subprocess, os
+
+def detect_backend(requested='auto'):
+    if requested in ('cuda', 'auto') and torch.cuda.is_available():
+        if hasattr(torch.version, 'hip') and torch.version.hip is not None:
+            return 'rocm'
+        return 'cuda'
+    if requested in ('mps', 'auto') and hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
+        return 'mps'
+    if requested == 'cpu' or requested == 'auto':
+        return 'cpu'
+    print(f"ERROR: Requested backend '{requested}' not available.", file=sys.stderr)
+    sys.exit(1)
+
+requested = os.environ.get('DEVICE_ARG', 'auto')
+backend = detect_backend(requested)
+print(f"BACKEND={backend}")
+
+# System info
+print(f"PLATFORM={platform.system()} {platform.release()}")
+print(f"PYTHON={platform.python_version()}")
+print(f"PYTORCH={torch.__version__}")
+
+if backend in ('cuda', 'rocm'):
+    props = torch.cuda.get_device_properties(0)
+    print(f"GPU_NAME={props.name}")
+    print(f"GPU_COUNT={torch.cuda.device_count()}")
+    print(f"GPU_MEM_GB={round(props.total_memory / (1024**3), 1)}")
+    if backend == 'cuda':
+        print(f"CUDA_VERSION={torch.version.cuda}")
+    else:
+        print(f"HIP_VERSION={torch.version.hip}")
+elif backend == 'mps':
+    print("GPU_NAME=Apple GPU (MPS)")
+    print("GPU_COUNT=1")
+    try:
+        mem = subprocess.check_output(['sysctl', '-n', 'hw.memsize'], text=True).strip()
+        print(f"GPU_MEM_GB={round(int(mem)/(1024**3), 1)}")
+    except Exception:
+        print("GPU_MEM_GB=unknown")
+else:
+    print("GPU_NAME=CPU only")
+    print("GPU_COUNT=0")
+    print("GPU_MEM_GB=0")
+
+# CPU info
+try:
+    if platform.system() == 'Darwin':
+        cpu = subprocess.check_output(['sysctl', '-n', 'machdep.cpu.brand_string'], text=True).strip()
+    else:
+        cpu = "unknown"
+        with open('/proc/cpuinfo') as f:
+            for line in f:
+                if 'model name' in line:
+                    cpu = line.split(':')[1].strip()
+                    break
+    print(f"CPU={cpu}")
+except Exception:
+    print("CPU=unknown")
+
+# RAM
+try:
+    if platform.system() == 'Darwin':
+        ram = subprocess.check_output(['sysctl', '-n', 'hw.memsize'], text=True).strip()
+        print(f"RAM_GB={round(int(ram)/(1024**3), 1)}")
+    else:
+        with open('/proc/meminfo') as f:
+            for line in f:
+                if 'MemTotal' in line:
+                    kb = int(line.split()[1])
+                    print(f"RAM_GB={round(kb/1024/1024, 1)}")
+                    break
+except Exception:
+    print("RAM_GB=unknown")
+PYEOF
+)
+
+# Parse KEY=VALUE lines into shell variables
+BACKEND=""
+GPU_NAME=""
+GPU_COUNT=""
+GPU_MEM_GB=""
+CUDA_VERSION=""
+HIP_VERSION=""
+PLATFORM_INFO=""
+PYTHON_VER=""
+PYTORCH_VER=""
+CPU_INFO=""
+RAM_GB=""
+
+while IFS='=' read -r key val; do
+  case "$key" in
+    BACKEND)      BACKEND="$val" ;;
+    GPU_NAME)     GPU_NAME="$val" ;;
+    GPU_COUNT)    GPU_COUNT="$val" ;;
+    GPU_MEM_GB)   GPU_MEM_GB="$val" ;;
+    CUDA_VERSION) CUDA_VERSION="$val" ;;
+    HIP_VERSION)  HIP_VERSION="$val" ;;
+    PLATFORM)     PLATFORM_INFO="$val" ;;
+    PYTHON)       PYTHON_VER="$val" ;;
+    PYTORCH)      PYTORCH_VER="$val" ;;
+    CPU)          CPU_INFO="$val" ;;
+    RAM_GB)       RAM_GB="$val" ;;
+  esac
+done <<< "$SYSINFO"
+
+# Map backend to --device arg for Python scripts
+if [[ "$BACKEND" == "rocm" ]]; then
+  DEVICE_ARG="cuda"  # ROCm uses cuda device in PyTorch
+else
+  DEVICE_ARG="$BACKEND"
 fi
 
-python3 -c "
-import torch
-props = torch.cuda.get_device_properties(0)
-print(f'GPU: {props.name} ({props.total_memory / (1024**3):.1f} GB)')
-print(f'CUDA: {torch.version.cuda}, PyTorch: {torch.__version__}')
-print(f'GPU Count: {torch.cuda.device_count()}')
-"
+echo "Backend:     $BACKEND"
+echo "Device:      $GPU_NAME"
+if [[ "$BACKEND" == "cuda" ]]; then
+  echo "CUDA:        $CUDA_VERSION"
+elif [[ "$BACKEND" == "rocm" ]]; then
+  echo "HIP/ROCm:    $HIP_VERSION"
+fi
+echo "GPU Count:   $GPU_COUNT"
+echo "GPU Memory:  ${GPU_MEM_GB} GB"
+echo "CPU:         $CPU_INFO"
+echo "RAM:         ${RAM_GB} GB"
+echo "Platform:    $PLATFORM_INFO"
+echo "Python:      $PYTHON_VER"
+echo "PyTorch:     $PYTORCH_VER"
 echo ""
+
+if [[ "$BACKEND" == "cpu" ]]; then
+  echo "WARNING: No GPU detected. Running in CPU fallback mode (slow)."
+  echo ""
+fi
+
 echo "Data type:   $DTYPE"
 echo "Filter:      $SCENARIO_FILTER"
 echo "Warmup:      $WARMUP iterations"
@@ -305,17 +433,23 @@ fi
 
 # ─── Run Benchmarks ──────────────────────────────────────────────────────
 
-# Initialize JSON report
+# Initialize JSON report with system info
 python3 -c "
-import json, datetime, torch
+import json, datetime
 report = {
     'suite': 'PerfSim-Survey-2026',
     'timestamp': datetime.datetime.now().isoformat(),
-    'gpu': torch.cuda.get_device_properties(0).name,
-    'gpu_count': torch.cuda.device_count(),
-    'gpu_memory_gb': round(torch.cuda.get_device_properties(0).total_memory / (1024**3), 1),
-    'cuda_version': torch.version.cuda,
-    'pytorch_version': torch.__version__,
+    'backend': '$BACKEND',
+    'gpu': '$GPU_NAME',
+    'gpu_count': '$GPU_COUNT',
+    'gpu_memory_gb': '$GPU_MEM_GB',
+    'cuda_version': '$CUDA_VERSION',
+    'hip_version': '$HIP_VERSION',
+    'pytorch_version': '$PYTORCH_VER',
+    'python_version': '$PYTHON_VER',
+    'platform': '$PLATFORM_INFO',
+    'cpu': '$CPU_INFO',
+    'ram_gb': '$RAM_GB',
     'dtype': '$DTYPE',
     'warmup': $WARMUP,
     'iterations': $ITERS,
@@ -346,8 +480,8 @@ for sid in "${SCENARIO_ORDER[@]}"; do
   SCENARIO_OUT="${RESULTS_DIR}/${sid}"
   mkdir -p "$SCENARIO_OUT"
 
-  # Build command
-  CMD="python3 ${GT_DIR}/${script} --dtype ${DTYPE} --output-dir ${SCENARIO_OUT}"
+  # Build command with --device flag
+  CMD="python3 ${GT_DIR}/${script} --dtype ${DTYPE} --output-dir ${SCENARIO_OUT} --device ${DEVICE_ARG}"
   if [[ -n "$extra_args" ]]; then
     CMD="$CMD $extra_args"
   fi
@@ -412,6 +546,8 @@ echo "============================================================"
 echo "  Summary"
 echo "============================================================"
 echo ""
+echo "  Backend:  $BACKEND"
+echo "  Device:   $GPU_NAME"
 echo "  Passed:  $PASSED"
 echo "  Failed:  $FAILED"
 echo "  Total:   $RUN_COUNT"

@@ -1,6 +1,6 @@
 # GPU Ground-Truth Benchmarks
 
-Collects **actual GPU execution timings** for standard transformer workloads using PyTorch/CUDA directly. These measurements are **tool-independent** and serve as ground truth to compare against performance prediction tool estimates (NeuSight, ASTRA-sim, VIDUR, etc.).
+Collects **actual GPU execution timings** for standard transformer workloads using PyTorch directly. These measurements are **tool-independent** and serve as ground truth to compare against performance prediction tool estimates (NeuSight, ASTRA-sim, VIDUR, etc.).
 
 ## Purpose
 
@@ -15,10 +15,38 @@ Performance prediction tools estimate metrics like kernel latency, throughput, a
 
 ## Hardware Requirements
 
+| Backend | Hardware | Software | Notes |
+|---------|----------|----------|-------|
+| **CUDA** | NVIDIA GPU (A100/H100 recommended) | CUDA 12.x, PyTorch 2.x | Best performance, full feature support |
+| **ROCm** | AMD GPU (MI250/MI300 recommended) | ROCm 5.x+, PyTorch ROCm build | Supported via `torch.cuda` API with ROCm backend |
+| **MPS** | Apple Silicon (M1/M2/M3/M4) | macOS 13+, PyTorch 2.x | Auto-detected on macOS; use `--device mps` |
+| **CPU** | Any x86_64 or ARM64 | PyTorch 2.x | Fallback mode, slow but works for testing |
+
+### Using the `--device` flag
+
+All benchmark scripts and the unified runner accept a `--device` flag:
+
+```bash
+# Auto-detect best available backend (default)
+./run_perfsim_survey_2026.sh --device auto
+
+# Force CUDA/ROCm
+./run_perfsim_survey_2026.sh --device cuda
+
+# Force Apple MPS
+./run_perfsim_survey_2026.sh --device mps
+
+# Force CPU (for testing)
+./run_perfsim_survey_2026.sh --device cpu
+
+# Individual scripts also accept --device
+python3 gemm_benchmark.py --device mps --dtype fp32
+python3 attention_benchmark.py --device cpu
+```
+
 | Component | Minimum | Recommended |
 |-----------|---------|-------------|
-| GPU | NVIDIA A100 (40GB) | NVIDIA H100 SXM (80GB) |
-| CUDA | 12.0+ | 12.2+ |
+| GPU | Any supported GPU | NVIDIA H100 SXM (80GB) |
 | PyTorch | 2.0+ | 2.2+ |
 | Python | 3.10+ | 3.10+ |
 
@@ -27,7 +55,7 @@ Performance prediction tools estimate metrics like kernel latency, throughput, a
 ```bash
 cd scripts/gpu_experiments/ground_truth/
 
-# Run all benchmarks (default: fp16)
+# Run all benchmarks (default: fp16, auto-detect backend)
 ./run_all.sh
 
 # Run with a specific dtype
@@ -38,6 +66,9 @@ python3 gemm_benchmark.py --dtype fp16 --iters 100
 python3 attention_benchmark.py --dtype fp16
 python3 ffn_benchmark.py --dtype bf16
 python3 forward_pass_benchmark.py --dtype fp16
+
+# Run on Apple Silicon
+python3 gemm_benchmark.py --device mps --dtype fp32
 ```
 
 ## Output
@@ -46,7 +77,7 @@ Each benchmark produces JSON and CSV files in `results/`:
 
 ```
 results/
-├── gemm_fp16.json           # GEMM timings + GPU info
+├── gemm_fp16.json           # GEMM timings + device info
 ├── gemm_fp16.csv            # Same data in CSV
 ├── attention_fp16.json
 ├── attention_fp16.csv
@@ -61,11 +92,13 @@ results/
 ```json
 {
   "benchmark": "gemm",
-  "gpu_info": {
+  "device_info": {
+    "device_type": "cuda",
     "gpu_name": "NVIDIA H100 SXM",
     "gpu_memory_gb": 80.0,
     "cuda_version": "12.2",
-    "pytorch_version": "2.2.0"
+    "pytorch_version": "2.2.0",
+    "gpu_count": 1
   },
   "timestamp": "2026-02-18T12:00:00+0000",
   "results": [
@@ -117,5 +150,6 @@ After collecting ground-truth timings, compare them to tool predictions:
 |---------|----------|
 | `nvidia-smi` not found | Install NVIDIA driver: `sudo apt install nvidia-driver-535` |
 | `torch.cuda.is_available()` returns False | Reinstall PyTorch with CUDA: `pip install torch --index-url https://download.pytorch.org/whl/cu121` |
-| Out of GPU memory | Reduce `--iters` or skip large configs |
+| MPS not available on macOS | Upgrade to macOS 13+ and PyTorch 2.0+ |
+| Out of GPU memory | Reduce `--iters` or skip large configs, or use `--device cpu` for testing |
 | `RMSNorm` not found | Requires PyTorch >= 2.4; use `LayerNorm` fallback or upgrade |

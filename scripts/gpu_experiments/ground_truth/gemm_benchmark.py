@@ -5,15 +5,18 @@ Measures actual GPU execution time for matrix multiplications at sizes
 representative of transformer model workloads (embedding projections,
 attention QKV, FFN layers). Results serve as ground truth to compare
 against performance prediction tool estimates.
+
+Supports CUDA, ROCm, Apple MPS, and CPU backends.
 """
 
 import argparse
 import csv
 import json
 import os
+import platform
+import subprocess
 import time
 import torch
-import torch.cuda
 
 # GEMM sizes representative of transformer workloads:
 # (M, K, N) — corresponding to output_rows x inner_dim x output_cols
@@ -36,28 +39,72 @@ DEFAULT_SIZES = [
 ]
 
 
-def benchmark_gemm(M, K, N, dtype, warmup=10, iters=100):
-    """Run a single GEMM benchmark and return timing stats."""
-    A = torch.randn(M, K, dtype=dtype, device="cuda")
-    B = torch.randn(K, N, dtype=dtype, device="cuda")
+def get_device(requested="auto"):
+    """Detect and return the best available compute device."""
+    if requested in ("cuda", "auto") and torch.cuda.is_available():
+        return torch.device("cuda"), "cuda"
+    if requested in ("mps", "auto") and hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+        return torch.device("mps"), "mps"
+    if requested in ("cpu", "auto"):
+        return torch.device("cpu"), "cpu"
+    raise ValueError(f"Requested backend '{requested}' not available")
 
-    # Warmup
+
+def get_device_info(device, device_type):
+    """Collect device hardware information."""
+    info = {"device_type": device_type, "pytorch_version": torch.__version__}
+    if device_type == "cuda":
+        props = torch.cuda.get_device_properties(0)
+        info.update({
+            "gpu_name": props.name,
+            "gpu_memory_gb": round(props.total_memory / (1024**3), 1),
+            "cuda_version": torch.version.cuda,
+            "gpu_count": torch.cuda.device_count(),
+        })
+    elif device_type == "mps":
+        info.update({"gpu_name": "Apple GPU (MPS)", "gpu_count": 1})
+        try:
+            mem = subprocess.check_output(["sysctl", "-n", "hw.memsize"], text=True).strip()
+            info["gpu_memory_gb"] = round(int(mem) / (1024**3), 1)
+        except Exception:
+            info["gpu_memory_gb"] = "unknown"
+    else:
+        info.update({"gpu_name": "CPU", "gpu_count": 0, "gpu_memory_gb": 0})
+    return info
+
+
+def sync_device(device_type):
+    """Synchronize the device to ensure all operations are complete."""
+    if device_type == "cuda":
+        torch.cuda.synchronize()
+    elif device_type == "mps":
+        if hasattr(torch.mps, "synchronize"):
+            torch.mps.synchronize()
+
+
+def timed_iters(fn, device_type, warmup, iters):
+    """Run warmup + timed iterations with proper synchronization."""
     for _ in range(warmup):
+        fn()
+    sync_device(device_type)
+    times_ms = []
+    for _ in range(iters):
+        t0 = time.perf_counter()
+        fn()
+        sync_device(device_type)
+        times_ms.append((time.perf_counter() - t0) * 1000.0)
+    return times_ms
+
+
+def benchmark_gemm(M, K, N, dtype, device, device_type, warmup=10, iters=100):
+    """Run a single GEMM benchmark and return timing stats."""
+    A = torch.randn(M, K, dtype=dtype, device=device)
+    B = torch.randn(K, N, dtype=dtype, device=device)
+
+    def fn():
         torch.mm(A, B)
-    torch.cuda.synchronize()
 
-    # Timed iterations
-    start_events = [torch.cuda.Event(enable_timing=True) for _ in range(iters)]
-    end_events = [torch.cuda.Event(enable_timing=True) for _ in range(iters)]
-
-    for i in range(iters):
-        start_events[i].record()
-        torch.mm(A, B)
-        end_events[i].record()
-
-    torch.cuda.synchronize()
-
-    times_ms = [s.elapsed_time(e) for s, e in zip(start_events, end_events)]
+    times_ms = timed_iters(fn, device_type, warmup, iters)
     times_ms.sort()
 
     # Compute TFLOPS: GEMM does 2*M*N*K FLOPs
@@ -80,18 +127,6 @@ def benchmark_gemm(M, K, N, dtype, warmup=10, iters=100):
     }
 
 
-def get_gpu_info():
-    """Collect GPU hardware information."""
-    props = torch.cuda.get_device_properties(0)
-    return {
-        "gpu_name": props.name,
-        "gpu_memory_gb": round(props.total_memory / (1024**3), 1),
-        "cuda_version": torch.version.cuda,
-        "pytorch_version": torch.__version__,
-        "gpu_count": torch.cuda.device_count(),
-    }
-
-
 def main():
     parser = argparse.ArgumentParser(description="GEMM ground-truth benchmark")
     parser.add_argument("--dtype", choices=["fp16", "fp32", "bf16"], default="fp16",
@@ -102,6 +137,8 @@ def main():
                         help="Number of warmup iterations")
     parser.add_argument("--output-dir", default="results",
                         help="Directory for output files")
+    parser.add_argument("--device", choices=["auto", "cuda", "mps", "cpu"], default="auto",
+                        help="Compute backend: auto (default), cuda, mps, or cpu")
     # Single-config overrides (used by run_perfsim_survey_2026.sh)
     # Accepts one or more 'M,K,N' tokens, e.g. --sizes 2048,5120,256 2048,256,5120
     parser.add_argument("--sizes", nargs="+", default=None,
@@ -111,11 +148,16 @@ def main():
     dtype_map = {"fp16": torch.float16, "fp32": torch.float32, "bf16": torch.bfloat16}
     dtype = dtype_map[args.dtype]
 
+    device, device_type = get_device(args.device)
+
     os.makedirs(args.output_dir, exist_ok=True)
 
-    gpu_info = get_gpu_info()
-    print(f"GPU: {gpu_info['gpu_name']} ({gpu_info['gpu_memory_gb']} GB)")
-    print(f"CUDA: {gpu_info['cuda_version']}, PyTorch: {gpu_info['pytorch_version']}")
+    device_info = get_device_info(device, device_type)
+    print(f"Device: {device_info['gpu_name']} (type={device_type})")
+    if device_type == "cuda":
+        print(f"CUDA: {device_info.get('cuda_version', 'N/A')}, PyTorch: {device_info['pytorch_version']}")
+    else:
+        print(f"PyTorch: {device_info['pytorch_version']}")
     print(f"Dtype: {args.dtype}, Iterations: {args.iters}")
     print("-" * 80)
     print(f"{'M':>6} {'K':>6} {'N':>6} | {'Median(ms)':>10} {'Mean(ms)':>10} {'TFLOPS':>8}")
@@ -135,17 +177,19 @@ def main():
     results = []
     for M, K, N in sizes:
         try:
-            r = benchmark_gemm(M, K, N, dtype, warmup=args.warmup, iters=args.iters)
+            r = benchmark_gemm(M, K, N, dtype, device=device, device_type=device_type,
+                               warmup=args.warmup, iters=args.iters)
             results.append(r)
             print(f"{M:>6} {K:>6} {N:>6} | {r['median_ms']:>10.4f} {r['mean_ms']:>10.4f} {r['tflops']:>8.2f}")
         except RuntimeError as e:
             print(f"{M:>6} {K:>6} {N:>6} | SKIPPED ({e})")
-        torch.cuda.empty_cache()
+        if device_type == "cuda":
+            torch.cuda.empty_cache()
 
     # Save results
     output = {
         "benchmark": "gemm",
-        "gpu_info": gpu_info,
+        "device_info": device_info,
         "config": {"dtype": args.dtype, "iters": args.iters, "warmup": args.warmup},
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
         "results": results,
