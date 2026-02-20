@@ -859,6 +859,67 @@ Timeloop reports $\sim$5\% error for energy prediction on Eyeriss, validated aga
 The two tools measure complementary metrics (runtime vs.\ energy) on the same target, achieving similar accuracy (3.9\% vs.\ $\sim$5\%), and both deliver $>$1000$\times$ speedup over RTL---making them practical for design-space exploration.
 Their shared validation on Eyeriss is one of the few cases in this survey where two tools are evaluated against the same ground truth, providing an unusually strong basis for comparison.
 
+\subsubsection{Self-Reported vs.\ Third-Party Accuracy}
+\label{subsubsec:accuracy-gap}
+
+Figure~\ref{fig:self-vs-third} synthesizes the accuracy gap across categories.
+Across all four categories, self-reported accuracy systematically understates real-world error, with the gap ranging from $1.1\times$ (Timeloop) to $30\times$ (Proteus on Megatron-LM workloads).
+
+\begin{figure}[t]
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tikzpicture}
+\begin{axis}[
+    ybar,
+    bar width=8pt,
+    xlabel={Tool},
+    ylabel={MAPE (\%)},
+    ymin=0, ymax=70,
+    xtick=data,
+    symbolic x coords={NeuSight,Path Fwd,Proteus,ASTRA-sim,Vidur},
+    xticklabel style={font=\footnotesize, rotate=35, anchor=east},
+    yticklabel style={font=\footnotesize},
+    xlabel style={font=\small},
+    ylabel style={font=\small},
+    legend style={at={(0.02,0.98)}, anchor=north west, font=\footnotesize, draw=none, fill=white, fill opacity=0.9, text opacity=1},
+    legend cell align={left},
+    height=5cm,
+    width=8cm,
+    enlarge x limits={abs=0.7cm},
+    nodes near coords,
+    every node near coord/.append style={font=\scriptsize, rotate=55, anchor=west},
+    point meta=explicit symbolic,
+]
+% Self-reported accuracy
+\addplot[fill=green!50, draw=green!70] coordinates {
+    (NeuSight,8.9) [8.9]
+    (Path Fwd,7) [7]
+    (Proteus,3) [3]
+    (ASTRA-sim,5) [5]
+    (Vidur,5) [5]
+};
+% Third-party measured accuracy
+\addplot[fill=red!50, draw=red!70] coordinates {
+    (NeuSight,45) [45]
+    (Path Fwd,61) [61]
+    (Proteus,25) [25]
+    (ASTRA-sim,46) [46]
+    (Vidur,55) [55]
+};
+\legend{Self-reported (best), Third-party (challenging)}
+\end{axis}
+\end{tikzpicture}%
+}
+\caption{Self-reported vs.\ third-party accuracy for tools with available cross-evaluations.
+NeuSight: 8.9\% self vs.\ 45\% (SynPerf~\cite{synperf2025}, Qwen2.5-14B on unseen HW).
+Path Forward: 7\% self (CNN/A100) vs.\ 61\% (NeuSight eval, transformers).
+Proteus: 3\% self vs.\ 25\% (Echo eval~\cite{echo2024}, GPT-175B/H800).
+ASTRA-sim: 5\% self vs.\ 46\% (SimAI eval~\cite{simai2025}, 128 GPUs).
+Vidur: $<$5\% self vs.\ $>$55\% (Frontier eval~\cite{frontier2025}, heterogeneous batches).
+Third-party evaluations consistently show $3$--$11\times$ higher error under challenging conditions.}
+\label{fig:self-vs-third}
+\end{figure}
+
 \subsection{Cross-Cutting Findings}
 \label{subsec:cross-cutting-findings}
 
