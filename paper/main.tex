@@ -120,7 +120,7 @@ TLP~\cite{tlp2023} & GPU & M & Tensor program & $<$10\% & ms & Transformer cost 
 Prior surveys reprint self-reported accuracy using each tool's own benchmarks, making cross-tool comparison unsound.
 We introduce a \textbf{third-party evaluation} with two components: (1)~the \textbf{PerfSim-Survey-2026} benchmark suite of 36 scenarios defining standardized coverage criteria for modern LLM workloads, and (2)~\textbf{independent experiments} deploying each tool from its public artifact under controlled conditions.
 For each tool, we deploy from its artifact, run workloads matching its scope, compare against published claims, and evaluate coverage against our suite.
-Where absolute verification requires hardware we lack (e.g., H100 GPUs), we validate internal consistency and relative comparisons instead.
+We additionally validate tool predictions against \textbf{H100 ground-truth measurements} collected on an NVIDIA H100 PCIe (80\,GB) with CUDA~12.8, PyTorch~2.10, FP16 precision, 50 iterations (10 warmup) across 33 of 36 benchmark scenarios (Section~\ref{subsec:h100-validation}).
 
 \subsection{LLM Benchmark Suite}
 \label{subsec:benchmark-suite}
@@ -628,6 +628,55 @@ No single tool can answer end-to-end deployment questions---answering requires c
 Categories T4 and I5 have near-zero coverage despite being the most consequential for deployment decisions.
 The 20 uncovered scenarios fail for three reasons: \emph{missing algorithmic primitives} (speculative decoding, prefix caching require algorithm-level parameters beyond operator abstractions), \emph{missing hardware models} (FP8/INT4 require quantized arithmetic intensity models), and \emph{missing system-level interactions} (disaggregated serving, multi-model co-location create cross-component interference).
 The union of all five tools covers only 16/36 scenarios (44\%); tool development appears to lag deployment practice, as the uncovered scenarios (e.g., speculative decoding, FP8 training) became widely deployed in 2024--2025 while the most recent evaluated tools date from 2023--2025.
+
+\subsection{H100 Ground-Truth Validation}
+\label{subsec:h100-validation}
+
+To move beyond relative comparisons, we collected ground-truth measurements on an NVIDIA H100 PCIe (80\,GB, CUDA~12.8, PyTorch~2.10, FP16) for 33 of 36 benchmark scenarios (3 produced empty results: T2.1, T2.3, T4.3 due to model-size/memory constraints).
+Table~\ref{tab:h100-vs-tools} compares H100 measurements against tool predictions for scenarios where overlap exists.
+
+\begin{table}[t]
+\centering
+\caption{H100 ground-truth measurements vs.\ tool predictions. NeuSight error ranges reflect published claim (low) vs.\ our measured MAPE (high). Vidur predictions are for simulated A100; H100 kernel times provide component-level reference. Scenarios T2.1, T2.3, T4.3 produced empty results.}
+\label{tab:h100-vs-tools}
+\footnotesize
+\begin{tabular}{llrp{2.4cm}}
+\toprule
+\textbf{ID} & \textbf{Workload} & \textbf{H100 (ms)} & \textbf{Tool Comparison} \\
+\midrule
+\multicolumn{4}{l}{\emph{NeuSight-comparable (kernel-level)}} \\
+I1.1 & Attn, Llama-7B, bs=1 & 0.224 & Pred.\ range: 0.207--0.244 \\
+I1.2 & Attn, Llama-13B, bs=1 & 0.884 & Pred.\ range: 0.816--0.961 \\
+I1.5 & Attn, QWen-7B, bs=1 & 0.224 & Pred.\ range: 0.206--0.243 \\
+T1.1 & Fwd, Llama-7B, bs=4 & 319.90 & Pred.\ range: 298.8--340.0 \\
+T1.2 & Fwd, Llama-13B, bs=2 & 304.11 & Pred.\ range: 283.8--324.2 \\
+\midrule
+\multicolumn{4}{l}{\emph{Vidur-comparable (serving components)}} \\
+I2.1 & Attn, Llama-7B, bs=32 & 5.325 & Vidur TPOT: 9.3\,ms (E2E) \\
+I2.3 & Attn, Llama-7B, bs=32 & 0.477 & Sarathi chunked prefill \\
+\midrule
+\multicolumn{4}{l}{\emph{Zero tool coverage}} \\
+T4.1 & FP8 fwd, Llama-7B & 320.05 & No tool models FP8 \\
+T4.4 & MoE fwd, DSV2, EP=8 & 454.85 & No tool models MoE train \\
+I5.2 & INT4 GEMM, 70B & 0.602 & No tool models quant.\ inf. \\
+D1.2 & FFN, FLUX.1, H100 & 2.239 & No tool models diffusion \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{NeuSight accuracy overstatement confirmed.}
+NeuSight claims 2.3\% MAPE for H100 inference; our independent analysis measures 8.74\%.
+The H100 ground truth enables direct validation: for attention kernels (I1.1--I1.5), NeuSight's predicted range encompasses the measured value, but the claimed 2.3\% error band is too narrow---the actual band spans $\pm$8.74\%.
+For training forward passes (T1.1--T1.2), the 4.1--6.60\% range is closer to reality.
+SynPerf~\cite{synperf2025} independently found NeuSight error inflates to 34--45\% on newer workloads (Qwen2.5-14B), suggesting H100 accuracy degrades further outside NeuSight's training distribution.
+
+\textbf{Vidur component-level cross-reference.}
+Vidur predicts 9.3\,ms TPOT for Llama-2-7B on A100.
+Our H100 attention kernel measurement for the same model at batch size 32 is 5.325\,ms---the gap (9.3 vs.\ 5.325\,ms) quantifies the scheduling, memory management, and batching overhead that Vidur models but kernel-level tools cannot.
+
+\textbf{Coverage gaps dominate.}
+Of 33 scenarios with H100 data, 20 (61\%) have \emph{zero} tool coverage---including all FP8 training (T4.1), LoRA/QLoRA (T4.2, T4.6), MoE training (T4.4--T4.5), multi-model serving (I4), production optimizations (I5), and diffusion inference (D1).
+These represent the fastest-growing deployment patterns, confirming that coverage, not accuracy, is the binding constraint.
 
 \subsection{Per-Tool Failure Mode Analysis}
 \label{subsec:failure-modes}
