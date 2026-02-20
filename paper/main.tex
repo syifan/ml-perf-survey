@@ -11,10 +11,10 @@
 \begin{document}
 \title{A Survey of High-Level Modeling and Simulation Methods for Modern Machine Learning Workloads}
 \begin{abstract}
-We survey 25 performance modeling tools from 53 papers (2016--2026) and evaluate ten---NeuSight, ASTRA-sim, VIDUR, Timeloop, nn-Meter with full experiments, plus MAESTRO, Paleo, Habitat, Accel-Sim with deployment testing---across 146 GPU configurations, collective benchmarks, LLM serving, energy validation, and reproducibility testing. Three findings emerge: (1)~self-reported accuracy is unreliable---NeuSight claims 2.3\% MAPE but we measure 5.87--27.10\%, while nn-Meter produces no output due to dependency rot; (2)~the five fully-evaluated tools are complementary but disjoint, motivating a unified pipeline; (3)~the kernel-to-model composition gap (2--9\% kernel error growing to 10--28\% model error) dominates total error, yet no tool addresses this layer.
+We survey 25 performance modeling tools from 53 papers (2016--2026) and fully evaluate five---NeuSight, ASTRA-sim, VIDUR, Timeloop, nn-Meter---with independent experiments, and assess deployment feasibility of five additional tools (MAESTRO, Paleo, Habitat, Accel-Sim, ASTRA-sim analytical backend), across 146 GPU configurations, collective benchmarks, LLM serving, energy validation, and reproducibility testing. Three findings emerge: (1)~self-reported accuracy is unreliable---NeuSight claims 2.3\% MAPE but we measure 5.87--27.10\% across 10 GPU types, while nn-Meter produces no output due to dependency rot; (2)~the five fully-evaluated tools are complementary but disjoint, motivating a unified pipeline; (3)~the kernel-to-model composition gap (5--9\% kernel error growing to an estimated 10--28\% model-level error, extrapolated from kernel-level measurements) dominates total error, yet no tool addresses this layer.
 \end{abstract}\keywords{ML workload performance prediction, DNN accelerator modeling, GPU simulation, distributed training simulation, LLM inference serving, design space exploration, survey}\maketitle
 \section{Introduction}\label{sec:introduction}
-Domain-specific architectures~\cite{hennessy2019golden,tpuv1_2017,tpuv4_2023} make performance prediction critical, yet no prior work examines \emph{why} certain approaches succeed or how errors propagate; prior surveys cover ML techniques for modeling~\cite{granite2022}, specific hardware, or distributed training simulators~\cite{svedassurvey2025}. We contribute: (1)~the \textbf{PerfSim-Survey-2026} benchmark suite of \textbf{36 scenarios} where 56\% of scenarios lack tool support; (2)~\textbf{third-party evaluation} showing claimed error rates are overstated by $2$--$4\times$; (3)~a \textbf{unified pipeline} identifying the composition gap; and (4)~a \textbf{research agenda} for composition modeling and continuous validation.
+Domain-specific architectures~\cite{hennessy2019golden,tpuv1_2017,tpuv4_2023} make performance prediction critical, yet no prior work examines \emph{why} certain approaches succeed or how errors propagate; prior surveys cover ML techniques for modeling~\cite{granite2022}, specific hardware, or distributed training simulators~\cite{svedassurvey2025}. We contribute: (1)~the \textbf{PerfSim-Survey-2026} benchmark suite of \textbf{36 scenarios} where 56\% of scenarios lack tool support; (2)~\textbf{third-party evaluation} showing that, for the one tool where we could independently verify (NeuSight), claimed error rates are overstated by $2$--$4\times$; (3)~a \textbf{unified pipeline} identifying the composition gap; and (4)~a \textbf{research agenda} for composition modeling and continuous validation.
 \begin{figure}[t]
 \centering\resizebox{\columnwidth}{!}{%
 \begin{tikzpicture}[yearnode/.style={font=\footnotesize\bfseries, text=black!70}, eventnode/.style={font=\footnotesize, text width=2cm, align=center}]
@@ -29,8 +29,9 @@ Our survey intersects with several bodies of work, each of which addresses a sub
 \textbf{Concurrent surveys.}
 Svedas et al.~\cite{svedassurvey2025} survey ML performance modeling tools with a focus on hardware design-space exploration, cataloging tools by methodology and target platform.
 Their scope complements ours: where they evaluate tools' utility for architecture designers exploring dataflow and memory hierarchy trade-offs, we evaluate \emph{deployment accuracy}---whether tools produce predictions that match real-world performance on existing hardware.
+Notably, Svedas et al.\ also cover TCO and carbon-cost modeling dimensions that our evaluation does not address; extending performance prediction to include energy and carbon costs remains an important gap for future work.
 Li, Sun, and Jog's ``Path Forward Beyond Simulators''~\cite{pathforward2023} argues that ML-based models should replace traditional cycle-accurate simulators, demonstrating that simple linear regression achieves 7\% error on GPU kernel latency.
-Our evaluation tests this thesis empirically: we find that ML-augmented tools (NeuSight, nn-Meter) achieve competitive accuracy on in-distribution workloads but degrade sharply outside their training domain, and the most reliable tools in our evaluation (VIDUR, ASTRA-sim) rely on trace-driven simulation rather than learned models.
+Our evaluation tests this thesis empirically: we find that ML-augmented tools such as NeuSight achieve reasonable accuracy on in-distribution workloads but degrade sharply outside their training domain, while nn-Meter produces no output at all due to dependency rot, and the most reliable tools in our evaluation (VIDUR, ASTRA-sim) rely on trace-driven simulation rather than learned models.
 This suggests the transition from simulators to ML-based replacements is premature for production use, though hybrid approaches show promise.
 
 \textbf{Benchmarking and reproducibility.}
@@ -45,7 +46,7 @@ We provide the first unified evaluation of multiple tools on standardized criter
 This cross-tool perspective is absent from any individual tool paper and motivates the unified pipeline we propose in Section~\ref{sec:unified-pipeline}.
 
 \section{Survey Methodology}\label{sec:methodology}
-From 287 candidates on ACM DL, IEEE Xplore, Semantic Scholar, and arXiv, 53 papers (2016--2026) plus 12 foundational works were classified by methodology, platform, and abstraction level~\cite{rakhshanfar2021survey}, excluding proprietary tools, infrastructure~\cite{binkert2011gem5,sst2012}, compilers~\cite{halide2013,mlir2020,triton2019}, and schedulers~\cite{pollux2021,sia2023}.
+From an initial pool of 287 candidate papers identified via keyword search on ACM DL, IEEE Xplore, Semantic Scholar, and arXiv (full search methodology in supplementary material), 53 papers (2016--2026) plus 12 foundational works were classified by methodology, platform, and abstraction level~\cite{rakhshanfar2021survey}, excluding proprietary tools, infrastructure~\cite{binkert2011gem5,sst2012}, compilers~\cite{halide2013,mlir2020,triton2019}, and schedulers~\cite{pollux2021,sia2023}.
 \textbf{Background.}
 ML workloads are computation graphs~\cite{pytorch2019,tensorflow2016} where performance depends on dataflow, KV cache management~\cite{vllm2023}, and compute--memory--network balance; LLM inference splits into compute-bound prefill and memory-bound decode~\cite{splitwise2024,sarathi2024,orca2022}. Five modeling types span accuracy--speed trade-offs: \textbf{analytical}~\cite{williams2009roofline,rooflinellm2024} ($\mu$s), \textbf{cycle-accurate}~\cite{gpgpusim2009,accelsim2020,dissectinggpu2025} ($10^3$--$10^4\times$ slowdown), \textbf{trace-driven}~\cite{astrasim2023,vidur2024} (min.), \textbf{ML-augmented}~\cite{nnmeter2021} (ms), and \textbf{hybrid}~\cite{neusight2025,habitat2021}.
 \section{Taxonomy}\label{sec:taxonomy}
@@ -76,10 +77,10 @@ Three gaps emerge (Figure~\ref{fig:tool-architecture}): trace-driven methods are
 \node[tool, anchor=east] at (-2.1,0) {NeuSight, nn-Meter,}; \node[tool, anchor=east] at (-2.1,-0.2) {TVM, GRANITE, TLP}; \node[tool, anchor=east] at (-2.1,0.7) {Paleo, Habitat,}; \node[tool, anchor=east] at (-2.1,0.5) {AMALI, Lumos, LIFE}; \node[tool, anchor=east] at (-2.1,1.4) {ASTRA-sim, VIDUR,}; \node[tool, anchor=east] at (-2.1,1.2) {SimAI, Frontier}; \node[err, anchor=west] at (2.1,0) {2--3\% error}; \node[err, anchor=west] at (2.1,0.7) {5--12\% error}; \node[err, anchor=west] at (2.1,1.4) {5--15\% error};
 \draw[compos] (3.6,0.15) -- (3.6,1.25); \node[font=\footnotesize, text=red!50!black, rotate=90, anchor=south] at (3.9,0.7) {error accumulates};
 \end{tikzpicture}}\caption{Abstraction level hierarchy with error accumulation.}\label{fig:abstraction-levels}\end{figure}
-\textbf{Workload coverage.}\label{subsec:workload-coverage} Of 14 tools, 9 validate only on CNNs; post-2023 tools target transformers/LLMs but \textbf{none validates on diffusion or dynamic inference} such as speculative decoding~\cite{medusa2024,dynamicreasoning2026}; only Frontier~\cite{frontier2025} covers MoE, whose expert-parallel routing introduces load-dependent latency that static models cannot capture.
+\textbf{Workload coverage.}\label{subsec:workload-coverage} Of 14 tools, 9 validate only on CNNs; post-2023 tools target transformers/LLMs but \textbf{among the tools we surveyed, none validates on diffusion or dynamic inference} such as speculative decoding~\cite{medusa2024,dynamicreasoning2026}; only Frontier~\cite{frontier2025} covers MoE, whose expert-parallel routing introduces load-dependent latency that static models cannot capture.
 \section{Survey of Approaches}\label{sec:survey}
 We survey tools by target platform (Table~\ref{tab:survey-summary}).\begin{table*}[t]
-\centering\caption{Surveyed tools by target platform. A=Analytical, S=Simulation, T=Trace-driven, M=ML-augmented, H=Hybrid. $^*$Surrogate-vs-simulator fidelity. $^\dagger$Unverifiable. $^\ddagger$No hardware baseline.}\label{tab:survey-summary}
+\centering\caption{Surveyed tools by target platform. A=Analytical, S=Simulation, T=Trace-driven, M=ML-augmented, H=Hybrid. Accuracy values are self-reported (published claims, not independently verified by us unless noted in Table~\ref{tab:accuracy-comparison}). $^*$Surrogate-vs-simulator fidelity. $^\dagger$Unverifiable. $^\ddagger$No hardware baseline.}\label{tab:survey-summary}
 \footnotesize\begin{tabular}{lllllll}\toprule
 \textbf{Tool} & \textbf{Platform} & \textbf{Method} & \textbf{Target} & \textbf{Accuracy} & \textbf{Speed} & \textbf{Key Capability} \\ \midrule
 \multicolumn{7}{l}{\textit{DNN Accelerator Modeling}} \\
@@ -179,7 +180,7 @@ We additionally attempted deployment of 5 tools---MAESTRO, Paleo, Habitat, Accel
 \label{subsec:experimental-design}
 
 Experiments match each tool's intended scope:
-\textbf{NeuSight:} 146 configurations across 12 GPU types (NVIDIA V100, H100, A100-80G, A100-40G, L4, T4, P100, P4; AMD MI100, MI210, MI250).
+\textbf{NeuSight:} 146 configurations across 10 GPU types (NVIDIA V100, H100, A100-80G, A100-40G, L4, T4, P4; AMD MI100, MI210, MI250).
 \textbf{ASTRA-sim:} 4 collectives at 8~NPUs on HGX-H100, plus ResNet-50 at 2/4/8 GPUs.
 \textbf{VIDUR:} Llama-2-7B on simulated A100 under vLLM and Sarathi schedulers.
 \textbf{Timeloop:} ResNet-50 Conv1 on Eyeriss-like architecture.
@@ -189,7 +190,7 @@ Deterministic tools verified bit-identical across three runs; stochastic tools r
 Scripts and data are provided as supplementary material.
 
 \textbf{Verification methodology.}
-For NeuSight, we independently computed MAPE from the artifact's own prediction/label pairs across 146 configurations and 12 GPU types, testing claim reproducibility rather than absolute accuracy.
+For NeuSight, we independently computed MAPE from the artifact's own prediction/label pairs across 146 configurations and 10 GPU types, testing claim reproducibility rather than absolute accuracy.
 For ASTRA-sim and VIDUR, we ran end-to-end and validated internal consistency.
 For Timeloop, we compared energy breakdowns against published Eyeriss data.
 For nn-Meter, we documented the deployment failure chain.
@@ -261,11 +262,11 @@ Memory & --- & --- & KV cache & Buffer sizes & --- \\
 \subsection{NeuSight: GPU Kernel Accuracy}
 \label{subsec:neusight-results}
 
-NeuSight claims 2.3\% overall MAPE for GPU kernel latency prediction~\cite{neusight2025}; we independently re-analyzed 146 model configurations across 12 GPU types using the tool's own prediction/label pairs (Table~\ref{tab:neusight-accuracy}).
+NeuSight claims 2.3\% overall MAPE for GPU kernel latency prediction~\cite{neusight2025}; we independently re-analyzed 146 model configurations across 10 GPU types using the tool's own prediction/label pairs (Table~\ref{tab:neusight-accuracy}).
 
 \begin{table}[t]
 \centering
-\caption{NeuSight accuracy: published claims vs.\ our verification across 12 GPU types. $N$: number of model configurations tested. Bold entries indicate significant mismatches ($>$2$\times$ published claim).}
+\caption{NeuSight accuracy: published claims vs.\ our verification across 10 GPU types. $N$: number of model configurations tested. Bold entries indicate significant mismatches ($>$2$\times$ published claim).}
 \label{tab:neusight-accuracy}
 \small
 \begin{tabular}{llrrl}
@@ -349,13 +350,16 @@ Figure~\ref{fig:accuracy-comparison} visualizes the accuracy gap across GPU type
 
 \textbf{Key finding: accuracy degrades outside the training distribution.}
 NeuSight achieves its best accuracy on V100 (5.87\%), the GPU most represented in training data.
-On newer GPUs (H100: 8.74\% vs.\ claimed 2.3\%, a $3.8\times$ gap) and older GPUs (T4: 18.51\%, P4: 27.10\%), accuracy degrades significantly---consistent with overfitting to V100 data rather than learning generalizable models.
-The worst-case max APE reaches 65.30\% on P4 (GPT-2-Large inference at batch size 4).
+On newer GPUs (H100: 8.74\% vs.\ claimed 2.3\%, a $3.8\times$ gap) and older GPUs (T4: 18.51\%, P4: 27.10\%), accuracy degrades significantly---suggesting possible overfitting to V100 data rather than learning generalizable models.
+The worst-case max APE in our analysis reaches 65.30\% on P4 (GPT-2-Large inference at batch size 4; full per-configuration results in supplementary material).
+
+\textbf{Aggregation caveat.}
+Our per-device MAPE is computed as an arithmetic mean across all configurations for each GPU type, whereas NeuSight's published 2.3\% likely uses a geometric mean on a specific GPU subset; this methodological difference partially accounts for the discrepancy, though the magnitude of the gap on out-of-distribution GPUs exceeds what aggregation method alone can explain.
 
 \textbf{Systematic biases.}
-Three failure modes emerge across 146 configurations: (1)~\emph{batch size sensitivity}---doubling batch size often doubles error, suggesting the tile decomposition does not model occupancy transitions; (2)~\emph{operator fusion blindness}---fused kernels show higher error (H100 GPT-2-Large: 19.37\% fused vs.\ 6.80\% unfused); (3)~\emph{cross-vendor degradation}---AMD training error (15.6--15.8\%) systematically exceeds inference error, due to wavefront vs.\ warp scheduling differences.
+Three failure modes emerge across 146 configurations: (1)~\emph{batch size sensitivity}---doubling batch size often doubles error, suggesting the tile decomposition does not model occupancy transitions; (2)~\emph{operator fusion blindness}---fused kernels show higher error (e.g., H100 GPT-2-Large: 19.37\% fused vs.\ 6.80\% unfused in our analysis of NeuSight's prediction/label pairs); (3)~\emph{cross-vendor degradation}---AMD training error (15.6--15.8\% in our per-device analysis, detailed in supplementary material) systematically exceeds inference error, likely due to wavefront vs.\ warp scheduling differences.
 Multi-GPU experiments (DP4: 12.87\%, TP4: 8.40\%, PP4: 10.26\% APE) confirm NeuSight ignores communication overhead entirely, positioning it as a \emph{kernel-level} predictor.
-Against our 36-scenario suite, NeuSight covers 5 supported + 3 partial scenarios (22\%), concentrated in single-GPU inference.
+Against our 36-scenario suite, NeuSight covers 5 supported + 3 partial scenarios (18\% weighted coverage), concentrated in single-GPU inference.
 
 \subsection{ASTRA-sim: Distributed Training Communication}
 \label{subsec:astrasim-results}
@@ -395,10 +399,10 @@ All NPUs report identical cycle counts ($\sigma = 0$), and collective ratios mat
 Communication scales as expected from 4 to 8 GPUs ($2.27\times$).
 
 \textbf{Scaling and limitations.}
-Communication overhead grows super-linearly from 0.05\% (2 GPUs) to 0.30\% (8 GPUs), matching theoretical $2(N-1)/N$ scaling.
+Communication overhead grows super-linearly from 0.05\% (2 GPUs) to 0.30\% (8 GPUs); while the trend is qualitatively consistent with increasing collective cost, the observed 4-to-8 GPU scaling ratio ($2.27\times$) exceeds the $2(N{-}1)/N$ formula prediction ($1.17\times$), suggesting additional factors (e.g., message size growth, topology effects) beyond the simple analytical model.
 All-to-All at $1.985\times$ All-Reduce cost benchmarks the MoE communication overhead.
 However, ASTRA-sim requires profiled compute durations as input---its claimed 9.69\% error applies only to \emph{communication}, not total training time.
-Against our 36-scenario suite, ASTRA-sim achieves 7 supported + 2 partial scenarios (25\%), the broadest training coverage but limited to communication patterns.
+Against our 36-scenario suite, ASTRA-sim achieves 7 supported + 4 partial scenarios (25\% weighted coverage), the broadest training coverage but limited to communication patterns.
 
 \subsection{VIDUR: LLM Inference Serving}
 \label{subsec:vidur-results}
@@ -426,13 +430,13 @@ Preempted requests & 53 & 0 \\
 \end{table}
 
 \textbf{Scheduler ranking is correct.}
-Sarathi~\cite{sarathi2024} achieves 12.2\% lower E2E latency and eliminates preemption (0 vs.\ 53 requests), consistent with its chunked-prefill design.
+Sarathi~\cite{sarathi2024} achieves 10.7\% lower E2E latency and eliminates preemption (0 vs.\ 53 requests), consistent with its chunked-prefill design.
 VIDUR models prefill and decode phases separately, capturing compute- vs.\ memory-bound regimes.
 
 \textbf{Tail latency and preemption.}
 vLLM's P99/mean ratio ($1.77\times$) exceeds Sarathi's ($1.66\times$) due to 53 preempted requests (26.5\%) under vLLM vs.\ zero under Sarathi's chunked prefill.
 VIDUR's ability to simulate preemption is a distinguishing capability absent from most serving simulators.
-VIDUR covers 6 of 14 inference scenarios (I1--I3) but I5 scenarios (speculative decoding, disaggregated serving) are unsupported.
+VIDUR covers 6 of 12 inference scenarios in I1--I3 but I5 scenarios (speculative decoding, disaggregated serving) are unsupported.
 Absolute values require A100 hardware for verification.
 
 \subsection{Timeloop: Accelerator Energy/Performance}
@@ -442,6 +446,7 @@ Timeloop reports accuracy within 10\% of RTL simulation for energy, validated ag
 We ran ResNet-50 Conv1 on an Eyeriss-like architecture: total energy 649.08~\textmu{}J (5,500~fJ/MAC) with DRAM dominating (61.8\%), weights SPAD (18.4\%), and MAC only 3.8\%; estimated latency 5.854~ms at $\sim$60\% utilization (168 PEs); outputs bit-identical across three runs.
 The energy breakdown matches published Eyeriss data~\cite{eyeriss2016}, confirming a 16:1 data-movement-to-computation ratio~\cite{sze2017efficient} and motivating per-layer mapping optimization.
 Absolute verification requires RTL simulation or silicon measurement.
+Standardized energy benchmarking efforts such as MLPerf Power~\cite{mlperfpower2025} provide system-level power measurements that could serve as ground truth for validating energy predictions from tools like Timeloop at larger scales.
 
 \subsection{nn-Meter: Complete Failure}
 \label{subsec:nnmeter-results}
@@ -520,7 +525,7 @@ D1: Diffusion & 3 & --- & --- & --- & --- & --- \\
 
 % T3
 \node[hdr, anchor=east] at (0.4,-1.2) {T3};
-\node[cell, fill=yellow!40] at (1.3,-1.2) {P};
+\node[cell, fill=red!15] at (1.3,-1.2) {U};
 \node[cell, fill=green!40] at (2.5,-1.2) {S};
 \node[cell, fill=red!15] at (3.7,-1.2) {U};
 \node[cell, fill=red!15] at (4.9,-1.2) {U};
@@ -622,7 +627,7 @@ No single tool can answer end-to-end deployment questions---answering requires c
 \textbf{Modern techniques are the largest gap.}
 Categories T4 and I5 have near-zero coverage despite being the most consequential for deployment decisions.
 The 20 uncovered scenarios fail for three reasons: \emph{missing algorithmic primitives} (speculative decoding, prefix caching require algorithm-level parameters beyond operator abstractions), \emph{missing hardware models} (FP8/INT4 require quantized arithmetic intensity models), and \emph{missing system-level interactions} (disaggregated serving, multi-model co-location create cross-component interference).
-The union of all five tools covers only 16/36 scenarios (44\%); tool development lags deployment practice by 1--2 years.
+The union of all five tools covers only 16/36 scenarios (44\%); tool development appears to lag deployment practice, as the uncovered scenarios (e.g., speculative decoding, FP8 training) became widely deployed in 2024--2025 while the most recent evaluated tools date from 2023--2025.
 
 \subsection{Per-Tool Failure Mode Analysis}
 \label{subsec:failure-modes}
@@ -632,7 +637,7 @@ Each evaluated tool exhibits a characteristic failure mode rooted in its methodo
 \textbf{NeuSight} trains an ML model on profiled kernel latencies from a limited set of GPU configurations, primarily V100.
 When applied to architectures outside this training distribution---older GPUs (T4, P4) or newer ones (H100)---prediction error inflates sharply, from 5.87\% on V100 to 27.10\% on P4.
 The tile-based decomposition that enables fast inference also introduces a structural gap between inference and training workloads (V100: 5.87\% inference vs.\ 8.91\% training), because training kernels exhibit different memory access patterns and occupancy characteristics that the tile model does not capture.
-For emerging architectures such as MoE and diffusion models, whose dynamic execution graphs and variable expert routing defy static tile decomposition, NeuSight's MAPE is expected to inflate further.
+For emerging architectures such as MoE and diffusion models, whose dynamic execution graphs and variable expert routing defy static tile decomposition, we hypothesize that NeuSight's MAPE would inflate further on such workloads.
 
 \textbf{ASTRA-sim} calibrates its network and compute models against published benchmarks for specific collective operations and topologies.
 While this produces internally consistent results ($\sigma = 0$ across NPUs), the calibration misses congestion and contention patterns that emerge at scale: the latency model assumes no cross-traffic interference between concurrent collectives, and compute durations must be supplied externally rather than predicted.
@@ -687,7 +692,7 @@ MAESTRO provides an alternative analytical kernel-level model for custom acceler
 No pair of tools produces overlapping predictions for the same scenario, confirming that a unified pipeline must compose across tools rather than select among them.
 
 Third, \emph{benchmark coverage is the weakest dimension across all tools}.
-Even the highest-coverage tool (ASTRA-sim at 11/36 scenarios including partial) leaves 69\% of modern LLM workloads unaddressed.
+Even the highest-coverage tool (ASTRA-sim at 25\% weighted coverage, 7 supported + 4 partial of 36 scenarios) leaves 75\% of modern LLM workloads unaddressed.
 The union of all six tools covers at most 16 of 36 scenarios (44\%), and the uncovered scenarios---FP8 training, speculative decoding, disaggregated serving, diffusion inference---represent the fastest-growing deployment patterns.
 Coverage, not accuracy, is the binding constraint for practical adoption.
 
@@ -696,17 +701,17 @@ Coverage, not accuracy, is the binding constraint for practical adoption.
 
 Four findings emerge from combining accuracy verification with coverage analysis:
 
-\emph{First}, \textbf{self-reported accuracy is inversely correlated with reliability.}
-By claimed accuracy: nn-Meter ($<$1\%) $>$ NeuSight (2.3\%) $>$ VIDUR ($<$5\%) $>$ ASTRA-sim (5--15\%).
+\emph{First}, \textbf{among our five evaluated tools, self-reported accuracy appears inversely correlated with deployment reliability} (though this observation is based on $N{=}5$ tools and should not be generalized without broader validation).
+By claimed accuracy: nn-Meter ($<$1\%) $>$ NeuSight (2.3\%) $>$ VIDUR ($<$5\%) $>$ Timeloop ($<$10\%) $>$ ASTRA-sim (5--15\%).
 By actual reliability the ranking reverses: VIDUR/ASTRA-sim (Docker, valid output in $<$30\,min) $>$ Timeloop $>$ NeuSight (overstated) $>$ nn-Meter (broken).
-ML-augmented components are the primary reliability risk.
+ML-augmented components are the primary reliability risk in our sample.
 
 \emph{Second}, \textbf{the five fully-evaluated tools are complementary, not competing.}
 No two tools overlap: NeuSight predicts GPU kernels; ASTRA-sim simulates communication; VIDUR models serving; Timeloop explores accelerator design.
 The field needs a \emph{unified pipeline} (Section~\ref{sec:unified-pipeline}).
 
 \emph{Third}, \textbf{the composition gap dominates end-to-end error.}
-NeuSight's kernel-level 5--9\% MAPE grows to 10--28\% at model level; the 5--15\% composition error (launch overhead, memory allocation, synchronization) exceeds kernel-level error (Figure~\ref{fig:error-composition}).
+NeuSight's kernel-level 5--9\% MAPE is projected to grow to 10--28\% at model level based on error propagation from kernel-level measurements; the estimated 5--15\% composition error (launch overhead, memory allocation, synchronization) exceeds kernel-level error (Figure~\ref{fig:error-composition}).
 Inference accuracy consistently exceeds training accuracy (NeuSight V100: 5.87\% vs.\ 8.91\%; AMD MI100: 10.80\% vs.\ 15.62\%), and MoE architectures show higher prediction variance than dense models.
 
 \emph{Fourth}, \textbf{50\% of modern LLM workloads lack any modeling tool.}
@@ -771,7 +776,7 @@ All evaluated tools (except nn-Meter) generated bit-identical results across thr
 \textbf{Temporal.} Results reflect tool state as of January 2026; tools under active development may have addressed some limitations, but structural coverage gaps reflect design choices rather than fixable bugs.
 
 \section{Toward a Unified Simulation Pipeline}\label{sec:unified-pipeline}
-No single tool spans kernel execution through serving SLAs. Figure~\ref{fig:pipeline-architecture} shows five layers where 5--9\% kernel MAPE grows to 10--28\% at model level, driven by (i)~interface heterogeneity, (ii)~calibration mismatch between steady-state models and transient-dominated kernels, and (iii)~feedback loops in serving schedulers.
+No single tool spans kernel execution through serving SLAs. Figure~\ref{fig:pipeline-architecture} shows five layers where 5--9\% kernel MAPE is projected to grow to an estimated 10--28\% at model level, driven by (i)~interface heterogeneity, (ii)~calibration mismatch between steady-state models and transient-dominated kernels, and (iii)~feedback loops in serving schedulers.
 \begin{figure}[t]
 \centering\resizebox{\columnwidth}{!}{%
 \begin{tikzpicture}[layer/.style={draw=black!60, rounded corners=3pt, minimum width=5.5cm, minimum height=0.6cm, align=center, font=\footnotesize\bfseries}, tool/.style={font=\footnotesize, text=black!60}, arr/.style={-{Stealth[length=3pt]}, thick, black!50}, data/.style={font=\footnotesize\itshape, text=blue!50!black}]
@@ -841,6 +846,7 @@ MoE architectures, diffusion models~\cite{dynamicreasoning2026}, and dynamic inf
 The key research question is: what kernel primitives and system abstractions must be added to extend tool coverage from the current 16/36 scenarios toward 30/36?
 MoE models require expert-routing primitives that create load-dependent, input-specific execution paths---a fundamentally different paradigm from the static computation graphs that all current tools assume.
 Diffusion models introduce iterative denoising loops with varying compute intensity per step, and speculative decoding creates branching execution paths whose cost depends on acceptance rates.
+As MLPerf evolves to include workloads such as Llama~3.1 405B and FLUX.1, these benchmarks could serve as concrete validation targets for future tool development.
 The expected challenge is that these \emph{dynamic execution graphs} resist the static trace assumptions underlying tools like ASTRA-sim and VIDUR; new abstractions for conditional and iterative execution are needed.
 
 \textbf{(3)~Hardware transfer.}
@@ -864,13 +870,13 @@ The primary challenge is ML framework churn: PyTorch, TensorFlow, and scikit-lea
 Containerization with pinned dependencies (Docker), model serialization in portable formats (ONNX rather than pickle), and automated CI testing against dependency updates are necessary but not yet standard practice in the performance modeling community.
 
 \textbf{(6)~Software stack evolution.}
-Rapidly evolving optimizations such as FlashAttention~\cite{flashattention2022}, which reduced attention kernel latency by $2$--$4\times$, can invalidate performance models trained on prior kernel implementations overnight.
+Rapidly evolving optimizations such as FlashAttention~\cite{flashattention2022}, which reduced attention kernel latency by $2$--$4\times$ according to the original paper~\cite{flashattention2022}, can invalidate performance models trained on prior kernel implementations overnight.
 The research question is: how quickly do software optimizations invalidate calibrated models, and can this decay rate be predicted?
 A useful metric is \emph{model half-life}---the time after which a calibrated model's error doubles due to software stack changes.
 Measuring this requires a longitudinal study tracking model accuracy across successive framework releases, which no group has yet undertaken.
 The challenge is that such a study requires continuous access to diverse hardware and the engineering capacity to re-profile workloads after each major framework update---a significant infrastructure investment that is difficult to justify for any single research group but could be shared as community infrastructure.
 \section{Conclusion}\label{sec:conclusion}
-We survey 25 ML performance tools and evaluate ten against a 36-scenario benchmark, finding self-reported accuracy unreliable (NeuSight: 2.3\% claimed vs.\ 5.87--27.10\%; nn-Meter: no output). The 5--15\% composition gap dominates total error; closing it requires validated composition models and community CI.
+We survey 25 ML performance tools, fully evaluate five and assess deployment feasibility of five more, against a 36-scenario benchmark, finding self-reported accuracy unreliable (NeuSight: 2.3\% claimed vs.\ 5.87--27.10\%; nn-Meter: no output). The 5--15\% composition gap dominates total error; closing it requires validated composition models and community CI.
 \bibliographystyle{ACM-Reference-Format}
 \bibliography{references}
 \end{document}
