@@ -758,7 +758,7 @@ Table~\ref{tab:kernel-comparison} compares NeuSight, Path Forward~\cite{pathforw
 
 \begin{table}[t]
 \centering
-\caption{GPU kernel prediction: head-to-head on transformer workloads (BERT-Large, GPT-2/3, OPT-1.3B, Switch Transformer across 8 GPUs). All errors from NeuSight's Table~3~\cite{neusight2025}. Self-reported accuracy (``Self'') from each tool's own paper on its own benchmarks. $^\dagger$Third-party re-evaluation by SynPerf~\cite{synperf2025}.}
+\caption{GPU kernel prediction: head-to-head on transformer workloads (BERT-Large, GPT-2/3, OPT-1.3B, Switch Transformer across 8 GPUs). All errors from NeuSight's Table~3~\cite{neusight2025}. Self-reported accuracy (``Self'') from each tool's own paper on its own benchmarks. $^\dagger$Third-party re-evaluation by SynPerf~\cite{synperf2025}. $^\ddagger$Paleo~\cite{paleo2017} not evaluated on transformers; self-reported error on CNNs (Titan~X); NeuralPower~\cite{neuralpower2017} reports 6--43\% network-level error.}
 \label{tab:kernel-comparison}
 \footnotesize
 \begin{tabular}{lrrrl}
@@ -769,6 +769,7 @@ NeuSight & 9.7\% & 7.3\% & 8.9\% & Transformers, 8 GPUs \\
 Path Forward & 61.2\% & 58.3\% & $\sim$7\% & Self: CNN only (A100) \\
 Habitat & 220.9\% & 725.8\% & $\sim$16\% & Self: cross-GPU CNN \\
 Roofline & 31.2\% & 31.9\% & --- & Analytical baseline \\
+Paleo & --- & --- & $\sim$10--30\% & CNN only$^\ddagger$ \\
 \midrule
 \multicolumn{5}{l}{\emph{SynPerf third-party re-evaluation$^\dagger$}} \\
 NeuSight & \multicolumn{2}{c}{34.5--45.1\%} & 8.9\% & Qwen2.5-14B, newer HW \\
@@ -781,6 +782,8 @@ First, the comparison is on NeuSight's home turf---transformer workloads that ma
 Path Forward reports $\sim$7\% MAPE on CNNs (its own benchmark) but degrades to 61\% on transformers; Habitat claims $\sim$16\% on cross-GPU CNNs but collapses to 726\% on training transformers.
 Second, SynPerf~\cite{synperf2025} independently re-evaluated NeuSight on newer workloads (Qwen2.5-14B) and hardware, finding 34--45\% error---a $4$--$5\times$ inflation from the published 8.9\%.
 Third, out-of-distribution GPU generalization is poor across all tools: NeuSight 8.1\%, Path Forward 94\%, Habitat 724\% average error on unseen GPUs.
+Paleo~\cite{paleo2017}, an earlier analytical model, reports $\sim$10--30\% error on CNNs (AlexNet, VGG-16 on Titan~X) but has never been evaluated on transformers.
+NeuralPower~\cite{neuralpower2017} independently measured Paleo's network-level error at 6--43\% with systematic underestimation across all CNN models, and RMSPE of 58--80\% at the layer level.
 These results suggest that \emph{self-reported accuracy is a poor predictor of real-world performance} across all kernel prediction tools, not just NeuSight.
 
 \subsubsection{Distributed Training Simulation}
@@ -790,7 +793,7 @@ Table~\ref{tab:distributed-comparison} compares distributed training simulators-
 
 \begin{table}[t]
 \centering
-\caption{Distributed training simulation: head-to-head on H800 LLM workloads (Echo eval~\cite{echo2024}) and large-scale comparison (SimAI eval~\cite{simai2025}). Self-reported accuracy from each tool's own paper. ASTRA-sim error at 512 GPUs is from SimAI's evaluation.}
+\caption{Distributed training simulation: head-to-head on H800 LLM workloads (Echo eval~\cite{echo2024}) and large-scale comparison (SimAI eval~\cite{simai2025}). Self-reported accuracy from each tool's own paper. ASTRA-sim error at 512 GPUs is from SimAI's evaluation. $^\dagger$TrioSim~\cite{triosim2025} evaluated on smaller models (GPT-2, BERT-Base, CNNs) at 2--8 GPUs; no third-party evaluation.}
 \label{tab:distributed-comparison}
 \footnotesize
 \begin{tabular}{lp{1.4cm}rrr}
@@ -809,6 +812,9 @@ FlexFlow & GPT-175B & 37\% & $\sim$30\% & 96 \\
 SimAI & LLM training & $\sim$1.9\% & $\sim$1.9\% & 128--1024 \\
 ASTRA-sim & LLM training & 45.9\% & $\sim$5\% & 128 \\
 ASTRA-sim & LLM training & 530.2\% & $\sim$5\% & 512 \\
+\midrule
+\multicolumn{5}{l}{\emph{TrioSim self-reported (small-scale)$^\dagger$}} \\
+TrioSim & CNN/Transf. & $\sim$3--7\% & $\sim$3--7\% & 2--8 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -817,6 +823,9 @@ Two findings stand out.
 First, the \emph{self-reported vs.\ third-party gap is dramatic}: Proteus claims 3\% error on its own benchmarks (small-scale ResNet/VGG) but shows 23--25\% on Echo's H800 LLM workloads---an $8\times$ inflation.
 Both Proteus and FlexFlow fail to capture Megatron-LM fused operations, causing $>$90\% error on GPT-13B under Megatron~\cite{echo2024}.
 Second, \emph{scale sensitivity is critical}: ASTRA-sim reports $\sim$5\% error at 4--16 GPUs but balloons to 530\% at 512 GPUs per SimAI's evaluation~\cite{simai2025}, demonstrating that tools must be evaluated at their target deployment scale.
+TrioSim~\cite{triosim2025} illustrates this concern from the opposite direction: it reports $\sim$3--7\% error on data, tensor, and pipeline parallelism, but only at 2--8 GPU scale on smaller models (GPT-2, BERT-Base, CNNs).
+Its headline numbers (2.91\% DP, 4.54\% TP, 6.82\% PP) represent best-case configurations; error rises to 15\% for pipeline parallelism with multiple chunks and 9--16\% for cross-GPU prediction.
+No third-party evaluation yet exists, making it unclear whether these small-scale results would hold at the 64--1024 GPU scales tested by Echo and SimAI.
 
 \subsubsection{LLM Inference Serving}
 \label{subsubsec:inference-comparison}
@@ -864,6 +873,7 @@ Their shared validation on Eyeriss is one of the few cases in this survey where 
 
 Figure~\ref{fig:self-vs-third} synthesizes the accuracy gap across categories.
 Across all four categories, self-reported accuracy systematically understates real-world error, with the gap ranging from $1.1\times$ (Timeloop) to $30\times$ (Proteus on Megatron-LM workloads).
+Paleo~\cite{paleo2017} fits this pattern: NeuralPower's third-party evaluation shows up to $2\times$ higher error than Paleo's self-reported numbers on the same CNN workloads.
 
 \begin{figure}[t]
 \centering
@@ -876,7 +886,7 @@ Across all four categories, self-reported accuracy systematically understates re
     ylabel={MAPE (\%)},
     ymin=0, ymax=70,
     xtick=data,
-    symbolic x coords={NeuSight,Path Fwd,Proteus,ASTRA-sim,Vidur},
+    symbolic x coords={Paleo,NeuSight,Path Fwd,Proteus,ASTRA-sim,Vidur},
     xticklabel style={font=\footnotesize, rotate=35, anchor=east},
     yticklabel style={font=\footnotesize},
     xlabel style={font=\small},
@@ -892,6 +902,7 @@ Across all four categories, self-reported accuracy systematically understates re
 ]
 % Self-reported accuracy
 \addplot[fill=green!50, draw=green!70] coordinates {
+    (Paleo,20) [20]
     (NeuSight,8.9) [8.9]
     (Path Fwd,7) [7]
     (Proteus,3) [3]
@@ -900,6 +911,7 @@ Across all four categories, self-reported accuracy systematically understates re
 };
 % Third-party measured accuracy
 \addplot[fill=red!50, draw=red!70] coordinates {
+    (Paleo,43) [43]
     (NeuSight,45) [45]
     (Path Fwd,61) [61]
     (Proteus,25) [25]
@@ -911,12 +923,13 @@ Across all four categories, self-reported accuracy systematically understates re
 \end{tikzpicture}%
 }
 \caption{Self-reported vs.\ third-party accuracy for tools with available cross-evaluations.
+Paleo: $\sim$20\% self (CNN/Titan~X) vs.\ 43\% (NeuralPower~\cite{neuralpower2017}, worst-case CNN).
 NeuSight: 8.9\% self vs.\ 45\% (SynPerf~\cite{synperf2025}, Qwen2.5-14B on unseen HW).
 Path Forward: 7\% self (CNN/A100) vs.\ 61\% (NeuSight eval, transformers).
 Proteus: 3\% self vs.\ 25\% (Echo eval~\cite{echo2024}, GPT-175B/H800).
 ASTRA-sim: 5\% self vs.\ 46\% (SimAI eval~\cite{simai2025}, 128 GPUs).
 Vidur: $<$5\% self vs.\ $>$55\% (Frontier eval~\cite{frontier2025}, heterogeneous batches).
-Third-party evaluations consistently show $3$--$11\times$ higher error under challenging conditions.}
+Third-party evaluations consistently show $2$--$11\times$ higher error under challenging conditions.}
 \label{fig:self-vs-third}
 \end{figure}
 
